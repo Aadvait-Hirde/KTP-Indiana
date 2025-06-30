@@ -1,0 +1,30 @@
+Name,Email,Year,Major(s),Minor
+Margaret Asho	masho@iu.edu	Sophomore	Political Science	Informatics
+George Mitchell Herzog	gmherzog@iu.edu	Freshman	Cybersecurity and Global Policy	Financial Literacy
+Tristan Kean	tkean@iu.edu	Freshman	Computer Science	Unsure
+Carl Fampo	cfampo@iu.edu	Sophomore	Computer Science	Informatics
+Carolyn Thomas	ct89@iu.edu	Sophomore	Finance	N/A
+Niva Vadalia	nvadalia@iu.edu	Sophomore	Information Systems, Business Analytics	n/a
+Pratham Taparia	ptaparia@iu.edu	Freshman	Informatics	Business
+Alex Daniel Johnson	Adj18@iu.edu	Freshman	Computer Science	Business
+Yilin Li	liyili@iu.edu	Sophomore	Informatics with focus in HCI	Web Design, Psychology
+Sri Ram Sai Vallabhaneni	vallabhs@iu.edu	Sophomore	Finance	Economics
+Aaditya Rajvanshi	arajvan@iu.edu	Freshman	Information Systems	Data Science
+Adam Thason	athason@iu.edu	Freshman	B.S. Intelligent Systems Engineering	Business
+Utsavi Gilder	ugilder@iu.edu	Freshman	Informatics	Business
+Rhea Shah	rheashah@iu.edu	Freshman	Computer Science	Business and Informatics
+Jorge Sebastian Diaz	diazjs@iu.edu	Sophomore	Business Management & Analytics	N/A
+Nithya Mooli	nmooli@iu.edu	Sophomore	Information Systems and Finance	Data Analytics
+Rishi Bhuthpur	rbhuthpu@iu.edu	Freshman	Information Systems, Informatics	cybersecurity and mathematics
+Amrutha Balla	amruball@iu.edu	Sophomore	Finance and Accounting	Creative Writing 
+Travis Garcia	tkgarcia@iu.edu	Freshman	Information Systems, Business Analytics	Data Science
+Srika Sudheer	ssudhee@iu.edu	Sophomore	Marketing & Digital Technology Management	Advertising
+Ethan Abilius	eabilius@iu.edu	Freshman	Finance	N/A
+Akshay Boddapu	akboddap@iu.edu	Sophomore	Information Systems, Business Analytics	None
+Arnav Pydimukkala	arpydi@iu.edu	Freshman	Finance	Entrepreneurship & Corporate Innovation
+Dhanali Kantilal	dkantila@iu.edu	Freshman	Marketing 	Sales
+Tanya Kalale	tkalale@iu.edu	Sophomore	Information Systems, Marketing, & Business Analytics	None
+Vini Premkumar	viprem@iu.edu	Freshman	Information Systems, Operations Management, Business Analytics 	N/A
+Veer Nangia	vnangia@iu.edu	Freshman	Finance	N/A
+Alexander Balon	alexbalo@iu.edu	Freshman	Information Systems, Business Analytics	Data Science, Statistics
+Benedict Yiga	bdyiga@iu.edu	Sophomore	Computer Science	Business and Data Science
