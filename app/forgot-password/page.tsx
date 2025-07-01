@@ -178,7 +178,7 @@ export default function ForgotPasswordPage() {
                       <Input
                         id="email"
                         type="email"
-                        placeholder="Enter your email"
+                        placeholder="Email"
                         value={email}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                         required
@@ -203,7 +203,7 @@ export default function ForgotPasswordPage() {
                       <Input
                         id="code"
                         type="text"
-                        placeholder="Enter the code from your email"
+                        placeholder="Reset Code"
                         value={code}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCode(e.target.value)}
                         required
@@ -218,7 +218,7 @@ export default function ForgotPasswordPage() {
                       <Input
                         id="password"
                         type="password"
-                        placeholder="Enter your new password"
+                        placeholder="New Password"
                         value={password}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                         required

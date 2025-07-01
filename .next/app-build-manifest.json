@@ -16,20 +16,20 @@
       "static/chunks/main-app.js",
       "static/chunks/app/sign-in/[[...sign-in]]/page.js"
     ],
-    "/member-portal/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/member-portal/page.js"
-    ],
     "/sign-up/[[...sign-up]]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/sign-up/[[...sign-up]]/page.js"
     ],
-    "/forgot-password/page": [
+    "/member-portal/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/forgot-password/page.js"
+      "static/chunks/app/member-portal/page.js"
+    ],
+    "/_not-found/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/_not-found/page.js"
     ]
   }
 }

@@ -27,15 +27,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const email = clerkUser.emailAddresses[0].emailAddress
 
       try {
-        // Check if user exists in Supabase
-        const { data, error } = await supabase
+        // Add timeout to prevent long delays
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('Timeout')), 5000) // 5 second timeout
+        })
+
+        // Check if user exists in Supabase with timeout
+        const supabasePromise = supabase
           .from('users')
           .select('*')
           .eq('email', email)
           .single()
 
+        const { data, error } = await Promise.race([
+          supabasePromise,
+          timeoutPromise
+        ]) as Awaited<typeof supabasePromise>
+
         if (error || !data) {
-          console.log('User not found in database:', email)
+          console.log('User not found in database or timeout:', email)
           setAuthorized(false)
           setUser(null)
         } else {
@@ -45,6 +55,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
       } catch (error) {
         console.error('Error checking user authorization:', error)
+        // On timeout or error, assume unauthorized but don't block the UI
         setAuthorized(false)
         setUser(null)
       } finally {

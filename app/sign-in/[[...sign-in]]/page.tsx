@@ -133,7 +133,7 @@ export default function SignInPage() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="Enter your email"
+                    placeholder="Email"
                     value={email}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                     required
@@ -149,7 +149,7 @@ export default function SignInPage() {
                     <Input
                       id="password"
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="Enter your password"
+                      placeholder="Password"
                       value={password}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                       required
