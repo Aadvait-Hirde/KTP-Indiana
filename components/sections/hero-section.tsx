@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { ArrowRightIcon, HandshakeIcon } from "lucide-react";
+import { ArrowRightIcon, HandshakeIcon, Users } from "lucide-react";
+import Link from "next/link";
 
 // Custom hook for counting animation
 function useCountUp(end: number, duration: number = 2000, suffix: string = "") {
@@ -140,6 +141,17 @@ export function HeroSection() {
               >
                 Partner With Us
                 <HandshakeIcon className="w-4 h-4 group-hover:scale-110 transition-transform" />
+              </Button>
+              <Button
+                asChild
+                variant="secondary"
+                size="lg"
+                className="group shadow-sm hover:shadow-md transition-all duration-300 w-full sm:w-auto"
+              >
+                <Link href="/member-portal">
+                  Member Portal
+                  <Users className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                </Link>
               </Button>
             </div>
 

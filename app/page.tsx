@@ -10,7 +10,6 @@ import { ExecBoardSection } from "@/components/sections/exec-board-section"
 import { CommunitySection } from "@/components/sections/community-section"
 import { RushSection } from "@/components/sections/rush-section"
 import { AlumniWorkSection } from "@/components/sections/alumni-work-section"
-import { TestimonialsSection } from "@/components/sections/testimonials-section"
 import { FAQSection } from "@/components/sections/faq-section"
 import { Footer } from "@/components/sections/footer"
 
@@ -24,7 +23,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <Navbar scrollToSection={scrollToSection} />
       <HeroSection />
       <TechPassionSection />
       <AboutSection />
@@ -33,7 +32,6 @@ export default function Home() {
       <CommunitySection />
       <RushSection />
       <AlumniWorkSection />
-      <TestimonialsSection />
       <FAQSection />
       <Footer scrollToSection={scrollToSection} />
     </div>

@@ -1,22 +1,26 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { Menu } from "lucide-react"
+import { Menu, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useTheme } from "next-themes"
 import Image from "next/image"
+import Link from "next/link"
 
 const navItems = [
   { href: "#home", label: "Home" },
   { href: "#rush", label: "Rush" },
   { href: "#members", label: "Members" },
   { href: "#partnerships", label: "Partnerships" },
-  { href: "#testimonials", label: "Testimonials" },
 ]
 
-export function Navbar() {
+interface NavbarProps {
+  scrollToSection: (sectionId: string) => void
+}
+
+export function Navbar({ scrollToSection }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const { theme } = useTheme()
@@ -25,11 +29,8 @@ export function Navbar() {
     setMounted(true)
   }, [])
 
-  const scrollToSection = (href: string) => {
-    const element = document.querySelector(href)
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" })
-    }
+  const scrollToSectionAndClose = (href: string) => {
+    scrollToSection(href)
     setIsOpen(false)
   }
 
@@ -44,7 +45,7 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/55 backdrop-blur-md">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
+        <div className="relative flex h-16 items-center justify-between">
           {/* Logo */}
           <button onClick={scrollToTop} className="flex items-center">
             <Image
@@ -56,8 +57,8 @@ export function Navbar() {
             />
           </button>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden space-x-8 md:flex">
+          {/* Desktop Navigation - Centered */}
+          <nav className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 space-x-8 md:flex">
             {navItems.map((item) => (
               <button
                 key={item.href}
@@ -69,10 +70,20 @@ export function Navbar() {
             ))}
           </nav>
 
-          {/* Theme Toggle & Mobile Menu */}
+          {/* Right side - Member Portal Button + Theme Toggle & Mobile Menu */}
           <div className="flex items-center space-x-2">
-            <ThemeToggle />
+            {/* Member Portal Button - Desktop only */}
+            <div className="hidden md:block">
+              <Button asChild variant="outline" size="sm">
+                <Link href="/member-portal">
+                  <Users className="w-4 h-4 mr-2" />
+                  Member Portal
+                </Link>
+              </Button>
+            </div>
             
+            <ThemeToggle />
+
             {/* Mobile Menu */}
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild className="md:hidden">
@@ -95,12 +106,21 @@ export function Navbar() {
                   {navItems.map((item) => (
                     <button
                       key={item.href}
-                      onClick={() => scrollToSection(item.href)}
+                      onClick={() => scrollToSectionAndClose(item.href)}
                       className="text-left text-lg font-medium tracking-tight text-muted-foreground transition-colors hover:text-foreground"
                     >
                       {item.label}
                     </button>
                   ))}
+                  {/* Member Portal Button - Mobile */}
+                  <div className="pt-4">
+                    <Button asChild variant="outline" size="sm" className="w-full">
+                      <Link href="/member-portal" onClick={() => setIsOpen(false)}>
+                        <Users className="w-4 h-4 mr-2" />
+                        Member Portal
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>

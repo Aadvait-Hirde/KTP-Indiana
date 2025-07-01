@@ -1,13 +1,33 @@
-import React from "react"
+import React, { useEffect, useRef, useState } from "react"
 import Image from "next/image"
 
 export function TechPassionSection() {
+  const [isVisible, setIsVisible] = useState(false)
+  const sectionRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true)
+        }
+      },
+      { threshold: 0.2 }
+    )
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current)
+    }
+
+    return () => observer.disconnect()
+  }, [])
+
   return (
-    <section className="py-24 bg-muted/50">
+    <section ref={sectionRef} className="py-24 bg-muted/50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-22 items-center">
           {/* Left Image */}
-          <div className="relative rounded-xl">
+          <div className={`relative rounded-xl transition-all duration-1000 delay-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <div className="relative w-full h-[500px] lg:h-[600px]">
               <Image
                 src="/tech-passion-images/tech-passion.jpeg"
@@ -19,7 +39,7 @@ export function TechPassionSection() {
           </div>
           
           {/* Right Text */}
-          <div className="space-y-6">
+          <div className={`space-y-6 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tighter text-gray-900 dark:text-white">
               Celebrating Technological Passion
             </h2>
