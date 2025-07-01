@@ -48,18 +48,22 @@ export default function ForgotPasswordPage() {
   // Send the password reset code to the user's email
   async function create(e: React.FormEvent) {
     e.preventDefault()
+    if (!signIn) return
+    
     setIsLoading(true)
     setError('')
 
     try {
-      await signIn?.create({
+      await signIn.create({
         strategy: 'reset_password_email_code',
-        identifier: email,
+        identifier: email.trim(),
       })
+      setError('') // Clear any previous errors
       setSuccessfulCreation(true)
     } catch (err) {
-      const error = err as { errors?: { longMessage: string }[] }
-      setError(error.errors?.[0]?.longMessage || 'An error occurred. Please try again.')
+      const error = err as { errors?: { longMessage?: string; message?: string }[] }
+      const errorMessage = error.errors?.[0]?.longMessage || error.errors?.[0]?.message
+      setError(errorMessage || 'An error occurred. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -68,26 +72,51 @@ export default function ForgotPasswordPage() {
   // Reset the user's password
   async function reset(e: React.FormEvent) {
     e.preventDefault()
+    if (!signIn) return
+    
     setIsLoading(true)
     setError('')
 
     try {
-      const result = await signIn?.attemptFirstFactor({
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Request timeout')), 15000) // 15 second timeout
+      })
+
+      const resetPromise = signIn.attemptFirstFactor({
         strategy: 'reset_password_email_code',
-        code,
+        code: code.trim(),
         password,
       })
 
-      if (result?.status === 'needs_second_factor') {
+      const result = await Promise.race([resetPromise, timeoutPromise]) as Awaited<typeof resetPromise>
+
+      if (result.status === 'needs_second_factor') {
         setSecondFactor(true)
-      } else if (result?.status === 'complete') {
-        await setActive?.({ session: result.createdSessionId })
+        setIsLoading(false)
+      } else if (result.status === 'complete') {
+        if (setActive) {
+          await setActive({ session: result.createdSessionId })
+        }
         router.push('/member-portal')
+      } else {
+        setError('Password reset failed. Please try again.')
+        setIsLoading(false)
       }
     } catch (err) {
-      const error = err as { errors?: { longMessage: string }[] }
-      setError(error.errors?.[0]?.longMessage || 'An error occurred. Please try again.')
-    } finally {
+      const error = err as { errors?: { longMessage?: string; message?: string; code?: string }[] }
+      const errorMessage = error.errors?.[0]?.longMessage || error.errors?.[0]?.message
+      const errorCode = error.errors?.[0]?.code
+      
+      if (errorCode === 'form_code_incorrect' || errorMessage?.toLowerCase().includes('incorrect')) {
+        setError('The reset code is incorrect. Please check your email and try again.')
+      } else if (errorCode === 'form_password_pwned') {
+        setError('This password has been found in a data breach. Please choose a different password.')
+      } else if (errorCode === 'form_password_length_too_short') {
+        setError('Password must be at least 8 characters long.')
+      } else {
+        setError(errorMessage || 'An error occurred. Please try again.')
+      }
       setIsLoading(false)
     }
   }

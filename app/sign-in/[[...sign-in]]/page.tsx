@@ -52,8 +52,6 @@ export default function SignInPage() {
     }
   }
 
-
-
   return (
     <div className="min-h-screen flex transition-all duration-300 ease-in-out">
       {/* Left side - Background image with text overlay */}
