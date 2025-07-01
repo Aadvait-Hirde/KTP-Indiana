@@ -47,13 +47,28 @@ export default function SignUpPage() {
       if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId })
         router.push('/member-portal')
+      } else if (result.status === 'missing_requirements') {
+        // Handle email verification or other requirements
+        setError('Please complete all required fields.')
       } else {
-        // Handle email verification if needed
-        console.log('Verification needed:', result.status)
+        // Handle other statuses
+        setError('Sign up incomplete. Please try again.')
       }
     } catch (err) {
-      const error = err as { errors?: { message: string }[] }
-      setError(error.errors?.[0]?.message || 'An error occurred. Please try again.')
+      const error = err as { errors?: { message: string; code?: string }[] }
+      const errorMessage = error.errors?.[0]?.message
+      const errorCode = error.errors?.[0]?.code
+      
+      // Handle specific error cases
+      if (errorCode === 'form_identifier_exists' || errorMessage?.includes('already exists')) {
+        setError('An account with this email already exists. Please sign in instead.')
+      } else if (errorCode === 'form_password_pwned') {
+        setError('This password has been found in a data breach. Please choose a different password.')
+      } else if (errorCode === 'form_password_too_common') {
+        setError('This password is too common. Please choose a stronger password.')
+      } else {
+        setError(errorMessage || 'An error occurred. Please try again.')
+      }
     } finally {
       setIsLoading(false)
     }

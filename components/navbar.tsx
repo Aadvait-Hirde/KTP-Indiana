@@ -92,29 +92,39 @@ export function Navbar({ scrollToSection }: NavbarProps) {
                   <span className="sr-only">Toggle menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-                <div className="flex flex-col space-y-4 mt-8">
-                  <button onClick={scrollToTop} className="flex items-center mb-4">
-                    <Image
-                      src={logoSrc}
-                      alt="KTP Logo"
-                      width={140}
-                      height={70}
-                      className="h-14 w-auto object-contain"
-                    />
-                  </button>
-                  {navItems.map((item) => (
-                    <button
-                      key={item.href}
-                      onClick={() => scrollToSectionAndClose(item.href)}
-                      className="text-left text-lg font-medium tracking-tight text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      {item.label}
+              <SheetContent side="right" className="w-[300px] sm:w-[400px] dark:bg-zinc-900">
+                <div className="flex flex-col h-full">
+                  {/* Header with logo */}
+                  <div className="flex justify-center py-6 border-b dark:border-zinc-700">
+                    <button onClick={scrollToTop} className="flex items-center">
+                      <Image
+                        src={logoSrc}
+                        alt="KTP Logo"
+                        width={120}
+                        height={60}
+                        className="h-12 w-auto object-contain"
+                      />
                     </button>
-                  ))}
-                  {/* Member Portal Button - Mobile */}
-                  <div className="pt-4">
-                    <Button asChild variant="outline" size="sm" className="w-full">
+                  </div>
+
+                  {/* Navigation items */}
+                  <div className="flex-1 py-6">
+                    <nav className="space-y-2">
+                      {navItems.map((item) => (
+                        <button
+                          key={item.href}
+                          onClick={() => scrollToSectionAndClose(item.href)}
+                          className="w-full text-left px-4 py-3 text-lg font-medium tracking-tight text-muted-foreground transition-colors hover:text-foreground hover:bg-muted rounded-lg"
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </nav>
+                  </div>
+
+                  {/* Bottom section with member portal button */}
+                  <div className="border-t dark:border-zinc-700 pt-6 pb-6 flex justify-center">
+                    <Button asChild variant="outline" size="lg" className="px-8">
                       <Link href="/member-portal" onClick={() => setIsOpen(false)}>
                         <Users className="w-4 h-4 mr-2" />
                         Member Portal

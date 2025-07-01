@@ -36,9 +36,9 @@ export default function ForgotPasswordPage() {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background dark:bg-zinc-900">
         <div className="text-center space-y-4">
-          <div className="w-8 h-8 animate-spin mx-auto border-2 border-gray-300 border-t-gray-900 rounded-full" />
+          <div className="w-8 h-8 animate-spin mx-auto border-2 border-zinc-300 border-t-zinc-900 dark:border-zinc-600 dark:border-t-zinc-100 rounded-full" />
           <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>

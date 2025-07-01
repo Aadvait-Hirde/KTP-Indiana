@@ -10,11 +10,7 @@
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDesktop%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f72109c0f940ea2f4567acf08af437ffac1bc1041%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%2C%7B%22id%22%3A%227f786d0b08fe8f569477bb99d4095af1e77dbfa1b8%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227f961fc5d5d88c043f7a07324ee4beef503cea90e5%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
-        "app/sign-up/[[...sign-up]]/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDesktop%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f72109c0f940ea2f4567acf08af437ffac1bc1041%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%2C%7B%22id%22%3A%227f786d0b08fe8f569477bb99d4095af1e77dbfa1b8%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227f961fc5d5d88c043f7a07324ee4beef503cea90e5%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/forgot-password/page": {
+        "app/_not-found/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDesktop%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f72109c0f940ea2f4567acf08af437ffac1bc1041%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%2C%7B%22id%22%3A%227f786d0b08fe8f569477bb99d4095af1e77dbfa1b8%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227f961fc5d5d88c043f7a07324ee4beef503cea90e5%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
@@ -22,7 +18,11 @@
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDesktop%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f72109c0f940ea2f4567acf08af437ffac1bc1041%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%2C%7B%22id%22%3A%227f786d0b08fe8f569477bb99d4095af1e77dbfa1b8%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227f961fc5d5d88c043f7a07324ee4beef503cea90e5%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
-        "app/_not-found/page": {
+        "app/sign-up/[[...sign-up]]/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDesktop%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f72109c0f940ea2f4567acf08af437ffac1bc1041%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%2C%7B%22id%22%3A%227f786d0b08fe8f569477bb99d4095af1e77dbfa1b8%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227f961fc5d5d88c043f7a07324ee4beef503cea90e5%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/forgot-password/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDesktop%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f72109c0f940ea2f4567acf08af437ffac1bc1041%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%2C%7B%22id%22%3A%227f786d0b08fe8f569477bb99d4095af1e77dbfa1b8%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227f961fc5d5d88c043f7a07324ee4beef503cea90e5%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         }
@@ -30,10 +30,10 @@
       "layer": {
         "app/page": "rsc",
         "app/sign-in/[[...sign-in]]/page": "rsc",
-        "app/sign-up/[[...sign-up]]/page": "rsc",
-        "app/forgot-password/page": "rsc",
+        "app/_not-found/page": "rsc",
         "app/member-portal/page": "rsc",
-        "app/_not-found/page": "rsc"
+        "app/sign-up/[[...sign-up]]/page": "rsc",
+        "app/forgot-password/page": "rsc"
       }
     },
     "7f786d0b08fe8f569477bb99d4095af1e77dbfa1b8": {
@@ -46,11 +46,7 @@
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDesktop%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f72109c0f940ea2f4567acf08af437ffac1bc1041%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%2C%7B%22id%22%3A%227f786d0b08fe8f569477bb99d4095af1e77dbfa1b8%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227f961fc5d5d88c043f7a07324ee4beef503cea90e5%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
-        "app/sign-up/[[...sign-up]]/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDesktop%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f72109c0f940ea2f4567acf08af437ffac1bc1041%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%2C%7B%22id%22%3A%227f786d0b08fe8f569477bb99d4095af1e77dbfa1b8%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227f961fc5d5d88c043f7a07324ee4beef503cea90e5%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/forgot-password/page": {
+        "app/_not-found/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDesktop%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f72109c0f940ea2f4567acf08af437ffac1bc1041%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%2C%7B%22id%22%3A%227f786d0b08fe8f569477bb99d4095af1e77dbfa1b8%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227f961fc5d5d88c043f7a07324ee4beef503cea90e5%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
@@ -58,7 +54,11 @@
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDesktop%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f72109c0f940ea2f4567acf08af437ffac1bc1041%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%2C%7B%22id%22%3A%227f786d0b08fe8f569477bb99d4095af1e77dbfa1b8%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227f961fc5d5d88c043f7a07324ee4beef503cea90e5%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
-        "app/_not-found/page": {
+        "app/sign-up/[[...sign-up]]/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDesktop%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f72109c0f940ea2f4567acf08af437ffac1bc1041%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%2C%7B%22id%22%3A%227f786d0b08fe8f569477bb99d4095af1e77dbfa1b8%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227f961fc5d5d88c043f7a07324ee4beef503cea90e5%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/forgot-password/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDesktop%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f72109c0f940ea2f4567acf08af437ffac1bc1041%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%2C%7B%22id%22%3A%227f786d0b08fe8f569477bb99d4095af1e77dbfa1b8%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227f961fc5d5d88c043f7a07324ee4beef503cea90e5%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         }
@@ -66,10 +66,10 @@
       "layer": {
         "app/page": "rsc",
         "app/sign-in/[[...sign-in]]/page": "rsc",
-        "app/sign-up/[[...sign-up]]/page": "rsc",
-        "app/forgot-password/page": "rsc",
+        "app/_not-found/page": "rsc",
         "app/member-portal/page": "rsc",
-        "app/_not-found/page": "rsc"
+        "app/sign-up/[[...sign-up]]/page": "rsc",
+        "app/forgot-password/page": "rsc"
       }
     },
     "7f961fc5d5d88c043f7a07324ee4beef503cea90e5": {
@@ -82,11 +82,7 @@
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDesktop%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f72109c0f940ea2f4567acf08af437ffac1bc1041%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%2C%7B%22id%22%3A%227f786d0b08fe8f569477bb99d4095af1e77dbfa1b8%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227f961fc5d5d88c043f7a07324ee4beef503cea90e5%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
-        "app/sign-up/[[...sign-up]]/page": {
-          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDesktop%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f72109c0f940ea2f4567acf08af437ffac1bc1041%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%2C%7B%22id%22%3A%227f786d0b08fe8f569477bb99d4095af1e77dbfa1b8%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227f961fc5d5d88c043f7a07324ee4beef503cea90e5%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%5D%5D%5D&__client_imported__=!",
-          "async": false
-        },
-        "app/forgot-password/page": {
+        "app/_not-found/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDesktop%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f72109c0f940ea2f4567acf08af437ffac1bc1041%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%2C%7B%22id%22%3A%227f786d0b08fe8f569477bb99d4095af1e77dbfa1b8%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227f961fc5d5d88c043f7a07324ee4beef503cea90e5%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
@@ -94,7 +90,11 @@
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDesktop%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f72109c0f940ea2f4567acf08af437ffac1bc1041%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%2C%7B%22id%22%3A%227f786d0b08fe8f569477bb99d4095af1e77dbfa1b8%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227f961fc5d5d88c043f7a07324ee4beef503cea90e5%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
-        "app/_not-found/page": {
+        "app/sign-up/[[...sign-up]]/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDesktop%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f72109c0f940ea2f4567acf08af437ffac1bc1041%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%2C%7B%22id%22%3A%227f786d0b08fe8f569477bb99d4095af1e77dbfa1b8%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227f961fc5d5d88c043f7a07324ee4beef503cea90e5%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/forgot-password/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDesktop%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f72109c0f940ea2f4567acf08af437ffac1bc1041%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%2C%7B%22id%22%3A%227f786d0b08fe8f569477bb99d4095af1e77dbfa1b8%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227f961fc5d5d88c043f7a07324ee4beef503cea90e5%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         }
@@ -102,10 +102,10 @@
       "layer": {
         "app/page": "rsc",
         "app/sign-in/[[...sign-in]]/page": "rsc",
-        "app/sign-up/[[...sign-up]]/page": "rsc",
-        "app/forgot-password/page": "rsc",
+        "app/_not-found/page": "rsc",
         "app/member-portal/page": "rsc",
-        "app/_not-found/page": "rsc"
+        "app/sign-up/[[...sign-up]]/page": "rsc",
+        "app/forgot-password/page": "rsc"
       }
     },
     "7fb98350c3dd95cb419bfbff3366c028a173f5023b": {
@@ -118,11 +118,7 @@
           "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDesktop%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fserver-actions.js%22%2C%5B%7B%22id%22%3A%227fb98350c3dd95cb419bfbff3366c028a173f5023b%22%2C%22exportedName%22%3A%22invalidateCacheAction%22%7D%5D%5D%5D&__client_imported__=true!",
           "async": false
         },
-        "app/sign-up/[[...sign-up]]/page": {
-          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDesktop%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fserver-actions.js%22%2C%5B%7B%22id%22%3A%227fb98350c3dd95cb419bfbff3366c028a173f5023b%22%2C%22exportedName%22%3A%22invalidateCacheAction%22%7D%5D%5D%5D&__client_imported__=true!",
-          "async": false
-        },
-        "app/forgot-password/page": {
+        "app/_not-found/page": {
           "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDesktop%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fserver-actions.js%22%2C%5B%7B%22id%22%3A%227fb98350c3dd95cb419bfbff3366c028a173f5023b%22%2C%22exportedName%22%3A%22invalidateCacheAction%22%7D%5D%5D%5D&__client_imported__=true!",
           "async": false
         },
@@ -130,7 +126,11 @@
           "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDesktop%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fserver-actions.js%22%2C%5B%7B%22id%22%3A%227fb98350c3dd95cb419bfbff3366c028a173f5023b%22%2C%22exportedName%22%3A%22invalidateCacheAction%22%7D%5D%5D%5D&__client_imported__=true!",
           "async": false
         },
-        "app/_not-found/page": {
+        "app/sign-up/[[...sign-up]]/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDesktop%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fserver-actions.js%22%2C%5B%7B%22id%22%3A%227fb98350c3dd95cb419bfbff3366c028a173f5023b%22%2C%22exportedName%22%3A%22invalidateCacheAction%22%7D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        },
+        "app/forgot-password/page": {
           "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDesktop%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fserver-actions.js%22%2C%5B%7B%22id%22%3A%227fb98350c3dd95cb419bfbff3366c028a173f5023b%22%2C%22exportedName%22%3A%22invalidateCacheAction%22%7D%5D%5D%5D&__client_imported__=true!",
           "async": false
         }
@@ -138,10 +138,10 @@
       "layer": {
         "app/page": "action-browser",
         "app/sign-in/[[...sign-in]]/page": "action-browser",
-        "app/sign-up/[[...sign-up]]/page": "action-browser",
-        "app/forgot-password/page": "action-browser",
+        "app/_not-found/page": "action-browser",
         "app/member-portal/page": "action-browser",
-        "app/_not-found/page": "action-browser"
+        "app/sign-up/[[...sign-up]]/page": "action-browser",
+        "app/forgot-password/page": "action-browser"
       }
     }
   },
