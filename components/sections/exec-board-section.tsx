@@ -57,7 +57,7 @@ export function ExecBoardSection() {
     { 
       name: "Shreyas Sunke", 
       position: "VP of Finance", 
-      image: "/exec-headshots/shreyas.jpg",
+      image: "/exec-headshots/shreyas.JPG",
       initials: "SS"
     },
     { 
