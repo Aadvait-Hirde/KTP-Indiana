@@ -50,8 +50,8 @@ The internships feature automatically pulls the latest internship opportunities 
 - **Deployment**: Vercel
 - **External APIs**: GitHub API for internships data
 
-![Dashboard Image](public/ktp-portal-images/dashboard.png)
-![Login Image](public/ktp-portal-images/login.png)
-![Announcements Image](public/ktp-portal-images/announcements.png)
+![Dashboard Image](public/ktp-portal-section/dashboard.png)
+![Login Image](public/ktp-portal-section/login.png)
+![Announcements Image](public/ktp-portal-section/announcements.png)
 ![Dues Image](public/ktp-portal-images/dues.png)
 ![Calendar Image](public/ktp-portal-images/calendar.png)
