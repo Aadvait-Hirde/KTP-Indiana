@@ -2,7 +2,7 @@
 
 This is the official repository for Kappa Theta Pi - Alpha Eta's website, built with Next.js, TypeScript, and Tailwind CSS.
 
-<img src="public/ktp-portal-section/dashboard.png" width="640" height="360" alt="Dashboard"><img src="public/ktp-portal-section/login.png" width="640" height="360" alt="Login"><img src="public/ktp-portal-section/announcements.png" width="640" height="360" alt="Announcements">
+<img src="public/ktp-portal-section/dashboard.png" width="960" height="540" alt="Dashboard"><img src="public/ktp-portal-section/login.png" width="960" height="540" alt="Login"><img src="public/ktp-portal-section/announcements.png" width="960" height="540" alt="Announcements">
 
 ## Features
 
