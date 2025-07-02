@@ -119,3 +119,26 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* KTP Portal Moving Images Animations */
+@keyframes scroll-right {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(0%); }
+}
+
+@keyframes scroll-left {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-100%); }
+}
+
+.animate-scroll-right {
+  animation: scroll-right 21s linear infinite;
+}
+
+.animate-scroll-left {
+  animation: scroll-left 25s linear infinite;
+}
+
+.animate-scroll-right-slow {
+  animation: scroll-right 35s linear infinite;
+}

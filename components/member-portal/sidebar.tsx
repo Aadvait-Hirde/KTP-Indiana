@@ -64,14 +64,12 @@ export function Sidebar() {
     },
   ]
 
-  const logoSrc = mounted && theme === "light" 
+  const logoSrc = mounted && theme === "dark" 
     ? "/ktp-logos/KTP Logo Dark Plain No BG Slim.png" 
-    : "/ktp-logos/KTP Logo Plain Text Slim.png"
+    : "/ktp-logos/KTP Logo Dark Plain No BG Slim.png"
 
-  // Inverse the sidebar theme - use zinc for dark mode
-  const sidebarClasses = mounted && theme === "light" 
-    ? "bg-zinc-900 border-zinc-700 text-white" 
-    : "bg-white border-zinc-200 text-zinc-900"
+  // Use dark sidebar for both themes - exact same styling
+  const sidebarClasses = "bg-zinc-900 border-zinc-700 text-white"
 
   // Check if current path matches navigation item
   const isActiveRoute = (href: string) => {
@@ -130,7 +128,7 @@ export function Sidebar() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsMobileOpen(false)}
-                  className="md:hidden p-2 hover:bg-zinc-800 dark:hover:bg-zinc-50"
+                  className="md:hidden p-2 hover:bg-zinc-800"
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -139,7 +137,7 @@ export function Sidebar() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setIsCollapsed(true)}
-                  className="hidden md:flex p-2 hover:bg-zinc-800 dark:hover:bg-zinc-50"
+                  className="hidden md:flex p-2 hover:bg-zinc-800"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
@@ -151,7 +149,7 @@ export function Sidebar() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsCollapsed(false)}
-                className="p-2 hover:bg-zinc-800 dark:hover:bg-zinc-50 w-12 h-12 flex items-center justify-center"
+                className="p-2 hover:bg-zinc-800 w-12 h-12 flex items-center justify-center"
               >
                 <Image
                   src={logoSrc}
@@ -171,11 +169,15 @@ export function Sidebar() {
             <Button
               key={item.href}
               onClick={() => handleNavigation(item.href)}
-              variant={isActiveRoute(item.href) ? "default" : "ghost"}
+              variant="ghost"
               className={`w-full ${isCollapsed ? 'px-3 justify-center' : 'px-4 justify-start'} ${
                 isActiveRoute(item.href)
-                  ? '' 
-                  : 'hover:bg-zinc-800 dark:hover:bg-zinc-100 text-zinc-300 dark:text-zinc-600 hover:text-white dark:hover:text-zinc-900'
+                  ? mounted && theme === "light" 
+                    ? 'bg-white text-black hover:bg-gray-100' 
+                    : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                  : mounted && theme === "light"
+                    ? 'text-zinc-300 hover:bg-white hover:text-black'
+                    : 'text-zinc-300 hover:bg-zinc-800 hover:text-white'
               } h-12 flex items-center`}
               size="default"
             >
@@ -185,10 +187,10 @@ export function Sidebar() {
           ))}
 
           {/* External Links */}
-          <div className="pt-6 mt-6 border-t border-zinc-700 dark:border-zinc-200">
+          <div className="pt-6 mt-6 border-t border-zinc-700">
             {!isCollapsed && (
               <div className="mb-3 px-4">
-                <p className="text-xs font-medium text-zinc-400 dark:text-zinc-600 whitespace-nowrap">
+                <p className="text-xs font-medium text-zinc-400 whitespace-nowrap">
                   External Links
                 </p>
               </div>
@@ -203,7 +205,11 @@ export function Sidebar() {
                 >
                   <Button
                     variant="ghost"
-                    className={`w-full ${isCollapsed ? 'px-3 justify-center' : 'px-4 justify-start'} hover:bg-zinc-800 dark:hover:bg-zinc-100 text-zinc-300 dark:text-zinc-600 hover:text-white dark:hover:text-zinc-900 h-12 flex items-center`}
+                    className={`w-full ${isCollapsed ? 'px-3 justify-center' : 'px-4 justify-start'} ${
+                      mounted && theme === "light"
+                        ? 'text-zinc-300 hover:bg-white hover:text-black'
+                        : 'text-zinc-300 hover:bg-zinc-800 hover:text-white'
+                    } h-12 flex items-center`}
                     size="default"
                   >
                     <Image
@@ -222,13 +228,13 @@ export function Sidebar() {
         </nav>
 
         {/* Bottom Section - Sign Out Only */}
-        <div className="border-t border-zinc-700 dark:border-zinc-200 mt-auto">
+        <div className="border-t border-zinc-700 mt-auto">
           {/* Sign Out Button */}
           <div className="p-4 flex justify-center">
             <SignOutButton>
               <Button 
                 variant="outline" 
-                className={`${isCollapsed ? 'px-3 h-12 w-12 justify-center' : 'w-full px-4 justify-start'} border-zinc-600 dark:border-zinc-400 hover:bg-zinc-800 dark:hover:bg-zinc-100 text-zinc-300 dark:text-zinc-600 hover:text-white dark:hover:text-zinc-900 h-12 flex items-center bg-transparent dark:bg-transparent`}
+                className={`${isCollapsed ? 'px-3 h-12 w-12 justify-center' : 'w-full px-4 justify-start'} border-zinc-600 hover:bg-zinc-800 text-zinc-300 hover:text-white h-12 flex items-center bg-transparent`}
                 size="default"
               >
                 {!isCollapsed && <span>Sign Out</span>}

@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { RichTextEditor } from '@/components/member-portal/rich-text-editor'
-import { Megaphone, Plus, Calendar, User, Edit, Trash2, X, Check } from 'lucide-react'
+import { Megaphone, Plus, Calendar, User, Trash2 } from 'lucide-react'
 import { format } from 'date-fns'
 
 function AnnouncementsPageContent() {
@@ -26,9 +26,7 @@ function AnnouncementsPageContent() {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [error, setError] = useState('')
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [editTitle, setEditTitle] = useState('')
-  const [editContent, setEditContent] = useState('')
+
 
   const canPost = user?.role === 'admin' || user?.role === 'exec' || user?.role === 'director'
 
@@ -75,33 +73,12 @@ function AnnouncementsPageContent() {
       setTitle('')
       setContent('')
       setIsPosting(false)
+      
+      // Manually refetch to ensure we see the new announcement
+      setTimeout(() => fetchAnnouncements(), 100)
     } catch (err: unknown) {
       const error = err as { message?: string }
       setError(error.message || 'Failed to post announcement')
-    }
-  }
-
-  const handleEdit = async (id: string) => {
-    if (!editTitle.trim() || !editContent.trim()) return
-
-    try {
-      const { error } = await supabase
-        .from('announcements')
-        .update({
-          title: editTitle.trim(),
-          content: editContent.trim(),
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', id)
-
-      if (error) throw error
-
-      setEditingId(null)
-      setEditTitle('')
-      setEditContent('')
-    } catch (err: unknown) {
-      const error = err as { message?: string }
-      setError(error.message || 'Failed to update announcement')
     }
   }
 
@@ -111,19 +88,7 @@ function AnnouncementsPageContent() {
     await hideAnnouncement(id)
   }
 
-  const startEdit = (announcement: Announcement) => {
-    setEditingId(announcement.id)
-    setEditTitle(announcement.title)
-    setEditContent(announcement.content)
-  }
-
-  const cancelEdit = () => {
-    setEditingId(null)
-    setEditTitle('')
-    setEditContent('')
-  }
-
-  const canEditDelete = (announcement: Announcement) => {
+  const canDelete = (announcement: Announcement) => {
     return user?.role === 'admin' || announcement.author_id === user?.id
   }
 
@@ -217,94 +182,43 @@ function AnnouncementsPageContent() {
             announcements.map((announcement) => (
               <Card key={announcement.id}>
                 <CardContent className="p-4 md:p-6">
-                  {editingId === announcement.id ? (
-                    // Edit mode
-                    <div className="space-y-4">
-                      <Input
-                        value={editTitle}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditTitle(e.target.value)}
-                      />
-                      <div className="min-h-[200px]">
-                        <RichTextEditor
-                          content={editContent}
-                          onChange={setEditContent}
-                        />
-                      </div>
-                      <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-4">
+                    <h2 className="text-xl font-semibold">{announcement.title}</h2>
+                    <div className="flex items-center space-x-2">
+                      {canDelete(announcement) && (
                         <Button
-                          onClick={() => handleEdit(announcement.id)}
-                          disabled={!editTitle.trim() || !editContent.trim()}
-                          className="w-full sm:w-auto"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(announcement.id)}
+                          className="text-orange-600 hover:text-orange-700"
+                          title="Delete announcement"
                         >
-                          <Check className="h-4 w-4 mr-2" />
-                          Save Changes
+                          <Trash2 className="h-4 w-4" />
                         </Button>
-                        <Button
-                          variant="outline"
-                          onClick={cancelEdit}
-                          className="w-full sm:w-auto"
-                        >
-                          <X className="h-4 w-4 mr-2" />
-                          Cancel
-                        </Button>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div 
+                    className="prose prose-sm max-w-none mb-4"
+                    dangerouslySetInnerHTML={{ __html: announcement.content }}
+                  />
+                  
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+                      <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                        <User className="h-4 w-4" />
+                        <span>{announcement.author_name}</span>
+                        <Badge variant="outline" className="text-xs">
+                          Leadership
+                        </Badge>
                       </div>
                     </div>
-                  ) : (
-                    // View mode
-                    <>
-                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-4">
-                        <h2 className="text-xl font-semibold">{announcement.title}</h2>
-                        <div className="flex items-center space-x-2">
-                          {canEditDelete(announcement) && (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => startEdit(announcement)}
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleDelete(announcement.id)}
-                                className="text-orange-600 hover:text-orange-700"
-                                title="Delete announcement"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                      
-                      <div 
-                        className="prose prose-sm max-w-none mb-4"
-                        dangerouslySetInnerHTML={{ __html: announcement.content }}
-                      />
-                      
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t">
-                        <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-                          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                            <User className="h-4 w-4" />
-                            <span>{announcement.author_name}</span>
-                            <Badge variant="outline" className="text-xs">
-                              Leadership
-                            </Badge>
-                          </div>
-                          {announcement.updated_at !== announcement.created_at && (
-                            <Badge variant="secondary" className="text-xs">
-                              Edited
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                          <Calendar className="h-4 w-4" />
-                          <span className="text-xs sm:text-sm">{format(new Date(announcement.created_at), 'MMM d, yyyy • h:mm a')}</span>
-                        </div>
-                      </div>
-                    </>
-                  )}
+                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                      <Calendar className="h-4 w-4" />
+                      <span className="text-xs sm:text-sm">{format(new Date(announcement.created_at), 'MMM d, yyyy • h:mm a')}</span>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             ))

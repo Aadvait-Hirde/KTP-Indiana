@@ -1,7 +1,3 @@
 {
-  "/member-portal/dues/page": "app/member-portal/dues/page.js",
-  "/sign-in/[[...sign-in]]/page": "app/sign-in/[[...sign-in]]/page.js",
-  "/member-portal/page": "app/member-portal/page.js",
-  "/member-portal/merch/page": "app/member-portal/merch/page.js",
-  "/member-portal/alumni/page": "app/member-portal/alumni/page.js"
+  "/page": "app/page.js"
 }

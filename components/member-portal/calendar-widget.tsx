@@ -10,8 +10,8 @@ export function CalendarWidget() {
   // KTP Indiana Calendar Integration
   const [isExpanded, setIsExpanded] = useState(false)
 
-  const ktpCalendarUrl = "https://calendar.google.com/calendar/embed?src=ktpindiana%40gmail.com&ctz=America%2FLos_Angeles"
-  const publicCalendarUrl = "https://calendar.google.com/calendar/embed?src=ktpindiana%40gmail.com&ctz=America%2FLos_Angeles"
+  const ktpCalendarUrl = "https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=America%2FIndiana%2FIndianapolis&showPrint=0&title=KTP%20Website%20Calendar&src=ktpindiana%40gmail.com&color=%23039be5"
+  const publicCalendarUrl = "https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=America%2FIndiana%2FIndianapolis&showPrint=0&title=KTP%20Website%20Calendar&src=ktpindiana%40gmail.com&color=%23039be5"
 
   if (isExpanded) {
     return (

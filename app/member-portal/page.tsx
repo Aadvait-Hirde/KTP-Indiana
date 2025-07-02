@@ -63,8 +63,8 @@ function MemberPortalContent() {
   }
 
   const getRoleColor = () => {
-    // Use zinc-600 for all roles
-    return 'text-zinc-600'
+    // Use zinc-600 in light mode, zinc-300 in dark mode for better legibility
+    return 'text-zinc-600 dark:text-zinc-300'
   }
 
   const handleRoleChange = (newRole: string) => {
