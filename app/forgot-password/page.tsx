@@ -179,12 +179,16 @@ export default function ForgotPasswordPage() {
             <h2 className="text-4xl font-bold tracking-tight text-foreground">
               {!successfulCreation ? 'Reset Password' : 'Enter New Password'}
             </h2>
-            <p className="text-muted-foreground text-lg">
-              {!successfulCreation 
-                ? 'Enter your email address and we\'ll send you a reset code'
-                : 'Enter the code sent to your email and your new password'
-              }
-            </p>
+            <div className="text-muted-foreground text-lg">
+              {!successfulCreation ? (
+                <p>Enter your email address and we&apos;ll send you a reset code</p>
+              ) : (
+                <div className="space-y-1">
+                  <p>Enter the code sent to your email and your new password</p>
+                  <p className="text-sm">Please check your spam inbox</p>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Error message */}

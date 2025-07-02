@@ -182,11 +182,16 @@ export default function SignUpPage() {
           <div className="w-full max-w-lg space-y-8 animate-in fade-in duration-300">
             <div className="text-center space-y-3">
               <h2 className="text-4xl font-bold">{pendingVerification ? "Verify Your Email" : "Join Now"}</h2>
-              <p className="text-muted-foreground text-lg">
-                {pendingVerification
-                  ? `We sent a verification code to ${email}`
-                  : "Introducing the KTP portal"}
-              </p>
+              <div className="text-muted-foreground text-lg">
+                {pendingVerification ? (
+                  <div className="space-y-1">
+                    <p>{`We sent a verification code to ${email}`}</p>
+                    <p className="text-sm">Please check your spam inbox</p>
+                  </div>
+                ) : (
+                  <p>Introducing the KTP portal</p>
+                )}
+              </div>
             </div>
 
             {error && (
