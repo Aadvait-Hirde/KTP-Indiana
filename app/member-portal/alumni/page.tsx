@@ -23,7 +23,7 @@ function AlumniPageContent() {
             </p>
             <div className="flex items-center justify-center space-x-2 text-sm text-muted-foreground">
               <Clock className="h-4 w-4" />
-              <span>Expected launch: Spring 2025</span>
+              <span>Expected launch: Fall 2025</span>
             </div>
           </CardContent>
         </Card>

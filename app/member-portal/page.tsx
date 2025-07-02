@@ -62,21 +62,9 @@ function MemberPortalContent() {
     }
   }
 
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'admin':
-        return 'text-red-600'
-      case 'exec':
-        return 'text-green-600'
-      case 'director':
-        return 'text-purple-600'
-      case 'member':
-        return 'text-orange-600'
-      case 'newmember':
-        return 'text-blue-600'
-      default:
-        return 'text-gray-600'
-    }
+  const getRoleColor = () => {
+    // Use zinc-600 for all roles
+    return 'text-zinc-600'
   }
 
   const handleRoleChange = (newRole: string) => {
@@ -137,7 +125,7 @@ function MemberPortalContent() {
 
               {/* Full name with colored role */}
               <p className="font-medium text-base md:text-lg">
-                {user?.name} • <span className={getRoleColor(effectiveRole || '')}>{getDisplayRole(effectiveRole || '')}</span>
+                {user?.name} • <span className={getRoleColor()}>{getDisplayRole(effectiveRole || '')}</span>
               </p>
               
               {/* Theme toggle */}
@@ -158,33 +146,9 @@ function MemberPortalContent() {
           </div>
           
           {/* Action Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-            {/* Merch Store */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <ShoppingBag className="h-5 w-5" />
-                  <span>KTP Merch Store</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-muted-foreground">
-                  Get the latest KTP merchandise including hoodies, t-shirts, stickers, and more!
-                </p>
-                <div className="bg-muted/50 rounded-lg p-4 text-center">
-                  <ShoppingBag className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Merch store coming soon!
-                  </p>
-                  <Button disabled className="w-full">
-                    Shop Now
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Pay Dues - Fixed Margin */}
-            <Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-start">
+            {/* Pay Dues */}
+            <Card className="h-fit">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <CreditCard className="h-5 w-5" />
@@ -204,6 +168,30 @@ function MemberPortalContent() {
                     priority
                   />
                 </a>
+              </CardContent>
+            </Card>
+
+            {/* Merch Store */}
+            <Card className="h-fit">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <ShoppingBag className="h-5 w-5" />
+                  <span>KTP Merch Store</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-muted-foreground">
+                  Get the latest KTP merchandise including hoodies, t-shirts, stickers, and more!
+                </p>
+                <div className="bg-muted/50 rounded-lg p-4 text-center">
+                  <ShoppingBag className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Merch store coming soon!
+                  </p>
+                  <Button disabled className="w-full">
+                    Shop Now
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>

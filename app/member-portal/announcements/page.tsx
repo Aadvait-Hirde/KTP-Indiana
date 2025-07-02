@@ -14,10 +14,15 @@ import { Megaphone, Plus, Calendar, User, Edit, Trash2, X, Check } from 'lucide-
 import { format } from 'date-fns'
 
 function AnnouncementsPageContent() {
-  const { user } = useAuthStore()
-  const [announcements, setAnnouncements] = useState<Announcement[]>([])
+  const { 
+    user, 
+    announcements, 
+    isAnnouncementsLoading,
+    fetchAnnouncements, 
+    hideAnnouncement 
+  } = useAuthStore()
+  
   const [isPosting, setIsPosting] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [error, setError] = useState('')
@@ -29,32 +34,31 @@ function AnnouncementsPageContent() {
 
   useEffect(() => {
     fetchAnnouncements()
-  }, [])
+    
+    // Subscribe to real-time changes and just refetch everything
+    const channel = supabase
+      .channel('announcements-page-realtime')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'announcements' },
+        () => {
+          // Simply refetch all announcements instead of trying to manage state manually
+          fetchAnnouncements()
+        }
+      )
+      .subscribe()
 
-  const fetchAnnouncements = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('announcements')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-      setAnnouncements(data || [])
-    } catch (err) {
-      console.error('Error fetching announcements:', err)
-    } finally {
-      setIsLoading(false)
+    return () => {
+      supabase.removeChannel(channel)
     }
-  }
+  }, [fetchAnnouncements])
 
   const handlePost = async () => {
     if (!title.trim() || !content.trim() || !user) return
 
     setError('')
-    setIsLoading(true)
 
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('announcements')
         .insert([
           {
@@ -62,22 +66,18 @@ function AnnouncementsPageContent() {
             content: content.trim(),
             author_id: user.id,
             author_name: user.name,
+            hidden: false // Default to not hidden
           }
         ])
-        .select()
-        .single()
 
       if (error) throw error
 
-      setAnnouncements([data, ...announcements])
       setTitle('')
       setContent('')
       setIsPosting(false)
     } catch (err: unknown) {
       const error = err as { message?: string }
       setError(error.message || 'Failed to post announcement')
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -85,7 +85,7 @@ function AnnouncementsPageContent() {
     if (!editTitle.trim() || !editContent.trim()) return
 
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('announcements')
         .update({
           title: editTitle.trim(),
@@ -93,14 +93,9 @@ function AnnouncementsPageContent() {
           updated_at: new Date().toISOString()
         })
         .eq('id', id)
-        .select()
-        .single()
 
       if (error) throw error
 
-      setAnnouncements(announcements.map(ann => 
-        ann.id === id ? data : ann
-      ))
       setEditingId(null)
       setEditTitle('')
       setEditContent('')
@@ -111,21 +106,9 @@ function AnnouncementsPageContent() {
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this announcement?')) return
+    if (!confirm('Are you sure you want to delete this announcement? This action cannot be undone.')) return
 
-    try {
-      const { error } = await supabase
-        .from('announcements')
-        .delete()
-        .eq('id', id)
-
-      if (error) throw error
-
-      setAnnouncements(announcements.filter(ann => ann.id !== id))
-    } catch (err: unknown) {
-      const error = err as { message?: string }
-      setError(error.message || 'Failed to delete announcement')
-    }
+    await hideAnnouncement(id)
   }
 
   const startEdit = (announcement: Announcement) => {
@@ -144,7 +127,7 @@ function AnnouncementsPageContent() {
     return user?.role === 'admin' || announcement.author_id === user?.id
   }
 
-  if (isLoading) {
+  if (isAnnouncementsLoading) {
     return (
       <div className="p-4 md:p-6">
         <div className="max-w-4xl mx-auto">
@@ -196,10 +179,10 @@ function AnnouncementsPageContent() {
               <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                 <Button 
                   onClick={handlePost} 
-                  disabled={!title.trim() || !content.trim() || isLoading}
+                  disabled={!title.trim() || !content.trim()}
                   className="w-full sm:w-auto"
                 >
-                  {isLoading ? 'Posting...' : 'Post Announcement'}
+                  Post Announcement
                 </Button>
                 <Button 
                   variant="outline" 
@@ -285,7 +268,8 @@ function AnnouncementsPageContent() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleDelete(announcement.id)}
-                                className="text-red-600 hover:text-red-700"
+                                className="text-orange-600 hover:text-orange-700"
+                                title="Delete announcement"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>

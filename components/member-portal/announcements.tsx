@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { RichTextEditor } from './rich-text-editor'
-import { Megaphone, Plus, Calendar, User, Edit, Trash2, X, Check } from 'lucide-react'
+import { Megaphone, Calendar, User, Edit, Trash2, X, Check } from 'lucide-react'
 import { format } from 'date-fns'
 
 interface AnnouncementsSectionProps {
@@ -22,10 +22,14 @@ interface AnnouncementsSectionProps {
 }
 
 export function AnnouncementsSection({ user: overrideUser }: AnnouncementsSectionProps) {
-  const { user: authUser } = useAuthStore()
-  const [announcements, setAnnouncements] = useState<Announcement[]>([])
-  const [isPosting, setIsPosting] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
+  const { 
+    user: authUser, 
+    announcements, 
+    isAnnouncementsLoading,
+    fetchAnnouncements, 
+    hideAnnouncement
+  } = useAuthStore()
+  
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [error, setError] = useState('')
@@ -37,35 +41,38 @@ export function AnnouncementsSection({ user: overrideUser }: AnnouncementsSectio
   const user = overrideUser || authUser
 
   const canPost = user?.role === 'admin' || user?.role === 'exec' || user?.role === 'director'
+  
+  // Always show posting interface for users who can post
+  const isPosting = canPost
 
   useEffect(() => {
+    // Fetch announcements on mount
     fetchAnnouncements()
-  }, [])
+    
+    // Subscribe to real-time changes and just refetch everything
+    const channel = supabase
+      .channel('announcements-realtime')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'announcements' },
+        () => {
+          // Simply refetch all announcements instead of trying to manage state manually
+          fetchAnnouncements()
+        }
+      )
+      .subscribe()
 
-  const fetchAnnouncements = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('announcements')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-      setAnnouncements(data || [])
-    } catch (err) {
-      console.error('Error fetching announcements:', err)
-    } finally {
-      setIsLoading(false)
+    return () => {
+      supabase.removeChannel(channel)
     }
-  }
+  }, [fetchAnnouncements])
 
   const handlePost = async () => {
     if (!title.trim() || !content.trim() || !authUser) return // Always use real user for posting
 
     setError('')
-    setIsLoading(true)
 
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('announcements')
         .insert([
           {
@@ -73,22 +80,20 @@ export function AnnouncementsSection({ user: overrideUser }: AnnouncementsSectio
             content: content.trim(),
             author_id: authUser.id, // Use real user ID
             author_name: authUser.name, // Use real user name
+            hidden: false // Default to not hidden
           }
         ])
-        .select()
-        .single()
 
       if (error) throw error
 
-      setAnnouncements([data, ...announcements])
       setTitle('')
       setContent('')
-      setIsPosting(false)
+      
+      // Manually refetch to ensure we see the new announcement
+      setTimeout(() => fetchAnnouncements(), 100)
     } catch (err: unknown) {
       const error = err as { message?: string }
       setError(error.message || 'Failed to post announcement')
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -96,7 +101,7 @@ export function AnnouncementsSection({ user: overrideUser }: AnnouncementsSectio
     if (!editTitle.trim() || !editContent.trim()) return
 
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('announcements')
         .update({
           title: editTitle.trim(),
@@ -104,14 +109,9 @@ export function AnnouncementsSection({ user: overrideUser }: AnnouncementsSectio
           updated_at: new Date().toISOString()
         })
         .eq('id', id)
-        .select()
-        .single()
 
       if (error) throw error
 
-      setAnnouncements(announcements.map(ann => 
-        ann.id === id ? data : ann
-      ))
       setEditingId(null)
       setEditTitle('')
       setEditContent('')
@@ -122,20 +122,12 @@ export function AnnouncementsSection({ user: overrideUser }: AnnouncementsSectio
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this announcement?')) return
+    if (!confirm('Are you sure you want to delete this announcement? This action cannot be undone.')) return
 
     try {
-      const { error } = await supabase
-        .from('announcements')
-        .delete()
-        .eq('id', id)
-
-      if (error) throw error
-
-      setAnnouncements(announcements.filter(ann => ann.id !== id))
-    } catch (err: unknown) {
-      const error = err as { message?: string }
-      setError(error.message || 'Failed to delete announcement')
+      await hideAnnouncement(id)
+    } catch (err) {
+      console.error('Error deleting announcement:', err)
     }
   }
 
@@ -156,14 +148,24 @@ export function AnnouncementsSection({ user: overrideUser }: AnnouncementsSectio
     return authUser?.role === 'admin' || announcement.author_id === authUser?.id
   }
 
-  if (isLoading && announcements.length === 0) {
+  // Calculate dynamic height based on content
+  const getCardHeight = () => {
+    if (isPosting || editingId) {
+      return 'h-auto min-h-[400px]' // Allow expansion when posting/editing
+    }
+    return 'h-[400px]' // Fixed height to match calendar
+  }
+
+  if (isAnnouncementsLoading && announcements.length === 0) {
     return (
-      <Card className="h-96">
+      <Card className="h-[400px]">
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Megaphone className="h-5 w-5" />
-            <span>Announcements</span>
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center space-x-2">
+              <Megaphone className="h-5 w-5" />
+              <span>Announcements</span>
+            </CardTitle>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="text-center py-8">
@@ -176,19 +178,13 @@ export function AnnouncementsSection({ user: overrideUser }: AnnouncementsSectio
   }
 
   return (
-    <Card className="h-96 flex flex-col">
+    <Card className={`${getCardHeight()} flex flex-col`}>
       <CardHeader className="flex-shrink-0">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center space-x-2">
             <Megaphone className="h-5 w-5" />
             <span>Announcements</span>
           </CardTitle>
-          {canPost && !isPosting && (
-            <Button onClick={() => setIsPosting(true)} size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              New Announcement
-            </Button>
-          )}
         </div>
       </CardHeader>
       
@@ -215,22 +211,10 @@ export function AnnouncementsSection({ user: overrideUser }: AnnouncementsSectio
               <div className="flex space-x-2">
                 <Button 
                   onClick={handlePost} 
-                  disabled={!title.trim() || !content.trim() || isLoading}
+                  disabled={!title.trim() || !content.trim()}
                   size="sm"
                 >
-                  {isLoading ? 'Posting...' : 'Post Announcement'}
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    setIsPosting(false)
-                    setTitle('')
-                    setContent('')
-                    setError('')
-                  }}
-                  size="sm"
-                >
-                  Cancel
+                  Post Announcement
                 </Button>
               </div>
             </div>
@@ -238,7 +222,7 @@ export function AnnouncementsSection({ user: overrideUser }: AnnouncementsSectio
         )}
 
         {/* Announcements list - scrollable */}
-        <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+        <div className={`${isPosting || editingId ? 'flex-1' : 'flex-1'} overflow-y-auto space-y-4 pr-2`}>
           {announcements.length === 0 ? (
             <div className="text-center py-8">
               <Megaphone className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
@@ -307,7 +291,8 @@ export function AnnouncementsSection({ user: overrideUser }: AnnouncementsSectio
                               variant="ghost"
                               size="sm"
                               onClick={() => handleDelete(announcement.id)}
-                              className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                              className="h-8 w-8 p-0 text-orange-600 hover:text-orange-700"
+                              title="Delete announcement"
                             >
                               <Trash2 className="h-3 w-3" />
                             </Button>

@@ -20,41 +20,23 @@ CREATE TABLE IF NOT EXISTS announcements (
 -- Create an index for faster queries
 CREATE INDEX IF NOT EXISTS idx_announcements_created_at ON announcements(created_at DESC);
 
--- Enable Row Level Security (optional)
-ALTER TABLE announcements ENABLE ROW LEVEL SECURITY;
+-- Disable Row Level Security since we're using Clerk auth instead of Supabase auth
+-- RLS policies with auth.uid() don't work with external auth providers
+ALTER TABLE announcements DISABLE ROW LEVEL SECURITY;
 
--- Create a policy for reading announcements (everyone can read)
-CREATE POLICY "Everyone can read announcements" ON announcements
-    FOR SELECT USING (true);
+-- Drop all existing policies since we're disabling RLS
+DROP POLICY IF EXISTS "Leadership can insert announcements" ON announcements;
+DROP POLICY IF EXISTS "Authors and admins can update announcements" ON announcements;
+DROP POLICY IF EXISTS "Authors and admins can delete announcements" ON announcements;
+DROP POLICY IF EXISTS "Everyone can read announcements" ON announcements;
+DROP POLICY IF EXISTS "Users can view announcements" ON announcements;
+DROP POLICY IF EXISTS "Users can view non-hidden announcements" ON announcements;
+DROP POLICY IF EXISTS "Admins can view all announcements" ON announcements;
+DROP POLICY IF EXISTS "View announcements policy" ON announcements;
 
--- Create a policy for inserting announcements (only admins, execs, directors)
-CREATE POLICY "Leadership can insert announcements" ON announcements
-    FOR INSERT WITH CHECK (
-        EXISTS (
-            SELECT 1 FROM users 
-            WHERE users.id = announcements.author_id::uuid 
-            AND users.role IN ('admin', 'exec', 'director')
-        )
-    );
+-- Add hidden column to announcements table
+ALTER TABLE announcements 
+ADD COLUMN IF NOT EXISTS hidden BOOLEAN DEFAULT FALSE;
 
--- Create a policy for updating announcements (only the author or admins)
-CREATE POLICY "Authors and admins can update announcements" ON announcements
-    FOR UPDATE USING (
-        announcements.author_id::uuid = auth.uid() OR
-        EXISTS (
-            SELECT 1 FROM users 
-            WHERE users.id = auth.uid() 
-            AND users.role = 'admin'
-        )
-    );
-
--- Create a policy for deleting announcements (only the author or admins)
-CREATE POLICY "Authors and admins can delete announcements" ON announcements
-    FOR DELETE USING (
-        announcements.author_id::uuid = auth.uid() OR
-        EXISTS (
-            SELECT 1 FROM users 
-            WHERE users.id = auth.uid() 
-            AND users.role = 'admin'
-        )
-    ); 
+-- Update existing announcements to not be hidden by default
+UPDATE announcements SET hidden = FALSE WHERE hidden IS NULL; 
