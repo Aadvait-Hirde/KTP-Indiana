@@ -50,39 +50,8 @@ The internships feature automatically pulls the latest internship opportunities 
 - **Deployment**: Vercel
 - **External APIs**: GitHub API for internships data
 
-## Development
-
-### Prerequisites
-- Node.js 18+
-- npm or yarn
-
-### Setup
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Copy `.env.example` to `.env.local` and fill in your environment variables
-4. Run development server: `npm run dev`
-
-### Environment Variables
-- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`: Clerk authentication
-- `CLERK_SECRET_KEY`: Clerk server-side key
-- `NEXT_PUBLIC_SUPABASE_URL`: Supabase database URL
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Supabase public key
-- `CRON_SECRET`: Optional secret for securing cron endpoints
-
-## Deployment
-
-The site is automatically deployed on Vercel with:
-- Automatic deployments from main branch
-- Daily cron job for internships updates
-- Environment variable management
-- Custom domain configuration
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-For major changes, please open an issue first to discuss what you would like to change.
+![Dashboard Image](public/dashboard.png)
+![Login Image](public/login.png)
+![Announcements Image](public/announcements.png)
+![Dues Image](public/dues.png)
+![Calendar Image](public/calendar.png)
