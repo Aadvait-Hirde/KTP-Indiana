@@ -69,10 +69,11 @@ function MemberPortalContent() {
       case 'exec':
         return 'text-green-600'
       case 'director':
-        return 'text-blue-600'
+        return 'text-purple-600'
       case 'member':
-      case 'newmember':
         return 'text-orange-600'
+      case 'newmember':
+        return 'text-blue-600'
       default:
         return 'text-gray-600'
     }
@@ -85,7 +86,7 @@ function MemberPortalContent() {
   // Create effective user object for child components
   const effectiveUser = user ? {
     ...user,
-    role: effectiveRole
+    role: effectiveRole || user.role
   } : null
 
   return (
@@ -118,24 +119,24 @@ function MemberPortalContent() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
         {/* Header Content (transparent, not sticky) */}
-        <div className="bg-transparent px-6 py-4">
-          <div className="flex items-center justify-between">
+        <div className="bg-transparent px-4 md:px-6 py-4 pt-20 md:pt-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             {/* Left side - Greeting - Updated */}
             <div className="flex items-center">
-              <h1 className="text-3xl font-bold tracking-tight">
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
                 {greeting}, {user?.name?.split(' ')[0]}!
               </h1>
             </div>
 
             {/* Right side - User info and controls */}
-            <div className="flex items-center space-x-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
               {/* Role Switcher for Admins */}
               {user?.role === 'admin' && (
                 <RoleSwitcher onRoleChange={handleRoleChange} />
               )}
 
               {/* Full name with colored role */}
-              <p className="font-medium text-lg">
+              <p className="font-medium text-base md:text-lg">
                 {user?.name} • <span className={getRoleColor(effectiveRole || '')}>{getDisplayRole(effectiveRole || '')}</span>
               </p>
               
@@ -146,9 +147,9 @@ function MemberPortalContent() {
         </div>
         
         {/* Dashboard Content */}
-        <main className="flex-1 overflow-y-auto p-6 space-y-6">
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 md:space-y-6">
           {/* Welcome Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
             {/* Announcements with effective user */}
             <AnnouncementsSection user={effectiveUser} />
             
@@ -157,7 +158,7 @@ function MemberPortalContent() {
           </div>
           
           {/* Action Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             {/* Merch Store */}
             <Card>
               <CardHeader>

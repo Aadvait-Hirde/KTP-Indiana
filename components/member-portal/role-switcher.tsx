@@ -30,9 +30,9 @@ export function RoleSwitcher({ onRoleChange }: RoleSwitcherProps) {
   const roles = [
     { value: 'admin', label: 'Admin', color: 'text-red-600' },
     { value: 'exec', label: 'Exec', color: 'text-green-600' },
-    { value: 'director', label: 'Director', color: 'text-blue-600' },
+    { value: 'director', label: 'Director', color: 'text-purple-600' },
     { value: 'member', label: 'Member', color: 'text-orange-600' },
-    { value: 'newmember', label: 'New Member', color: 'text-orange-600' },
+    { value: 'newmember', label: 'New Member', color: 'text-blue-600' },
   ]
 
   const handleRoleSwitch = (role: string) => {
