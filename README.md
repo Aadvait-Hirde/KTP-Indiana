@@ -2,6 +2,8 @@
 
 This is the official repository for Kappa Theta Pi - Alpha Eta's website, built with Next.js, TypeScript, and Tailwind CSS.
 
+<img src="public/ktp-portal-section/dashboard.png" width="640" height="360" alt="Dashboard"><img src="public/ktp-portal-section/login.png" width="640" height="360" alt="Login"><img src="public/ktp-portal-section/announcements.png" width="640" height="360" alt="Announcements">
+
 ## Features
 
 ### Public Website
@@ -49,9 +51,3 @@ The internships feature automatically pulls the latest internship opportunities 
 - **Database**: Supabase
 - **Deployment**: Vercel
 - **External APIs**: GitHub API for internships data
-
-![Dashboard Image](public/ktp-portal-section/dashboard.png)
-![Login Image](public/ktp-portal-section/login.png)
-![Announcements Image](public/ktp-portal-section/announcements.png)
-![Dues Image](public/ktp-portal-images/dues.png)
-![Calendar Image](public/ktp-portal-images/calendar.png)
