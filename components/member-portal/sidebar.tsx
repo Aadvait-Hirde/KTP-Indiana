@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Image from 'next/image'
@@ -17,7 +18,8 @@ import {
   Home,
   LogOut,
   Menu,
-  X
+  X,
+  Briefcase
 } from 'lucide-react'
 
 export function Sidebar() {
@@ -43,6 +45,7 @@ export function Sidebar() {
   const navigationItems = [
     { icon: Home, label: 'Dashboard', href: '/member-portal' },
     { icon: Calendar, label: 'Calendar', href: '/member-portal/calendar' },
+    { icon: Briefcase, label: 'Internships', href: '/member-portal/internships' },
     { icon: Megaphone, label: 'Announcements', href: '/member-portal/announcements' },
     { icon: Users, label: 'Alumni Directory', href: '/member-portal/alumni' },
     { icon: ShoppingBag, label: 'Merch Store', href: '/member-portal/merch' },

@@ -8,6 +8,7 @@ import { RoleSwitcher } from '@/components/member-portal/role-switcher'
 import { Sidebar } from '@/components/member-portal/sidebar'
 import { AnnouncementsSection } from '@/components/member-portal/announcements'
 import { CalendarWidget } from '@/components/member-portal/calendar-widget'
+import { InternshipsWidget } from '@/components/member-portal/internships-widget'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ShoppingBag, CreditCard } from 'lucide-react'
@@ -144,9 +145,11 @@ function MemberPortalContent() {
             {/* Calendar */}
             <CalendarWidget />
           </div>
-          
-          {/* Action Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-start">
+
+          {/* Main Content Section - Internships and Pay Dues */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 items-start">
+            <InternshipsWidget />
+            
             {/* Pay Dues */}
             <Card className="h-fit">
               <CardHeader>
@@ -170,7 +173,10 @@ function MemberPortalContent() {
                 </a>
               </CardContent>
             </Card>
+          </div>
 
+          {/* Merch Store Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
             {/* Merch Store */}
             <Card className="h-fit">
               <CardHeader>
@@ -194,6 +200,9 @@ function MemberPortalContent() {
                 </div>
               </CardContent>
             </Card>
+            
+            {/* Empty space for future content */}
+            <div></div>
           </div>
         </main>
       </div>
