@@ -1,7 +1,4 @@
 {
-  "/api/internships/route": "app/api/internships/route.js",
-  "/member-portal/page": "app/member-portal/page.js",
-  "/member-portal/internships/page": "app/member-portal/internships/page.js",
-  "/sign-in/[[...sign-in]]/page": "app/sign-in/[[...sign-in]]/page.js",
-  "/page": "app/page.js"
+  "/page": "app/page.js",
+  "/sign-in/[[...sign-in]]/page": "app/sign-in/[[...sign-in]]/page.js"
 }

@@ -49,12 +49,6 @@ export function ExecBoardSection() {
       initials: "SK"
     },
     { 
-      name: "Sankalpa Hedge", 
-      position: "VP of Operations", 
-      image: "/exec-headshots/sankalpa.png",
-      initials: "SH"
-    },
-    { 
       name: "Shreyas Sunke", 
       position: "VP of Finance", 
       image: "/exec-headshots/shreyas.JPG",
@@ -143,8 +137,8 @@ export function ExecBoardSection() {
           {boardMembers.slice(0, 5).map((member, index) => renderCard(member, index))}
         </div>
         
-        {/* Second row - 6 cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 justify-items-center">
+        {/* Second row - 5 cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 justify-items-center">
           {boardMembers.slice(5).map((member, index) => renderCard(member, index + 5))}
         </div>
       </div>

@@ -44,6 +44,7 @@ export function CommunitySection() {
     { name: "Veer Nangia", major: "Finance", year: "Freshman", initials: "VN", image: "/member-headshots/veer.png" },
     { name: "Alexander Balon", major: "Information Systems, Business Analytics", year: "Freshman", initials: "AB", image: "/member-headshots/alex_balon.png" },
     { name: "Benedict Yiga", major: "Computer Science", year: "Sophomore", initials: "BY", image: "/member-headshots/benedict.png" },
+    { name: "Sankalpa Hedge", major: "Informatics", year: "Sophomore", initials: "SH", image: "/member-headshots/sankalpa.png" },
   ]
 
 

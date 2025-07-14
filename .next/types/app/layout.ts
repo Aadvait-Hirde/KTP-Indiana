@@ -1,4 +1,4 @@
-// File: /Users/aadvait/Desktop/ktp-website/app/layout.tsx
+// File: /Users/aadvait/Downloads/KTP-Website/ktp-website/app/layout.tsx
 import * as entry from '../../../app/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
