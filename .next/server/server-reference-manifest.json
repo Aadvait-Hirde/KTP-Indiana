@@ -6,14 +6,19 @@
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDownloads%2FKTP-Website%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f010546e1e36ea28dbab7a16ca1951bdb2324881a%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227ff966982a73d1e380d9269d2ceed2f708c1b39488%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%2C%7B%22id%22%3A%227fff6b54a9dee07b47666ff672216e0be836d5dd69%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
-        "app/sign-in/[[...sign-in]]/page": {
+        "app/_not-found/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDownloads%2FKTP-Website%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f010546e1e36ea28dbab7a16ca1951bdb2324881a%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227ff966982a73d1e380d9269d2ceed2f708c1b39488%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%2C%7B%22id%22%3A%227fff6b54a9dee07b47666ff672216e0be836d5dd69%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/docs/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDownloads%2FKTP-Website%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f010546e1e36ea28dbab7a16ca1951bdb2324881a%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227ff966982a73d1e380d9269d2ceed2f708c1b39488%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%2C%7B%22id%22%3A%227fff6b54a9dee07b47666ff672216e0be836d5dd69%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         }
       },
       "layer": {
         "app/page": "rsc",
-        "app/sign-in/[[...sign-in]]/page": "rsc"
+        "app/_not-found/page": "rsc",
+        "app/docs/page": "rsc"
       }
     },
     "7ff966982a73d1e380d9269d2ceed2f708c1b39488": {
@@ -22,14 +27,19 @@
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDownloads%2FKTP-Website%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f010546e1e36ea28dbab7a16ca1951bdb2324881a%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227ff966982a73d1e380d9269d2ceed2f708c1b39488%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%2C%7B%22id%22%3A%227fff6b54a9dee07b47666ff672216e0be836d5dd69%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
-        "app/sign-in/[[...sign-in]]/page": {
+        "app/_not-found/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDownloads%2FKTP-Website%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f010546e1e36ea28dbab7a16ca1951bdb2324881a%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227ff966982a73d1e380d9269d2ceed2f708c1b39488%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%2C%7B%22id%22%3A%227fff6b54a9dee07b47666ff672216e0be836d5dd69%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/docs/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDownloads%2FKTP-Website%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f010546e1e36ea28dbab7a16ca1951bdb2324881a%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227ff966982a73d1e380d9269d2ceed2f708c1b39488%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%2C%7B%22id%22%3A%227fff6b54a9dee07b47666ff672216e0be836d5dd69%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         }
       },
       "layer": {
         "app/page": "rsc",
-        "app/sign-in/[[...sign-in]]/page": "rsc"
+        "app/_not-found/page": "rsc",
+        "app/docs/page": "rsc"
       }
     },
     "7fff6b54a9dee07b47666ff672216e0be836d5dd69": {
@@ -38,14 +48,19 @@
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDownloads%2FKTP-Website%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f010546e1e36ea28dbab7a16ca1951bdb2324881a%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227ff966982a73d1e380d9269d2ceed2f708c1b39488%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%2C%7B%22id%22%3A%227fff6b54a9dee07b47666ff672216e0be836d5dd69%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         },
-        "app/sign-in/[[...sign-in]]/page": {
+        "app/_not-found/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDownloads%2FKTP-Website%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f010546e1e36ea28dbab7a16ca1951bdb2324881a%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227ff966982a73d1e380d9269d2ceed2f708c1b39488%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%2C%7B%22id%22%3A%227fff6b54a9dee07b47666ff672216e0be836d5dd69%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/docs/page": {
           "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDownloads%2FKTP-Website%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fkeyless-actions.js%22%2C%5B%7B%22id%22%3A%227f010546e1e36ea28dbab7a16ca1951bdb2324881a%22%2C%22exportedName%22%3A%22deleteKeylessAction%22%7D%2C%7B%22id%22%3A%227ff966982a73d1e380d9269d2ceed2f708c1b39488%22%2C%22exportedName%22%3A%22syncKeylessConfigAction%22%7D%2C%7B%22id%22%3A%227fff6b54a9dee07b47666ff672216e0be836d5dd69%22%2C%22exportedName%22%3A%22createOrReadKeylessAction%22%7D%5D%5D%5D&__client_imported__=!",
           "async": false
         }
       },
       "layer": {
         "app/page": "rsc",
-        "app/sign-in/[[...sign-in]]/page": "rsc"
+        "app/_not-found/page": "rsc",
+        "app/docs/page": "rsc"
       }
     },
     "7fe7697d2abc8c73c454657c3a9d54216ec4e34c69": {
@@ -54,14 +69,19 @@
           "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDownloads%2FKTP-Website%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fserver-actions.js%22%2C%5B%7B%22id%22%3A%227fe7697d2abc8c73c454657c3a9d54216ec4e34c69%22%2C%22exportedName%22%3A%22invalidateCacheAction%22%7D%5D%5D%5D&__client_imported__=true!",
           "async": false
         },
-        "app/sign-in/[[...sign-in]]/page": {
+        "app/_not-found/page": {
+          "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDownloads%2FKTP-Website%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fserver-actions.js%22%2C%5B%7B%22id%22%3A%227fe7697d2abc8c73c454657c3a9d54216ec4e34c69%22%2C%22exportedName%22%3A%22invalidateCacheAction%22%7D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        },
+        "app/docs/page": {
           "moduleId": "(action-browser)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2FUsers%2Faadvait%2FDownloads%2FKTP-Website%2Fktp-website%2Fnode_modules%2F%40clerk%2Fnextjs%2Fdist%2Fesm%2Fapp-router%2Fserver-actions.js%22%2C%5B%7B%22id%22%3A%227fe7697d2abc8c73c454657c3a9d54216ec4e34c69%22%2C%22exportedName%22%3A%22invalidateCacheAction%22%7D%5D%5D%5D&__client_imported__=true!",
           "async": false
         }
       },
       "layer": {
         "app/page": "action-browser",
-        "app/sign-in/[[...sign-in]]/page": "action-browser"
+        "app/_not-found/page": "action-browser",
+        "app/docs/page": "action-browser"
       }
     }
   },

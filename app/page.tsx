@@ -9,6 +9,7 @@ import { PillarsSection } from "@/components/sections/pillars-section"
 import { ExecBoardSection } from "@/components/sections/exec-board-section"
 import { CommunitySection } from "@/components/sections/community-section"
 import { KTPPortalSection } from "@/components/sections/ktp-portal-section"
+import { DocsSection } from "@/components/sections/docs-section"
 import { RushSection } from "@/components/sections/rush-section"
 import { AlumniWorkSection } from "@/components/sections/alumni-work-section"
 import { FAQSection } from "@/components/sections/faq-section"
@@ -32,6 +33,7 @@ export default function Home() {
       <ExecBoardSection />
       <CommunitySection />
       <KTPPortalSection />
+      <DocsSection />
       <RushSection />
       <AlumniWorkSection />
       <FAQSection />

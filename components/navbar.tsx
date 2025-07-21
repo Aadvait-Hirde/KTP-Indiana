@@ -15,6 +15,7 @@ const navItems = [
   { href: "#members", label: "Members" },
   { href: "#portal", label: "Portal" },
   { href: "#partnerships", label: "Partnerships" },
+  { href: "/docs", label: "Docs", isExternal: true },
 ]
 
 interface NavbarProps {
@@ -61,13 +62,23 @@ export function Navbar({ scrollToSection }: NavbarProps) {
           {/* Desktop Navigation - Centered */}
           <nav className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 space-x-8 md:flex">
             {navItems.map((item) => (
-              <button
-                key={item.href}
-                onClick={() => scrollToSection(item.href)}
-                className="text-sm font-medium tracking-tight text-muted-foreground transition-colors hover:text-foreground"
-              >
-                {item.label}
-              </button>
+              item.isExternal ? (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="text-sm font-medium tracking-tight text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <button
+                  key={item.href}
+                  onClick={() => scrollToSection(item.href)}
+                  className="text-sm font-medium tracking-tight text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  {item.label}
+                </button>
+              )
             ))}
           </nav>
 
@@ -112,13 +123,24 @@ export function Navbar({ scrollToSection }: NavbarProps) {
                   <div className="flex-1 py-6">
                     <nav className="space-y-2">
                       {navItems.map((item) => (
-                        <button
-                          key={item.href}
-                          onClick={() => scrollToSectionAndClose(item.href)}
-                          className="w-full text-left px-4 py-3 text-lg font-medium tracking-tight text-muted-foreground transition-colors hover:text-foreground hover:bg-muted rounded-lg"
-                        >
-                          {item.label}
-                        </button>
+                        item.isExternal ? (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={() => setIsOpen(false)}
+                            className="w-full text-left px-4 py-3 text-lg font-medium tracking-tight text-muted-foreground transition-colors hover:text-foreground hover:bg-muted rounded-lg block"
+                          >
+                            {item.label}
+                          </Link>
+                        ) : (
+                          <button
+                            key={item.href}
+                            onClick={() => scrollToSectionAndClose(item.href)}
+                            className="w-full text-left px-4 py-3 text-lg font-medium tracking-tight text-muted-foreground transition-colors hover:text-foreground hover:bg-muted rounded-lg"
+                          >
+                            {item.label}
+                          </button>
+                        )
                       ))}
                     </nav>
                   </div>
