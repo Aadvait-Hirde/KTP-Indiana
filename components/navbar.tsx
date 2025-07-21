@@ -8,6 +8,7 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { useTheme } from "next-themes"
 import Image from "next/image"
 import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
 
 const navItems = [
   { href: "#home", label: "Home" },
@@ -26,18 +27,38 @@ export function Navbar({ scrollToSection }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const { theme } = useTheme()
+  const pathname = usePathname()
+  const router = useRouter()
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
+  const isOnDocsPage = pathname === '/docs'
+
+  const handleNavigation = (href: string) => {
+    if (isOnDocsPage && !href.startsWith('/')) {
+      // If on docs page and clicking a section link, go to home page with that section
+      router.push(`/${href}`)
+    } else if (href.startsWith('#')) {
+      // Regular section scrolling on home page
+      scrollToSection(href)
+    }
+  }
+
   const scrollToSectionAndClose = (href: string) => {
-    scrollToSection(href)
+    handleNavigation(href)
     setIsOpen(false)
   }
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" })
+  const handleLogoClick = () => {
+    if (isOnDocsPage) {
+      // If on docs page, navigate to home
+      router.push('/')
+    } else {
+      // If on home page, scroll to top
+      window.scrollTo({ top: 0, behavior: "smooth" })
+    }
   }
 
   const logoSrc = mounted && theme === "dark" 
@@ -49,7 +70,7 @@ export function Navbar({ scrollToSection }: NavbarProps) {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="relative flex h-16 items-center justify-between">
           {/* Logo */}
-          <button onClick={scrollToTop} className="flex items-center">
+          <button onClick={handleLogoClick} className="flex items-center">
             <Image
               src={logoSrc}
               alt="KTP Logo"
@@ -73,7 +94,7 @@ export function Navbar({ scrollToSection }: NavbarProps) {
               ) : (
                 <button
                   key={item.href}
-                  onClick={() => scrollToSection(item.href)}
+                  onClick={() => handleNavigation(item.href)}
                   className="text-sm font-medium tracking-tight text-muted-foreground transition-colors hover:text-foreground"
                 >
                   {item.label}
@@ -108,7 +129,7 @@ export function Navbar({ scrollToSection }: NavbarProps) {
                 <div className="flex flex-col h-full">
                   {/* Header with logo */}
                   <div className="flex justify-center py-6 border-b dark:border-zinc-700">
-                    <button onClick={scrollToTop} className="flex items-center">
+                    <button onClick={handleLogoClick} className="flex items-center">
                       <Image
                         src={logoSrc}
                         alt="KTP Logo"

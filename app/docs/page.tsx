@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/sections/footer"
 import Image from "next/image"
@@ -22,8 +22,27 @@ export default function DocsPage() {
   const [activeSection, setActiveSection] = useState("intro")
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
+  // Handle responsive sidebar behavior
+  useEffect(() => {
+    const handleResize = () => {
+      // On desktop view (lg breakpoint = 1024px), automatically show sidebar
+      if (window.innerWidth >= 1024) {
+        setSidebarCollapsed(false)
+      }
+    }
+
+    // Set initial state
+    handleResize()
+
+    // Add event listener
+    window.addEventListener('resize', handleResize)
+
+    // Cleanup
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
   const scrollToSection = (href: string) => {
-    // This is just for the main navbar functionality
+    // This is just for the main navbar functionality - no changes needed here
     if (href.startsWith('#')) {
       const element = document.querySelector(href)
       if (element) {
@@ -92,18 +111,16 @@ export default function DocsPage() {
 
           {/* Right Content Area */}
           <div className="flex-1 px-8 py-8 relative">
-            {/* Mobile sidebar toggle button */}
-            {sidebarCollapsed && (
-              <button
-                onClick={() => setSidebarCollapsed(false)}
-                className="lg:hidden fixed top-20 left-4 z-50 p-2 bg-primary text-primary-foreground rounded-md shadow-lg"
-                aria-label="Open sidebar"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
-            )}
+            {/* Mobile sidebar toggle button - always show when sidebar is collapsed */}
+            <button
+              onClick={() => setSidebarCollapsed(false)}
+              className={`${sidebarCollapsed ? 'block' : 'hidden'} lg:hidden fixed top-20 left-4 z-50 p-2 bg-primary text-primary-foreground rounded-md shadow-lg`}
+              aria-label="Open sidebar"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
 
             <div className="max-w-4xl mx-auto space-y-12">
               {/* Intro Section */}
