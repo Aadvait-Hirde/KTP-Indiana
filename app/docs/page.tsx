@@ -46,7 +46,7 @@ export default function DocsPage() {
 
   const handleConstitutionDownload = () => {
     const link = document.createElement('a')
-    link.href = '/KTP Constitution.pdf'
+    link.href = '/docs-section/constitution/KTP Constitution.pdf'
     link.download = 'KTP Constitution.pdf'
     link.click()
   }
