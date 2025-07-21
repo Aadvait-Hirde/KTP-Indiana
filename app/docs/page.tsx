@@ -41,6 +41,41 @@ export default function DocsPage() {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
+  // Scroll spy functionality to update active section
+  useEffect(() => {
+    const observerOptions = {
+      root: null,
+      rootMargin: '-20% 0px -70% 0px', // Trigger when section is 20% from top
+      threshold: 0
+    }
+
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const sectionId = entry.target.id
+          if (sectionId && sections.some(s => s.id === sectionId)) {
+            setActiveSection(sectionId)
+          }
+        }
+      })
+    }
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions)
+
+    // Observe all section elements
+    sections.forEach((section) => {
+      const element = document.getElementById(section.id)
+      if (element) {
+        observer.observe(element)
+      }
+    })
+
+    // Cleanup
+    return () => {
+      observer.disconnect()
+    }
+  }, [])
+
   const scrollToSection = (href: string) => {
     // This is just for the main navbar functionality - no changes needed here
     if (href.startsWith('#')) {
@@ -147,7 +182,7 @@ export default function DocsPage() {
               <section id="constitution" className="scroll-mt-24">
                 <div className="space-y-6">
                   <h2 className="text-3xl font-bold tracking-tight">Constitution</h2>
-                  <div className="flex gap-6">
+                  <div className="flex flex-col lg:flex-row gap-6">
                     <div className="flex-1">
                       <div className="prose prose-lg max-w-none space-y-4">
                         <p className="text-justify">
@@ -192,7 +227,7 @@ export default function DocsPage() {
                     
                     {/* Open Rush */}
                     <div className="space-y-4">
-                      <div className="flex gap-6">
+                      <div className="flex flex-col lg:flex-row gap-6">
                         <div className="flex-1 space-y-4">
                           <p className="text-justify">
                             <strong>Open Rush:</strong> It&apos;s pretty simple, <strong>pick a theme.</strong> We did F1 last semester, and we&apos;re doing Just Dance this upcoming one. Other chapters have done Retro Mac, Mario Kart, PGA Tour, etc. Once that&apos;s locked in, market it like crazy, get your rooms booked, and choose the format you want to go with. You could do coffee chats, or a round-table format where 3–4 rushees talk to 1–2 actives for 6 minutes then rotate.
@@ -245,7 +280,7 @@ export default function DocsPage() {
                         <strong>Deliberations (1st Round):</strong> This night&apos;s always a lot. Get your bid review committee or all the actives in a room (don&apos;t forget to book it in advance), and go through each app. You can <strong>create your own scoring system or use Nationals&apos; rubric.</strong> Review holistically, you can even anonymize resumes and apps if you want, score them, then deanonymize after. We usually pick 35–45 people for closed rush, but it totally depends on your applicant pool.
                       </p>
 
-                      <div className="flex gap-6">
+                      <div className="flex flex-col lg:flex-row gap-6">
                         <div className="flex-1 space-y-4">
                           <p className="text-justify">
                             <strong>Closed Rush:</strong> Congrats, you&apos;ve selected the top people for closed rush! This is when you really get to know people and put them under some pressure (but in a good way). We did dinners with actives around Bloomington and ran interviews after. Usually there are 2–3 events. Feel free to grill them a little (or a LOT) and <strong>ask interesting, hard-hitting questions.</strong> Take solid notes on each person&apos;s performance, so you&apos;re ready for final delibs.
@@ -288,7 +323,7 @@ export default function DocsPage() {
                     </p>
 
                     {/* Pins section with two-column layout */}
-                    <div className="flex gap-6 items-center">
+                    <div className="flex flex-col lg:flex-row gap-6 lg:items-center">
                       <div className="flex-1">
                         <p className="text-justify">
                           We use Google Classroom, but we&apos;ll be using Canvas through an administrator account for next semester&apos;s pledgeship. Both have their pros and cons, Classroom&apos;s pretty convenient with access directly through Gmail, while Canvas allows pledges to see their school and KTP coursework on the same page. In terms of assignments, try to have a mix of both solo and group projects that cover all bases. Make sure they&apos;re wearing their pins to events too. The official pins are ninjas, but we think they look quite garbage in our humble, honest opinion, so we designed these!
@@ -364,7 +399,7 @@ export default function DocsPage() {
               <section id="internal-external" className="scroll-mt-24">
                 <div className="space-y-6">
                   <h2 className="text-3xl font-bold tracking-tight">Internal & External Affairs</h2>
-                  <div className="flex gap-6">
+                  <div className="flex flex-col lg:flex-row gap-6">
                     <div className="flex-1">
                       <div className="prose prose-lg max-w-none space-y-6">
                         <p className="text-justify">
@@ -424,7 +459,7 @@ export default function DocsPage() {
                       </p>
                       
                       <div className="mt-6">
-                        <div className="flex justify-between">
+                        <div className="flex flex-col lg:flex-row lg:justify-between gap-4 lg:gap-0">
                           <Image
                             src="/docs-section/marketing/rush-post.png"
                             alt="Rush Social Media Post"
@@ -437,14 +472,14 @@ export default function DocsPage() {
                             alt="Rush Flyer Design"
                             width={250}
                             height={330}
-                            className="border object-cover flex-1 ml-2"
+                            className="border object-cover flex-1 lg:ml-2"
                           />
                           <Image
                             src="/docs-section/marketing/merch.png"
                             alt="KTP Merchandise"
                             width={250}
                             height={330}
-                            className="border object-cover flex-1 ml-2"
+                            className="border object-cover flex-1 lg:ml-2"
                           />
                         </div>
                       </div>
@@ -694,13 +729,13 @@ export default function DocsPage() {
 
                       <div className="mt-6">
                         <div className="border rounded overflow-hidden">
-                          <div className="flex">
+                          <div className="flex flex-col lg:flex-row">
                             <Image
                               src="/docs-section/tech/dashboard.png"
                               alt="Dashboard Interface"
                               width={400}
                               height={300}
-                              className="flex-1 border-r border-b"
+                              className="flex-1 border-b lg:border-r lg:border-b"
                             />
                             <Image
                               src="/docs-section/tech/announcements.png"
@@ -710,13 +745,13 @@ export default function DocsPage() {
                               className="flex-1 border-b"
                             />
                           </div>
-                          <div className="flex">
+                          <div className="flex flex-col lg:flex-row">
                             <Image
                               src="/docs-section/tech/calendar.png"
                               alt="Calendar View"
                               width={400}
                               height={300}
-                              className="flex-1 border-r border-b"
+                              className="flex-1 border-b lg:border-r lg:border-b"
                             />
                             <Image
                               src="/docs-section/tech/dues.png"
@@ -726,13 +761,13 @@ export default function DocsPage() {
                               className="flex-1 border-b"
                             />
                           </div>
-                          <div className="flex">
+                          <div className="flex flex-col lg:flex-row">
                             <Image
                               src="/docs-section/tech/login.png"
                               alt="Login Page"
                               width={400}
                               height={300}
-                              className="flex-1 border-r"
+                              className="flex-1 border-b lg:border-0 lg:border-r"
                             />
                             <Image
                               src="/docs-section/tech/internships.png"

@@ -57,7 +57,7 @@ export function Navbar({ scrollToSection }: NavbarProps) {
       router.push('/')
     } else {
       // If on home page, scroll to top
-      window.scrollTo({ top: 0, behavior: "smooth" })
+    window.scrollTo({ top: 0, behavior: "smooth" })
     }
   }
 
@@ -92,13 +92,13 @@ export function Navbar({ scrollToSection }: NavbarProps) {
                   {item.label}
                 </Link>
               ) : (
-                <button
-                  key={item.href}
+              <button
+                key={item.href}
                   onClick={() => handleNavigation(item.href)}
-                  className="text-sm font-medium tracking-tight text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  {item.label}
-                </button>
+                className="text-sm font-medium tracking-tight text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {item.label}
+              </button>
               )
             ))}
           </nav>
@@ -154,13 +154,13 @@ export function Navbar({ scrollToSection }: NavbarProps) {
                             {item.label}
                           </Link>
                         ) : (
-                          <button
-                            key={item.href}
-                            onClick={() => scrollToSectionAndClose(item.href)}
-                            className="w-full text-left px-4 py-3 text-lg font-medium tracking-tight text-muted-foreground transition-colors hover:text-foreground hover:bg-muted rounded-lg"
-                          >
-                            {item.label}
-                          </button>
+                        <button
+                          key={item.href}
+                          onClick={() => scrollToSectionAndClose(item.href)}
+                          className="w-full text-left px-4 py-3 text-lg font-medium tracking-tight text-muted-foreground transition-colors hover:text-foreground hover:bg-muted rounded-lg"
+                        >
+                          {item.label}
+                        </button>
                         )
                       ))}
                     </nav>
