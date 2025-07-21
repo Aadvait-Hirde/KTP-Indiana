@@ -38,7 +38,7 @@ export function Footer({ scrollToSection }: FooterProps) {
               />
             </div>
             <p className="text-muted-foreground mb-4">
-              The premier technology fraternity at Indiana University, building the future one student at a time.
+              The premier technology fraternity at Indiana University.
             </p>
             <div className="flex space-x-4">
               <Button variant="ghost" size="icon" asChild>
