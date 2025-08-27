@@ -29,12 +29,12 @@ export default function Home() {
       <HeroSection />
       <TechPassionSection />
       <AboutSection />
+      <RushSection />
       <PillarsSection />
       <ExecBoardSection />
       <CommunitySection />
       <KTPPortalSection />
       <DocsSection />
-      <RushSection />
       <AlumniWorkSection />
       <FAQSection />
       <Footer scrollToSection={scrollToSection} />
