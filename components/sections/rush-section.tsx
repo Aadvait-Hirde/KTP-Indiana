@@ -124,7 +124,7 @@ export function RushSection() {
                 </div>
                 <div className="flex items-center text-base font-medium">
                   <Shirt className="h-5 w-5 mr-3 text-primary" />
-                  Business Professional
+                  Casual
                 </div>
               </CardContent>
             </Card>
