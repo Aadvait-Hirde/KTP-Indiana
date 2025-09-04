@@ -169,7 +169,7 @@ export function RushSection() {
                   </div>
                   <div>
                     <CardTitle className="text-2xl font-bold mb-1">
-                      Just Dance with KTP!
+                      Speed Networking
                     </CardTitle>
                     <p className="text-lg font-semibold text-primary">September 9, 2025</p>
                   </div>
@@ -191,7 +191,7 @@ export function RushSection() {
               </CardContent>
             </Card>
 
-            {/* KTP's Noche de Baile */}
+            {/* In The Tank */}
             <Card className="hover:shadow-lg transition-shadow duration-300 p-6">
               <CardHeader className="pb-0">
                 <div className="flex items-center mb-2">
@@ -200,7 +200,7 @@ export function RushSection() {
                   </div>
                   <div>
                     <CardTitle className="text-2xl font-bold mb-1">
-                      KTP&apos;s Noche de Baile
+                      In The Tank
                     </CardTitle>
                     <p className="text-lg font-semibold text-primary">September 11, 2025</p>
                   </div>
