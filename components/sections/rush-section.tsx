@@ -147,11 +147,11 @@ export function RushSection() {
               <CardContent className="space-y-3 pt-0">
                 <div className="flex items-center text-base font-medium">
                   <Clock className="h-5 w-5 mr-3 text-primary" />
-                  8:00 PM - 10:00 PM
+                  6:00 PM - 8:00 PM
                 </div>
                 <div className="flex items-center text-base font-medium">
                   <MapPin className="h-5 w-5 mr-3 text-primary" />
-                  HH 2046, HH 2047, HH 2049, HH 2050
+                  HH 2049, HH 2050
                 </div>
                 <div className="flex items-center text-base font-medium">
                   <Shirt className="h-5 w-5 mr-3 text-primary" />
