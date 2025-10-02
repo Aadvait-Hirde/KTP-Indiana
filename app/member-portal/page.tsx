@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ShoppingBag, CreditCard } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 
 function MemberPortalContent() {
   const { user } = useAuthStore()
