@@ -29,7 +29,6 @@ export default function Home() {
       <HeroSection />
       <TechPassionSection />
       <AboutSection />
-      <RushSection />
       <PillarsSection />
       <ExecBoardSection />
       <CommunitySection />

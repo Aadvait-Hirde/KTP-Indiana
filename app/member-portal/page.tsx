@@ -192,11 +192,13 @@ function MemberPortalContent() {
                 <div className="bg-muted/50 rounded-lg p-4 text-center">
                   <ShoppingBag className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                   <p className="text-sm text-muted-foreground mb-3">
-                    Merch store coming soon!
+                    Merch store out now!
                   </p>
-                  <Button disabled className="w-full">
-                    Shop Now
-                  </Button>
+                  <Link href="https://ktp-store.printful.me/" target="_blank" rel="noopener noreferrer" className="w-full">
+                    <Button className="w-full">
+                      Shop Now
+                    </Button>
+                  </Link>
                 </div>
               </CardContent>
             </Card>

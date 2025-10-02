@@ -12,7 +12,7 @@ import { usePathname, useRouter } from "next/navigation"
 
 const navItems = [
   { href: "#home", label: "Home" },
-  { href: "#rush", label: "Rush" },
+  //{ href: "#rush", label: "Rush" },
   { href: "#members", label: "Members" },
   { href: "#portal", label: "Portal" },
   { href: "#partnerships", label: "Partnerships" },

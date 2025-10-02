@@ -8,7 +8,7 @@ export function ExecBoardSection() {
   const boardMembers = [
     { 
       name: "Atmikha Jeeju", 
-      position: "VP of Professional Development", 
+      position: "VP of External Affairs", 
       image: "/exec-headshots/atmikha.png",
       initials: "AJ"
     },
@@ -26,7 +26,7 @@ export function ExecBoardSection() {
     },
     { 
       name: "Pranav Vangari", 
-      position: "VP of External Affairs", 
+      position: "VP of Professional Development", 
       image: "/exec-headshots/pranav.png",
       initials: "PV"
     },
@@ -56,16 +56,10 @@ export function ExecBoardSection() {
     },
     { 
       name: "Jake Cole", 
-      position: "VP of Tech Development", 
+      position: "VP of Tech Infrastructure", 
       image: "/exec-headshots/jake.png",
       initials: "JC"
     },    
-    { 
-      name: "Babara David", 
-      position: "VP of DEI", 
-      image: "/exec-headshots/babara.png",
-      initials: "BD"
-    },
   ]
 
   const renderCard = (member: typeof boardMembers[0], index: number) => (
