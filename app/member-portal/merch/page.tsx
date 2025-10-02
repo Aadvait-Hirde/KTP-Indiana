@@ -1,9 +1,11 @@
 "use client"
 
+import Image from "next/image"
+import Link from "next/link"
 import { ProtectedRoute } from '@/components/auth/protected-route'
 import { PageLayout } from '@/components/member-portal/page-layout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ShoppingBag, Clock, Palette, Shirt, Package } from 'lucide-react'
+import { ShoppingBag, Palette, Shirt, Package } from 'lucide-react'
 
 function MerchPageContent() {
 
