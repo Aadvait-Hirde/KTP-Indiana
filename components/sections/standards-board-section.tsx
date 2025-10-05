@@ -8,7 +8,7 @@ export function StandardsBoardSection() {
   const boardMembers = [
     {
         name: "Yilin Li",
-        position: "Informatics with focus in HCI",
+        major: "Informatics with focus in HCI",
         year: "Junior",
         initials: "YL",
         image: "/member-headshots/yilin.png" 
