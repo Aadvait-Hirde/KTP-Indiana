@@ -7,6 +7,7 @@ import { TechPassionSection } from "@/components/sections/tech-passion-section"
 import { AboutSection } from "@/components/sections/about-section"
 import { PillarsSection } from "@/components/sections/pillars-section"
 import { ExecBoardSection } from "@/components/sections/exec-board-section"
+import { StandardsBoardSection } from "@/components/sections/standards-board-section"
 import { CommunitySection } from "@/components/sections/community-section"
 import { KTPPortalSection } from "@/components/sections/ktp-portal-section"
 import { DocsSection } from "@/components/sections/docs-section"
@@ -30,6 +31,7 @@ export default function Home() {
       <AboutSection />
       <PillarsSection />
       <ExecBoardSection />
+      <StandardsBoardSection />
       <CommunitySection />
       <KTPPortalSection />
       <DocsSection />

@@ -68,14 +68,14 @@ export function Footer({ scrollToSection }: FooterProps) {
               >
                 Home
               </button>
-              <button 
+              {/* <button 
                 onClick={() => scrollToSection('#rush')}
                 className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 Rush
-              </button>
+              </button> */}
               <button 
-                onClick={() => scrollToSection('#members')}
+                onClick={() => scrollToSection('/members')}
                 className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 Members
@@ -105,9 +105,6 @@ export function Footer({ scrollToSection }: FooterProps) {
                       <p className="text-sm text-muted-foreground">
               © 2025 Kappa Theta Pi - Indiana University. All rights reserved.
             </p>
-          <p className="text-sm text-muted-foreground mt-2 md:mt-0">
-            Designed by Aadvait Hirde
-          </p>
         </div>
       </div>
     </footer>

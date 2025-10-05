@@ -13,7 +13,7 @@ import { usePathname, useRouter } from "next/navigation"
 const navItems = [
   { href: "#home", label: "Home" },
   //{ href: "#rush", label: "Rush" },
-  { href: "#members", label: "Members" },
+  { href: "/members", label: "Members", isExternal: true },
   { href: "#portal", label: "Portal" },
   { href: "#partnerships", label: "Partnerships" },
   { href: "/docs", label: "Docs", isExternal: true },
@@ -35,9 +35,10 @@ export function Navbar({ scrollToSection }: NavbarProps) {
   }, [])
 
   const isOnDocsPage = pathname === '/docs'
+  const isOnMembersPage = pathname === '/members'
 
   const handleNavigation = (href: string) => {
-    if (isOnDocsPage && !href.startsWith('/')) {
+    if ((isOnDocsPage || isOnMembersPage) && !href.startsWith('/')) {
       // If on docs page and clicking a section link, go to home page with that section
       router.push(`/${href}`)
     } else if (href.startsWith('#')) {
@@ -52,7 +53,7 @@ export function Navbar({ scrollToSection }: NavbarProps) {
   }
 
   const handleLogoClick = () => {
-    if (isOnDocsPage) {
+    if (isOnDocsPage || isOnMembersPage) {
       // If on docs page, navigate to home
       router.push('/')
     } else {

@@ -10,25 +10,19 @@ import { Linkedin, Instagram } from "lucide-react"
 export function CommunitySection() {
   const activeMembers = [
     // New leadership members - first row
-    { name: "Karthik Bangaru", major: "Director of Social Media Strategy", year: "Sophmore", initials: "KB", image: "/member-headshots/karthik.jpg" },
     { name: "Lawrence Hermanto", major: "Director of New Member Education", year: "Junior", initials: "LH", image: "/member-headshots/lawrence.png" },
-    { name: "Alex Spalevic", major: "Director of Community Service and Philanthropy", year: "Junior", initials: "AS", image: "/member-headshots/alex_spalevic.png" },
-    { name: "Jason Ballinger", major: "Director of Fundraising", year: "Junior", initials: "JB", image: "/member-headshots/jason.png" },
+    { name: "Jason Ballinger", major: "Director of Community Outreach", year: "Junior", initials: "JB", image: "/member-headshots/jason.png" },
     // Regular members
+    { name: "Karthik Bangaru", major: "Procurement Committee", year: "Sophmore", initials: "KB", image: "/member-headshots/karthik.jpg" },
     { name: "Babara David", major: "Cybersecurity and Global Policy", year: "Junior", initials: "BD", image: "/member-headshots/babara.png"},
     { name: "Margaret Asho", major: "Political Science", year: "Junior", initials: "MA", image: "/member-headshots/margaret.png" },
-    { name: "George Mitchell Herzog", major: "Cybersecurity and Global Policy", year: "Sophomore", initials: "GH", image: "/member-headshots/george.png" },
-    { name: "Tristan Kean", major: "Computer Science", year: "Sophomore", initials: "TK", image: "/member-headshots/tristan.png" },
     { name: "Carl Fampo", major: "Computer Science", year: "Junior", initials: "CF", image: "/member-headshots/carl.png" },
     { name: "Carolyn Thomas", major: "Finance", year: "Junior", initials: "CT", image: "/member-headshots/carolyn.png" },
     { name: "Niva Vadalia", major: "Information Systems, Business Analytics", year: "Junior", initials: "NV", image: "/member-headshots/niva.png" },
     { name: "Pratham Taparia", major: "Informatics", year: "Sophomore", initials: "PT", image: "/member-headshots/pratham.png" },
-    { name: "Alex Daniel Johnson", major: "Computer Science", year: "Sophomore", initials: "AJ", image: "/member-headshots/alex_johnson.png" },
-    { name: "Yilin Li", major: "Informatics with focus in HCI", year: "Junior", initials: "YL", image: "/member-headshots/yilin.png" },
     { name: "Sri Ram Sai Vallabhaneni", major: "Finance", year: "Junior", initials: "SV", image: "/member-headshots/sriram.png" },
     { name: "Aaditya Rajvanshi", major: "Information Systems", year: "Sophomore", initials: "AR", image: "/member-headshots/aaditya.png" },
     { name: "Adam Thason", major: "B.S. Intelligent Systems Engineering", year: "Sophomore", initials: "AT", image: "/member-headshots/adam.png" },
-    { name: "Utsavi Gilder", major: "Informatics", year: "Sophomore", initials: "UG", image: "/member-headshots/utsavi.png" },
     { name: "Rhea Shah", major: "Computer Science", year: "Sophomore", initials: "RS", image: "/member-headshots/rhea.png" },
     { name: "Jorge Sebastian Diaz", major: "Business Management & Analytics", year: "Junior", initials: "JD", image: "/member-headshots/jorge.png" },
     { name: "Nithya Mooli", major: "Information Systems and Finance", year: "Junior", initials: "NM", image: "/member-headshots/nithya.png" },

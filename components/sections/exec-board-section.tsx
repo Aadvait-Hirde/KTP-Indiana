@@ -60,6 +60,12 @@ export function ExecBoardSection() {
       image: "/exec-headshots/jake.png",
       initials: "JC"
     },    
+    { 
+      name: "Alex Spalevic", 
+      position: "VP of Operations", 
+      image: "/exec-headshots/alex_spalevic.png",
+      initials: "AS"
+    },
   ]
 
   const renderCard = (member: typeof boardMembers[0], index: number) => (
@@ -131,8 +137,8 @@ export function ExecBoardSection() {
           {boardMembers.slice(0, 5).map((member, index) => renderCard(member, index))}
         </div>
         
-        {/* Second row - 4 cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 justify-items-center">
+        {/* Second row - 5 cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6 justify-items-center">
           {boardMembers.slice(5).map((member, index) => renderCard(member, index + 5))}
         </div>
       </div>
