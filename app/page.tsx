@@ -32,7 +32,6 @@ export default function Home() {
       <PillarsSection />
       <ExecBoardSection />
       <StandardsBoardSection />
-      <CommunitySection />
       <KTPPortalSection />
       <DocsSection />
       <AlumniWorkSection />

@@ -17,12 +17,13 @@ export default function CommunityPage() {
       element.scrollIntoView({ behavior: "smooth" })
     }
   }
+  
   const activeMembers = [
     // New leadership members - first row
     { name: "Lawrence Hermanto", major: "Director of New Member Education", year: "Junior", initials: "LH", image: "/member-headshots/lawrence.png" },
     { name: "Jason Ballinger", major: "Director of Community Outreach", year: "Junior", initials: "JB", image: "/member-headshots/jason.png" },
     // Regular members
-    { name: "Karthik Bangaru", major: "Econometrics and Quantitative Economics", year: "Sophmore", initials: "KB", image: "/member-headshots/karthik.jpg" },
+    { name: "Karthik Bangaru", major: "Procurement Committee", year: "Sophmore", initials: "KB", image: "/member-headshots/karthik.jpg" },
     { name: "Babara David", major: "Cybersecurity and Global Policy", year: "Junior", initials: "BD", image: "/member-headshots/babara.png"},
     { name: "Margaret Asho", major: "Political Science", year: "Junior", initials: "MA", image: "/member-headshots/margaret.png" },
     { name: "Carl Fampo", major: "Computer Science", year: "Junior", initials: "CF", image: "/member-headshots/carl.png" },
@@ -54,7 +55,7 @@ export default function CommunityPage() {
 
 
   return (
-    <main className="py-24 bg-muted/50 relative overflow-hidden min-h-screen">
+    <div className="min-h-screen bg-background">
       <Navbar scrollToSection={scrollToSection} />
       {/* Wave Pattern Background similar to About section */}
       <div className="absolute inset-0 opacity-5">
@@ -161,6 +162,6 @@ export default function CommunityPage() {
         </Tabs>
       </div>
       <Footer scrollToSection={scrollToSection} />
-    </main>
+    </div>
   )
 } 
