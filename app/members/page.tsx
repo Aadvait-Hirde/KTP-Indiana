@@ -17,13 +17,13 @@ export default function CommunityPage() {
       element.scrollIntoView({ behavior: "smooth" })
     }
   }
-  
+
   const activeMembers = [
     // New leadership members - first row
     { name: "Lawrence Hermanto", major: "Director of New Member Education", year: "Junior", initials: "LH", image: "/member-headshots/lawrence.png" },
     { name: "Jason Ballinger", major: "Director of Community Outreach", year: "Junior", initials: "JB", image: "/member-headshots/jason.png" },
-    // Regular members
-    { name: "Karthik Bangaru", major: "Procurement Committee", year: "Sophmore", initials: "KB", image: "/member-headshots/karthik.jpg" },
+    { name: "Karthik Bangaru", major: "Director of Procurement", year: "Sophmore", initials: "KB", image: "/member-headshots/karthik.jpg" },
+    // Regular members    
     { name: "Babara David", major: "Cybersecurity and Global Policy", year: "Junior", initials: "BD", image: "/member-headshots/babara.png"},
     { name: "Margaret Asho", major: "Political Science", year: "Junior", initials: "MA", image: "/member-headshots/margaret.png" },
     { name: "Carl Fampo", major: "Computer Science", year: "Junior", initials: "CF", image: "/member-headshots/carl.png" },
@@ -78,7 +78,7 @@ export default function CommunityPage() {
       </div>
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center mb-16">
+        <div className="text-center mb-16 mt-12">
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tighter mb-4">
             Our Community
           </h2>
