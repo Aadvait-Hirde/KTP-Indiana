@@ -11,7 +11,7 @@ import { CalendarWidget } from '@/components/member-portal/calendar-widget'
 import { InternshipsWidget } from '@/components/member-portal/internships-widget'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ShoppingBag, CreditCard } from 'lucide-react'
+import { ShoppingBag, CreditCard, Vote, FileText } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -176,8 +176,8 @@ function MemberPortalContent() {
             </Card>
           </div>
 
-          {/* Merch Store Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+          {/* Additional Sections */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
             {/* Merch Store */}
             <Card className="h-fit">
               <CardHeader>
@@ -187,7 +187,7 @@ function MemberPortalContent() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Get the latest KTP merchandise including hoodies, t-shirts, stickers, and more!
                 </p>
                 <div className="bg-muted/50 rounded-lg p-4 text-center">
@@ -195,17 +195,66 @@ function MemberPortalContent() {
                   <p className="text-sm text-muted-foreground mb-3">
                     Merch store out now!
                   </p>
-                  <Link href="https://ktp-store.printful.me/" target="_blank" rel="noopener noreferrer" className="w-full">
+                  <Link href="/member-portal/merch" className="w-full">
                     <Button className="w-full">
-                      Shop Now
+                      View Store
                     </Button>
                   </Link>
                 </div>
               </CardContent>
             </Card>
-            
-            {/* Empty space for future content */}
-            <div></div>
+
+            {/* Elections */}
+            <Card className="h-fit">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Vote className="h-5 w-5" />
+                  <span>Elections</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-muted-foreground text-sm">
+                  View candidate videos and positions for the upcoming elections.
+                </p>
+                <div className="bg-muted/50 rounded-lg p-4 text-center">
+                  <Vote className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Elections are open!
+                  </p>
+                  <Link href="/member-portal/elections" className="w-full">
+                    <Button className="w-full">
+                      View Elections
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Applications and Forms */}
+            <Card className="h-fit">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <FileText className="h-5 w-5" />
+                  <span>Forms</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-muted-foreground text-sm">
+                  Access important forms and applications for KTP members.
+                </p>
+                <div className="bg-muted/50 rounded-lg p-4 text-center">
+                  <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Forms available
+                  </p>
+                  <Link href="/member-portal/forms" className="w-full">
+                    <Button className="w-full">
+                      View Forms
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </main>
       </div>

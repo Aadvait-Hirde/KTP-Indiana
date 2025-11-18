@@ -19,7 +19,9 @@ import {
   LogOut,
   Menu,
   X,
-  Briefcase
+  Briefcase,
+  Vote,
+  FileText
 } from 'lucide-react'
 
 export function Sidebar() {
@@ -50,6 +52,8 @@ export function Sidebar() {
     { icon: Users, label: 'Alumni Directory', href: '/member-portal/alumni' },
     { icon: ShoppingBag, label: 'Merch Store', href: '/member-portal/merch' },
     { icon: CreditCard, label: 'Pay Dues', href: '/member-portal/dues' },
+    { icon: Vote, label: 'Elections', href: '/member-portal/elections' },
+    { icon: FileText, label: 'Forms', href: '/member-portal/forms' },
   ]
 
   const externalLinks = [
