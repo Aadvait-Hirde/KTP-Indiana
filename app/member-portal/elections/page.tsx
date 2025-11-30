@@ -12,7 +12,7 @@ function ElectionsPageContent() {
     { 
       position: 'President', 
       candidates: [
-        { name: 'Alexandar Spalevic', videoUrl: 'https://youtube.com/shorts/tEjSl8jIEjc', isYouTube: true },
+        { name: 'Alexandar Spalevic', videoUrl: 'https://youtu.be/ayfGBufH9xo', isYouTube: true },
         { name: 'Aaditya Rajvanshi', videoUrl: 'https://youtu.be/5xGHe7uTRyk', isYouTube: true }
       ] 
     },
@@ -61,7 +61,8 @@ function ElectionsPageContent() {
     { 
       position: 'VP of Marketing', 
       candidates: [
-        { name: 'Elizabeth Vander Bie', videoUrl: 'https://youtu.be/b6L9IMg7mK8', isYouTube: true }
+        { name: 'Elizabeth Vander Bie', videoUrl: 'https://youtu.be/b6L9IMg7mK8', isYouTube: true },
+        { name: 'Rishi Bhuthpur', videoUrl: 'https://youtube.com/shorts/FGdi_kvEI3A?si=8LHWOXbiXX_pZ7zR', isYouTube: true }
       ] 
     },
     { 
