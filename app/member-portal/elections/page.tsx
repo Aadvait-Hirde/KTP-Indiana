@@ -156,14 +156,22 @@ function ElectionsPageContent() {
         {/* Header */}
         <h1 className="text-2xl md:text-3xl font-bold">Elections</h1>
 
-        {/* Voting Link Placeholder */}
+        {/* Voting Link */}
         <Card>
           <CardContent className="p-4 md:p-6">
             <div className="bg-muted/50 rounded-lg p-4 text-center">
-              <Button className="w-full" disabled>
-                <Vote className="h-4 w-4 mr-2" />
-                Voting Link (Coming Soon)
-              </Button>
+              <a
+                href="https://airtable.com/appl4TdIOUhX3BhBo/pagJvLNPSu6cwi2Lp/form"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block"
+              >
+                <Button className="w-full">
+                  <Vote className="h-4 w-4 mr-2" />
+                  Vote Now
+                  <ExternalLink className="h-4 w-4 ml-2" />
+                </Button>
+              </a>
             </div>
           </CardContent>
         </Card>
