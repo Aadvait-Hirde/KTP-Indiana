@@ -26,7 +26,8 @@ function ElectionsPageContent() {
       position: 'VP of Operations', 
       candidates: [
         { name: 'Alexandar Spalevic', videoUrl: 'https://www.youtube.com/watch?v=aT7hQaFL-lc', isYouTube: true },
-        { name: 'Diya Patel', videoUrl: 'https://drive.google.com/file/d/1_tAUF_tLeH0nzrE7xqKfhgJRH4isxXgn/view?usp=sharing', isYouTube: false }
+        { name: 'Diya Patel', videoUrl: 'https://drive.google.com/file/d/1_tAUF_tLeH0nzrE7xqKfhgJRH4isxXgn/view?usp=sharing', isYouTube: false },
+        { name: 'Veer Nangia', videoUrl: 'https://youtu.be/hOnl7It3egM', isYouTube: true }
       ] 
     },
     { 
@@ -78,7 +79,8 @@ function ElectionsPageContent() {
       candidates: [
         { name: 'Jorge Diaz', videoUrl: 'https://drive.google.com/file/d/1P9LRu85pqobScLlDmXPDBRTQ-CMTq20g/view?usp=sharing', isYouTube: false },
         { name: 'Arnav Pydimukkala', videoUrl: 'https://drive.google.com/file/d/1MR2eUMwJWdh3mfnc8u1hdmwtIHZEH3Q9/view?usp=sharing', isYouTube: false },
-        { name: 'Rishit Shekhar', videoUrl: 'https://drive.google.com/file/d/1rbMTy1EraGFEY_cXX8xJOWj7LGujGZBZ/view?usp=sharing', isYouTube: false }
+        { name: 'Rishit Shekhar', videoUrl: 'https://drive.google.com/file/d/1rbMTy1EraGFEY_cXX8xJOWj7LGujGZBZ/view?usp=sharing', isYouTube: false },
+        { name: 'Aniketh Battepati', videoUrl: 'https://youtu.be/ATpfil5HI_s?si=r_xvP1G2xR0AXKRK', isYouTube: true }
       ] 
     },
     { position: 'Director of New Member Education', candidates: [] },
