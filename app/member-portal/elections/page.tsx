@@ -108,7 +108,9 @@ function ElectionsPageContent() {
     { 
       position: 'Director of Rush Committee', 
       candidates: [
-        { name: 'Ethan Abilius', videoUrl: 'https://youtube.com/shorts/wL3-myDPw3Q?feature=share', isYouTube: true }
+        { name: 'Ethan Abilius', videoUrl: 'https://youtube.com/shorts/wL3-myDPw3Q?feature=share', isYouTube: true },
+        { name: 'Jaeyoon Ahn', videoUrl: 'https://drive.google.com/file/d/1KIsGy0rycbzhdPZdZ1n0g7qZ0WGh33Qd/view?usp=sharing', isYouTube: false },
+        { name: 'Meara Block', videoUrl: 'https://drive.google.com/file/d/1GhiCuWDvfajw175-u9d320FRWOEGUuj_/view?usp=sharing', isYouTube: false }
       ] 
     },
     { position: 'Pledge Educator', candidates: [] },
