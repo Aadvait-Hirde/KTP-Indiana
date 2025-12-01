@@ -25,7 +25,8 @@ function ElectionsPageContent() {
     { 
       position: 'VP of Operations', 
       candidates: [
-        { name: 'Alexandar Spalevic', videoUrl: 'https://www.youtube.com/watch?v=aT7hQaFL-lc', isYouTube: true }
+        { name: 'Alexandar Spalevic', videoUrl: 'https://www.youtube.com/watch?v=aT7hQaFL-lc', isYouTube: true },
+        { name: 'Diya Patel', videoUrl: 'https://drive.google.com/file/d/1_tAUF_tLeH0nzrE7xqKfhgJRH4isxXgn/view?usp=sharing', isYouTube: false }
       ] 
     },
     { 
@@ -41,14 +42,16 @@ function ElectionsPageContent() {
       candidates: [
         { name: 'Jorge Diaz', videoUrl: 'https://drive.google.com/file/d/10XI0a5o7ufxlHcP7BtpuGINNI09Ayl_z/view?usp=sharing', isYouTube: false },
         { name: 'Pratham Taparia', videoUrl: 'https://drive.google.com/file/d/1yTAU1DtfBsK0HYxfPZeDfNvC00-4fRNj/view?usp=sharing', isYouTube: false },
-        { name: 'Nick Natale', videoUrl: 'https://youtu.be/xfFXmBXrSVE', isYouTube: true }
+        { name: 'Nick Natale', videoUrl: 'https://youtu.be/xfFXmBXrSVE', isYouTube: true },
+        { name: 'Ethan Abilius', videoUrl: 'https://youtu.be/_J04pFOwS6c', isYouTube: true }
       ] 
     },
     { 
       position: 'VP of External Affairs', 
       candidates: [
         { name: 'Pratham Taparia', videoUrl: 'https://drive.google.com/file/d/1DBfBrsaEC3WmoSoeFl4xO-x5lOKyAEma/view?usp=sharing', isYouTube: false },
-        { name: 'Arnav Pydimukkala', videoUrl: 'https://drive.google.com/file/d/1VB8fjyytvck_VtCA8630rNfccUERv3j7/view?usp=sharing', isYouTube: false }
+        { name: 'Arnav Pydimukkala', videoUrl: 'https://drive.google.com/file/d/1VB8fjyytvck_VtCA8630rNfccUERv3j7/view?usp=sharing', isYouTube: false },
+        { name: 'Rishit Shekhar', videoUrl: 'https://drive.google.com/file/d/1xZRzNGlSGsY1cVr3_dIhobP_es1vuLuy/view?usp=sharing', isYouTube: false }
       ] 
     },
     { 
@@ -57,7 +60,12 @@ function ElectionsPageContent() {
         { name: 'Jason Ballinger', videoUrl: 'https://youtu.be/3-yP8nFIyZw', isYouTube: true }
       ] 
     },
-    { position: 'VP of Social Engagement', candidates: [] },
+    { 
+      position: 'VP of Social Engagement', 
+      candidates: [
+        { name: 'Adishree Botwe', videoUrl: 'https://drive.google.com/file/d/1sEjBfllmapzpVftK9NfPDDJBe3_hKgHQ/view?usp=sharing', isYouTube: false }
+      ] 
+    },
     { 
       position: 'VP of Marketing', 
       candidates: [
@@ -69,7 +77,8 @@ function ElectionsPageContent() {
       position: 'VP of Finance', 
       candidates: [
         { name: 'Jorge Diaz', videoUrl: 'https://drive.google.com/file/d/1P9LRu85pqobScLlDmXPDBRTQ-CMTq20g/view?usp=sharing', isYouTube: false },
-        { name: 'Arnav Pydimukkala', videoUrl: 'https://drive.google.com/file/d/1MR2eUMwJWdh3mfnc8u1hdmwtIHZEH3Q9/view?usp=sharing', isYouTube: false }
+        { name: 'Arnav Pydimukkala', videoUrl: 'https://drive.google.com/file/d/1MR2eUMwJWdh3mfnc8u1hdmwtIHZEH3Q9/view?usp=sharing', isYouTube: false },
+        { name: 'Rishit Shekhar', videoUrl: 'https://drive.google.com/file/d/1rbMTy1EraGFEY_cXX8xJOWj7LGujGZBZ/view?usp=sharing', isYouTube: false }
       ] 
     },
     { position: 'Director of New Member Education', candidates: [] },
@@ -80,7 +89,12 @@ function ElectionsPageContent() {
         { name: 'Pratham Taparia', videoUrl: 'https://drive.google.com/file/d/1CpJiF3tiDIdg5D4yzaoW3FIIWQDccpCG/view?usp=sharing', isYouTube: false }
       ] 
     },
-    { position: 'Director of Procurement Committee', candidates: [] },
+    { 
+      position: 'Director of Procurement Committee', 
+      candidates: [
+        { name: 'Nekeisha Matta', videoUrl: 'https://drive.google.com/file/d/10jjm15XQuHhatHWhloMfTGhCni-IFypu/view?usp=sharing', isYouTube: false }
+      ] 
+    },
     { 
       position: 'Director of Merch Committee', 
       candidates: [
@@ -89,7 +103,12 @@ function ElectionsPageContent() {
         { name: 'Annanya Bitra', videoUrl: 'https://youtu.be/OzhysyUnyrs', isYouTube: true }
       ] 
     },
-    { position: 'Director of Rush Committee', candidates: [] },
+    { 
+      position: 'Director of Rush Committee', 
+      candidates: [
+        { name: 'Ethan Abilius', videoUrl: 'https://youtube.com/shorts/wL3-myDPw3Q?feature=share', isYouTube: true }
+      ] 
+    },
     { position: 'Pledge Educator', candidates: [] },
   ]
 
