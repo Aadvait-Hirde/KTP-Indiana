@@ -64,7 +64,8 @@ function ElectionsPageContent() {
     { 
       position: 'VP of Social Engagement', 
       candidates: [
-        { name: 'Adishree Botwe', videoUrl: 'https://drive.google.com/file/d/1sEjBfllmapzpVftK9NfPDDJBe3_hKgHQ/view?usp=sharing', isYouTube: false }
+        { name: 'Adishree Botwe', videoUrl: 'https://drive.google.com/file/d/1sEjBfllmapzpVftK9NfPDDJBe3_hKgHQ/view?usp=sharing', isYouTube: false },
+        { name: 'Natalia Yorgova', videoUrl: 'https://youtu.be/N609cfz4Heo', isYouTube: true }
       ] 
     },
     { 
