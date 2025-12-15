@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ClerkProvider } from "@clerk/nextjs";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,6 +41,7 @@ export default function RootLayout({
             <AuthProvider>{children}</AuthProvider>
           </ThemeProvider>
           <SpeedInsights />
+          <Analytics />
         </body>
       </html>
     </ClerkProvider>
