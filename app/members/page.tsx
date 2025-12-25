@@ -160,8 +160,8 @@ export default function CommunityPage() {
                 Array.from({ length: 12 }).map((_, index) => (
                   <Card key={index} className="flex flex-col h-full">
                     <CardHeader className="text-center p-3 flex-none">
-                      <div className="h-14 w-14 mx-auto mb-3 rounded-full bg-muted animate-pulse" />
-                      <div className="h-4 bg-muted rounded animate-pulse mb-2" />
+                      <div className="h-24 w-24 mx-auto mb-3 rounded-full bg-muted animate-pulse" />
+                      <div className="h-6 bg-muted rounded animate-pulse mb-2" />
                       <div className="h-8 bg-muted rounded animate-pulse" />
                     </CardHeader>
                   </Card>
