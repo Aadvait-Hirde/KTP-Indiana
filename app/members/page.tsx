@@ -114,15 +114,15 @@ export default function CommunityPage() {
                     className="group hover:shadow-lg hover:scale-105 transition-all duration-300 border hover:border-primary/30 flex flex-col h-full"
                   >
                     <CardHeader className="text-center p-3 flex-none">
-                      <Avatar className="h-14 w-14 mx-auto mb-3 ring-2 ring-transparent group-hover:ring-primary/30 transition-all duration-300">
-                        <AvatarImage />
-                        <AvatarFallback className="text-sm bg-linear-to-br from-primary/20 to-primary/10">
+                      <Avatar className="h-24 w-24 mx-auto mb-3 ring-2 ring-transparent group-hover:ring-primary/30 transition-all duration-300">
+                        <AvatarImage src={user.avatar} />
+                        <AvatarFallback className="text-xl font-bold bg-linear-to-br from-primary/20 to-primary/10">
                           {user.name.charAt(0) +
                             user.name.charAt(user.name.lastIndexOf(" ") + 1)}
                         </AvatarFallback>
                       </Avatar>
                       <div className="h-12 flex flex-col justify-center">
-                        <CardTitle className="text-sm group-hover:text-primary transition-colors leading-normal mb-1">
+                        <CardTitle className="text-md group-hover:text-primary transition-colors leading-normal mb-1">
                           {user.name}
                         </CardTitle>
                       </div>
@@ -168,7 +168,9 @@ export default function CommunityPage() {
                 ))
               ) : (
                 <div className="col-span-full text-center py-8">
-                  <p className="text-muted-foreground">No members found</p>
+                  <p className="text-muted-foreground">
+                    Error fetching users: {fetchError}
+                  </p>
                 </div>
               )}
             </div>
