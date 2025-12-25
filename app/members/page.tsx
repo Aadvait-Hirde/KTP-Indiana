@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import {
   Card,
-//   CardContent,
+  //   CardContent,
   CardHeader,
   CardTitle,
   CardDescription,
@@ -33,7 +33,11 @@ export default function CommunityPage() {
     let mounted = true;
     const fetchUsers = async () => {
       setLoading(true);
-      const { data, error } = await supabase.from("users").select("*");
+      const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .neq("role", "newmember")
+        .neq("role", null);
       if (!mounted) return;
       if (error) {
         setFetchError(error.message);
