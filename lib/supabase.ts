@@ -27,6 +27,7 @@ export interface User {
   pledgeClass: PledgeClass;
   socials: JSON;
   major: string;
+  title: string;
 }
 
 export interface Announcement {

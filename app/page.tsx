@@ -30,7 +30,7 @@ export default function Home() {
       <AboutSection />
       <PillarsSection />
       <ExecBoardSection />
-      <StandardsBoardSection />
+      {/* <StandardsBoardSection /> */}
       <KTPPortalSection />
       <DocsSection />
       <AlumniWorkSection />
