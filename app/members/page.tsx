@@ -3,17 +3,17 @@
 import React, { useEffect, useState } from "react";
 import {
   Card,
-  CardContent,
+//   CardContent,
   CardHeader,
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/sections/footer";
-import { Linkedin, Instagram } from "lucide-react";
+// import { Linkedin, Instagram } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { User } from "@/lib/supabase";
 

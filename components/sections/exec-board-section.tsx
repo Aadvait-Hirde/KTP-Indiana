@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Linkedin, Instagram } from "lucide-react";
+// import { Linkedin, Instagram } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { User } from "@/lib/supabase";
 
