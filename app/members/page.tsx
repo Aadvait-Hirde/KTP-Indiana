@@ -58,7 +58,7 @@ export default function CommunityPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen min-w-screen bg-background">
       <Navbar scrollToSection={scrollToSection} />
       {/* Wave Pattern Background similar to About section */}
       <div className="absolute inset-0 opacity-5">

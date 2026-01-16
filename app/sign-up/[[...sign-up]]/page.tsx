@@ -20,7 +20,14 @@ export default function SignUpPage() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [verificationCode, setVerificationCode] = useState<string[]>(["", "", "", "", "", ""]);
+  const [verificationCode, setVerificationCode] = useState<string[]>([
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+  ]);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -56,16 +63,22 @@ export default function SignUpPage() {
     }
   };
 
-  const handleDigitKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleDigitKeyDown = (
+    index: number,
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
     if (e.key === "Backspace" && !verificationCode[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
-  const handleDigitPaste = (index: number, e: React.ClipboardEvent<HTMLInputElement>) => {
+  const handleDigitPaste = (
+    index: number,
+    e: React.ClipboardEvent<HTMLInputElement>
+  ) => {
     e.preventDefault();
-    const paste = e.clipboardData.getData('text').trim();
-    
+    const paste = e.clipboardData.getData("text").trim();
+
     // Check if pasted content is exactly 6 digits
     if (/^\d{6}$/.test(paste)) {
       const chars = paste.split("");
@@ -94,7 +107,9 @@ export default function SignUpPage() {
         await setActive({ session: result.createdSessionId });
         router.push("/member-portal");
       } else if (result.status === "missing_requirements") {
-        await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+        await signUp.prepareEmailAddressVerification({
+          strategy: "email_code",
+        });
         setError(""); // Clear any previous errors
         setPendingVerification(true);
       } else {
@@ -105,7 +120,9 @@ export default function SignUpPage() {
       const msg = error.errors?.[0]?.message;
       const code = error.errors?.[0]?.code;
       if (code === "form_identifier_exists") {
-        setError("An account with this email already exists. Please sign in instead.");
+        setError(
+          "An account with this email already exists. Please sign in instead."
+        );
       } else {
         setError(msg || "An error occurred.");
       }
@@ -130,18 +147,28 @@ export default function SignUpPage() {
         await setActive({ session: result.createdSessionId });
         router.push("/member-portal");
       } else {
-        setError("The verification code is incorrect. Please check your email and try again.");
+        setError(
+          "The verification code is incorrect. Please check your email and try again."
+        );
       }
     } catch (err: unknown) {
       const error = err as { errors?: { message: string; code?: string }[] };
       const errorMessage = error.errors?.[0]?.message;
       const errorCode = error.errors?.[0]?.code;
-      
+
       // Handle specific error codes
-      if (errorCode === "form_code_incorrect" || errorMessage?.toLowerCase().includes("incorrect")) {
-        setError("The verification code is incorrect. Please check your email and try again.");
+      if (
+        errorCode === "form_code_incorrect" ||
+        errorMessage?.toLowerCase().includes("incorrect")
+      ) {
+        setError(
+          "The verification code is incorrect. Please check your email and try again."
+        );
       } else {
-        setError(errorMessage || "The verification code is incorrect. Please check your email and try again.");
+        setError(
+          errorMessage ||
+            "The verification code is incorrect. Please check your email and try again."
+        );
       }
     } finally {
       setIsLoading(false);
@@ -149,7 +176,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen flex transition-all duration-300">
+    <div className="min-h-screen min-w-screen flex transition-all duration-300">
       {/* LEFT */}
       <div className="hidden lg:flex lg:w-1/2 relative">
         <Image src="/auth-bg.jpg" alt="bg" fill className="object-cover" />
@@ -158,8 +185,16 @@ export default function SignUpPage() {
           <Link href="/">← Back to website</Link>
         </div>
         <div className="absolute bottom-16 left-16 text-white">
-          <h1 className="text-7xl font-bold leading-tight mb-4">Welcome<br />to the KTP<br />Member Portal</h1>
-          <p className="text-lg text-white/80">Your one stop for everything KTP</p>
+          <h1 className="text-7xl font-bold leading-tight mb-4">
+            Welcome
+            <br />
+            to the KTP
+            <br />
+            Member Portal
+          </h1>
+          <p className="text-lg text-white/80">
+            Your one stop for everything KTP
+          </p>
         </div>
       </div>
 
@@ -168,9 +203,11 @@ export default function SignUpPage() {
         <div className="flex justify-between items-center pt-2 pb-4">
           <div className="w-9" />
           <Image
-            src={mounted && theme === "dark"
-              ? "/ktp-logos/KTP Logo Dark Plain No BG.png"
-              : "/ktp-logos/KTP Logo Plain Text.png"}
+            src={
+              mounted && theme === "dark"
+                ? "/ktp-logos/KTP Logo Dark Plain No BG.png"
+                : "/ktp-logos/KTP Logo Plain Text.png"
+            }
             alt="KTP Logo"
             width={80}
             height={40}
@@ -181,7 +218,9 @@ export default function SignUpPage() {
         <div className="flex-1 flex items-center justify-center">
           <div className="w-full max-w-lg space-y-8 animate-in fade-in duration-300">
             <div className="text-center space-y-3">
-              <h2 className="text-4xl font-bold">{pendingVerification ? "Verify Your Email" : "Join Now"}</h2>
+              <h2 className="text-4xl font-bold">
+                {pendingVerification ? "Verify Your Email" : "Join Now"}
+              </h2>
               <div className="text-muted-foreground text-lg">
                 {pendingVerification ? (
                   <div className="space-y-1">
@@ -206,21 +245,45 @@ export default function SignUpPage() {
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div id="clerk-captcha" />
                     <div className="grid grid-cols-2 gap-4">
-                      <Input placeholder="First Name" value={firstName} onChange={e => setFirstName(e.target.value)} required />
-                      <Input placeholder="Last Name" value={lastName} onChange={e => setLastName(e.target.value)} required />
+                      <Input
+                        placeholder="First Name"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        required
+                      />
+                      <Input
+                        placeholder="Last Name"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        required
+                      />
                     </div>
-                    <Input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
+                    <Input
+                      type="email"
+                      placeholder="Email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
                     <div className="relative">
                       <Input
                         type={showPassword ? "text" : "password"}
                         placeholder="Password"
                         value={password}
-                        onChange={e => setPassword(e.target.value)}
+                        onChange={(e) => setPassword(e.target.value)}
                         required
                         className="pr-10"
                       />
-                      <button type="button" className="absolute right-3 top-2" onClick={() => setShowPassword(!showPassword)}>
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      <button
+                        type="button"
+                        className="absolute right-3 top-2"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
                       </button>
                     </div>
                     <Button type="submit" disabled={isLoading}>
@@ -229,7 +292,9 @@ export default function SignUpPage() {
                   </form>
                 ) : (
                   <form onSubmit={handleVerification} className="space-y-6">
-                    <label className="text-sm font-medium block">Enter the 6-digit code</label>
+                    <label className="text-sm font-medium block">
+                      Enter the 6-digit code
+                    </label>
                     <div className="flex justify-between gap-2">
                       {verificationCode.map((val, i) => (
                         <Input
@@ -249,13 +314,19 @@ export default function SignUpPage() {
                     </div>
                     <Button
                       type="submit"
-                      disabled={isLoading || verificationCode.join("").length !== 6}
+                      disabled={
+                        isLoading || verificationCode.join("").length !== 6
+                      }
                       className="w-full"
                     >
                       {isLoading ? "Verifying..." : "Verify Email"}
                     </Button>
                     <div className="text-center">
-                      <button type="button" onClick={() => setPendingVerification(false)} className="text-sm text-muted-foreground hover:underline">
+                      <button
+                        type="button"
+                        onClick={() => setPendingVerification(false)}
+                        className="text-sm text-muted-foreground hover:underline"
+                      >
                         ← Back to sign up
                       </button>
                     </div>
@@ -267,7 +338,10 @@ export default function SignUpPage() {
             {!pendingVerification && (
               <div className="text-center text-muted-foreground text-sm">
                 Already have an account?{" "}
-                <Link href="/sign-in" className="font-medium hover:underline text-foreground">
+                <Link
+                  href="/sign-in"
+                  className="font-medium hover:underline text-foreground"
+                >
                   Sign in
                 </Link>
               </div>
@@ -278,4 +352,3 @@ export default function SignUpPage() {
     </div>
   );
 }
- 

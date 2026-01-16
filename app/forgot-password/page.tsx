@@ -1,38 +1,38 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useAuth, useSignIn } from '@clerk/nextjs'
-import { useRouter } from 'next/navigation'
-import { useTheme } from 'next-themes'
-import Image from 'next/image'
-import Link from 'next/link'
+import { useState, useEffect } from "react";
+import { useAuth, useSignIn } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
+import Image from "next/image";
+import Link from "next/link";
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent } from '@/components/ui/card'
-import { ThemeToggle } from '@/components/theme-toggle'
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function ForgotPasswordPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [code, setCode] = useState('')
-  const [successfulCreation, setSuccessfulCreation] = useState(false)
-  const [secondFactor, setSecondFactor] = useState(false)
-  const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [mounted, setMounted] = useState(false)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [code, setCode] = useState("");
+  const [successfulCreation, setSuccessfulCreation] = useState(false);
+  const [secondFactor, setSecondFactor] = useState(false);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  const router = useRouter()
-  const { isSignedIn } = useAuth()
-  const { isLoaded, signIn, setActive } = useSignIn()
-  const { theme } = useTheme()
+  const router = useRouter();
+  const { isSignedIn } = useAuth();
+  const { isLoaded, signIn, setActive } = useSignIn();
+  const { theme } = useTheme();
 
   useEffect(() => {
-    setMounted(true)
+    setMounted(true);
     if (isSignedIn) {
-      router.push('/')
+      router.push("/");
     }
-  }, [isSignedIn, router])
+  }, [isSignedIn, router]);
 
   if (!isLoaded) {
     return (
@@ -42,87 +42,103 @@ export default function ForgotPasswordPage() {
           <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
-    )
+    );
   }
 
   // Send the password reset code to the user's email
   async function create(e: React.FormEvent) {
-    e.preventDefault()
-    if (!signIn) return
-    
-    setIsLoading(true)
-    setError('')
+    e.preventDefault();
+    if (!signIn) return;
+
+    setIsLoading(true);
+    setError("");
 
     try {
       await signIn.create({
-        strategy: 'reset_password_email_code',
+        strategy: "reset_password_email_code",
         identifier: email.trim(),
-      })
-      setError('') // Clear any previous errors
-      setSuccessfulCreation(true)
+      });
+      setError(""); // Clear any previous errors
+      setSuccessfulCreation(true);
     } catch (err) {
-      const error = err as { errors?: { longMessage?: string; message?: string }[] }
-      const errorMessage = error.errors?.[0]?.longMessage || error.errors?.[0]?.message
-      setError(errorMessage || 'An error occurred. Please try again.')
+      const error = err as {
+        errors?: { longMessage?: string; message?: string }[];
+      };
+      const errorMessage =
+        error.errors?.[0]?.longMessage || error.errors?.[0]?.message;
+      setError(errorMessage || "An error occurred. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
   // Reset the user's password
   async function reset(e: React.FormEvent) {
-    e.preventDefault()
-    if (!signIn) return
-    
-    setIsLoading(true)
-    setError('')
+    e.preventDefault();
+    if (!signIn) return;
+
+    setIsLoading(true);
+    setError("");
 
     try {
       // Add timeout to prevent hanging
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Request timeout')), 15000) // 15 second timeout
-      })
+        setTimeout(() => reject(new Error("Request timeout")), 15000); // 15 second timeout
+      });
 
       const resetPromise = signIn.attemptFirstFactor({
-        strategy: 'reset_password_email_code',
+        strategy: "reset_password_email_code",
         code: code.trim(),
         password,
-      })
+      });
 
-      const result = await Promise.race([resetPromise, timeoutPromise]) as Awaited<typeof resetPromise>
+      const result = (await Promise.race([
+        resetPromise,
+        timeoutPromise,
+      ])) as Awaited<typeof resetPromise>;
 
-      if (result.status === 'needs_second_factor') {
-        setSecondFactor(true)
-        setIsLoading(false)
-      } else if (result.status === 'complete') {
+      if (result.status === "needs_second_factor") {
+        setSecondFactor(true);
+        setIsLoading(false);
+      } else if (result.status === "complete") {
         if (setActive) {
-          await setActive({ session: result.createdSessionId })
+          await setActive({ session: result.createdSessionId });
         }
-        router.push('/member-portal')
+        router.push("/member-portal");
       } else {
-        setError('Password reset failed. Please try again.')
-        setIsLoading(false)
+        setError("Password reset failed. Please try again.");
+        setIsLoading(false);
       }
     } catch (err) {
-      const error = err as { errors?: { longMessage?: string; message?: string; code?: string }[] }
-      const errorMessage = error.errors?.[0]?.longMessage || error.errors?.[0]?.message
-      const errorCode = error.errors?.[0]?.code
-      
-      if (errorCode === 'form_code_incorrect' || errorMessage?.toLowerCase().includes('incorrect')) {
-        setError('The reset code is incorrect. Please check your email and try again.')
-      } else if (errorCode === 'form_password_pwned') {
-        setError('This password has been found in a data breach. Please choose a different password.')
-      } else if (errorCode === 'form_password_length_too_short') {
-        setError('Password must be at least 8 characters long.')
+      const error = err as {
+        errors?: { longMessage?: string; message?: string; code?: string }[];
+      };
+      const errorMessage =
+        error.errors?.[0]?.longMessage || error.errors?.[0]?.message;
+      const errorCode = error.errors?.[0]?.code;
+
+      if (
+        errorCode === "form_code_incorrect" ||
+        errorMessage?.toLowerCase().includes("incorrect")
+      ) {
+        setError(
+          "The reset code is incorrect. Please check your email and try again."
+        );
+      } else if (errorCode === "form_password_pwned") {
+        setError(
+          "This password has been found in a data breach. Please choose a different password."
+        );
+      } else if (errorCode === "form_password_length_too_short") {
+        setError("Password must be at least 8 characters long.");
       } else {
-        setError(errorMessage || 'An error occurred. Please try again.')
+        setError(errorMessage || "An error occurred. Please try again.");
       }
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
   return (
-    <div className="min-h-screen flex transition-all duration-300 ease-in-out">
+    <div className="min-h-screen min-w-screen flex transition-all duration-300 ease-in-out">
       {/* Left side - Background image with text overlay */}
       <div className="hidden lg:flex lg:w-1/2 relative">
         <Image
@@ -133,19 +149,24 @@ export default function ForgotPasswordPage() {
           priority
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-        
+
         {/* Back to website link */}
         <div className="absolute top-8 left-8">
-          <Link href="/" className="text-white/80 hover:text-white text-sm flex items-center space-x-2">
+          <Link
+            href="/"
+            className="text-white/80 hover:text-white text-sm flex items-center space-x-2"
+          >
             <span>← Back to website</span>
           </Link>
         </div>
-        
+
         {/* Text overlay - moved right and up */}
         <div className="absolute bottom-16 left-16 text-white">
           <h1 className="text-7xl font-bold tracking-tighter font-inter mb-4 leading-tight">
-            Welcome<br />
-            to the KTP<br />
+            Welcome
+            <br />
+            to the KTP
+            <br />
             Member Portal
           </h1>
           <p className="text-lg text-white/80 tracking-normal">
@@ -160,7 +181,11 @@ export default function ForgotPasswordPage() {
         <div className="flex justify-between items-center pt-2 pb-4">
           <div className="w-9"></div>
           <Image
-            src={mounted && theme === 'dark' ? "/ktp-logos/KTP Logo Dark Plain No BG.png" : "/ktp-logos/KTP Logo Plain Text.png"}
+            src={
+              mounted && theme === "dark"
+                ? "/ktp-logos/KTP Logo Dark Plain No BG.png"
+                : "/ktp-logos/KTP Logo Plain Text.png"
+            }
             alt="KTP Logo"
             width={80}
             height={40}
@@ -168,133 +193,160 @@ export default function ForgotPasswordPage() {
           />
           <ThemeToggle />
         </div>
-        
+
         <div className="flex-1 flex items-center justify-center">
           <div className="w-full max-w-md space-y-8 animate-in fade-in duration-300">
-
-
-
-          {/* Header text */}
-          <div className="text-center space-y-3">
-            <h2 className="text-4xl font-bold tracking-tight text-foreground">
-              {!successfulCreation ? 'Reset Password' : 'Enter New Password'}
-            </h2>
-            <div className="text-muted-foreground text-lg">
-              {!successfulCreation ? (
-                <p>Enter your email address and we&apos;ll send you a reset code</p>
-              ) : (
-                <div className="space-y-1">
-                  <p>Enter the code sent to your email and your new password</p>
-                  <p className="text-sm">Please check your spam inbox</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Error message */}
-          {error && (
-            <div className="p-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-md">
-              {error}
-            </div>
-          )}
-
-          {/* Form */}
-          <Card className="dark:bg-zinc-800 dark:border-zinc-700">
-            <CardContent className="pt-6">
-              <form onSubmit={!successfulCreation ? create : reset} className="space-y-4">
+            {/* Header text */}
+            <div className="text-center space-y-3">
+              <h2 className="text-4xl font-bold tracking-tight text-foreground">
+                {!successfulCreation ? "Reset Password" : "Enter New Password"}
+              </h2>
+              <div className="text-muted-foreground text-lg">
                 {!successfulCreation ? (
-                  <>
-                    <div className="space-y-2">
-                      <label htmlFor="email" className="text-sm font-medium text-left block text-foreground">
-                        Email
-                      </label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-                        required
-                        className="rounded-md dark:bg-zinc-700 dark:border-zinc-600 dark:text-white"
-                      />
-                    </div>
-
-                    <Button
-                      type="submit"
-                      className="w-full bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-600 dark:hover:bg-zinc-700 text-white"
-                      disabled={isLoading}
-                    >
-                      {isLoading ? 'Sending...' : 'Send Reset Code'}
-                    </Button>
-                  </>
+                  <p>
+                    Enter your email address and we&apos;ll send you a reset
+                    code
+                  </p>
                 ) : (
-                  <>
-                    <div className="space-y-2">
-                      <label htmlFor="code" className="text-sm font-medium text-left block text-foreground">
-                        Reset Code
-                      </label>
-                      <Input
-                        id="code"
-                        type="text"
-                        placeholder="Reset Code"
-                        value={code}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCode(e.target.value)}
-                        required
-                        className="rounded-md dark:bg-zinc-700 dark:border-zinc-600 dark:text-white"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <label htmlFor="password" className="text-sm font-medium text-left block text-foreground">
-                        New Password
-                      </label>
-                      <Input
-                        id="password"
-                        type="password"
-                        placeholder="New Password"
-                        value={password}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-                        required
-                        className="rounded-md dark:bg-zinc-700 dark:border-zinc-600 dark:text-white"
-                      />
-                    </div>
-
-                    {secondFactor && (
-                      <div className="p-3 text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md">
-                        Two-factor authentication is required. Please complete the 2FA process.
-                      </div>
-                    )}
-
-                    <Button
-                      type="submit"
-                      className="w-full bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-600 dark:hover:bg-zinc-700 text-white"
-                      disabled={isLoading}
-                    >
-                      {isLoading ? 'Resetting...' : 'Reset Password'}
-                    </Button>
-                  </>
+                  <div className="space-y-1">
+                    <p>
+                      Enter the code sent to your email and your new password
+                    </p>
+                    <p className="text-sm">Please check your spam inbox</p>
+                  </div>
                 )}
-              </form>
-            </CardContent>
-          </Card>
+              </div>
+            </div>
 
-          {/* Sign up and sign in links */}
-          <div className="text-center space-y-2">
-            <p className="text-muted-foreground tracking-tight">
-              Don&apos;t have an account?{' '}
-              <Link href="/sign-up" className="text-zinc-900 dark:text-zinc-200 font-medium hover:underline">
-                Sign up
-              </Link>
-            </p>
-            <p className="text-muted-foreground tracking-tight">
-              <Link href="/sign-in" className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:underline">
-                Sign in
-              </Link>
-            </p>
-          </div>
+            {/* Error message */}
+            {error && (
+              <div className="p-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-md">
+                {error}
+              </div>
+            )}
+
+            {/* Form */}
+            <Card className="dark:bg-zinc-800 dark:border-zinc-700">
+              <CardContent className="pt-6">
+                <form
+                  onSubmit={!successfulCreation ? create : reset}
+                  className="space-y-4"
+                >
+                  {!successfulCreation ? (
+                    <>
+                      <div className="space-y-2">
+                        <label
+                          htmlFor="email"
+                          className="text-sm font-medium text-left block text-foreground"
+                        >
+                          Email
+                        </label>
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="Email"
+                          value={email}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setEmail(e.target.value)
+                          }
+                          required
+                          className="rounded-md dark:bg-zinc-700 dark:border-zinc-600 dark:text-white"
+                        />
+                      </div>
+
+                      <Button
+                        type="submit"
+                        className="w-full bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-600 dark:hover:bg-zinc-700 text-white"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? "Sending..." : "Send Reset Code"}
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <div className="space-y-2">
+                        <label
+                          htmlFor="code"
+                          className="text-sm font-medium text-left block text-foreground"
+                        >
+                          Reset Code
+                        </label>
+                        <Input
+                          id="code"
+                          type="text"
+                          placeholder="Reset Code"
+                          value={code}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setCode(e.target.value)
+                          }
+                          required
+                          className="rounded-md dark:bg-zinc-700 dark:border-zinc-600 dark:text-white"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label
+                          htmlFor="password"
+                          className="text-sm font-medium text-left block text-foreground"
+                        >
+                          New Password
+                        </label>
+                        <Input
+                          id="password"
+                          type="password"
+                          placeholder="New Password"
+                          value={password}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setPassword(e.target.value)
+                          }
+                          required
+                          className="rounded-md dark:bg-zinc-700 dark:border-zinc-600 dark:text-white"
+                        />
+                      </div>
+
+                      {secondFactor && (
+                        <div className="p-3 text-sm text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-md">
+                          Two-factor authentication is required. Please complete
+                          the 2FA process.
+                        </div>
+                      )}
+
+                      <Button
+                        type="submit"
+                        className="w-full bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-600 dark:hover:bg-zinc-700 text-white"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? "Resetting..." : "Reset Password"}
+                      </Button>
+                    </>
+                  )}
+                </form>
+              </CardContent>
+            </Card>
+
+            {/* Sign up and sign in links */}
+            <div className="text-center space-y-2">
+              <p className="text-muted-foreground tracking-tight">
+                Don&apos;t have an account?{" "}
+                <Link
+                  href="/sign-up"
+                  className="text-zinc-900 dark:text-zinc-200 font-medium hover:underline"
+                >
+                  Sign up
+                </Link>
+              </p>
+              <p className="text-muted-foreground tracking-tight">
+                <Link
+                  href="/sign-in"
+                  className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 hover:underline"
+                >
+                  Sign in
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  )
-} 
+  );
+}
