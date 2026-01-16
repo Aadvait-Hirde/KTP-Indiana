@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { ShoppingBag, CreditCard, Vote, FileText } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 function MemberPortalContent() {
   const { user } = useAuthStore();
@@ -111,17 +112,12 @@ function MemberPortalContent() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
         {/* Header Content (transparent, not sticky) */}
-        <div className="bg-transparent px-4 md:px-6 py-4 pt-20 md:pt-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            {/* Left side - Greeting - Updated */}
-            <div className="flex items-center">
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-                {greeting}, {user?.name?.split(" ")[0]}!
-              </h1>
-            </div>
+        <div className="bg-transparent px-4 md:px-6 py-4 pt-4 md:pt-4 pb-2 md:pb-3 space-y-4">
+          {/* Top Row - Sidebar Trigger, User Info, Role, and Theme Toggle */}
+          <div className="flex items-center justify-between">
+            <SidebarTrigger />
 
-            {/* Right side - User info and controls */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+            <div className="flex items-center space-x-4">
               {/* Role Switcher for Admins */}
               {user?.role === "admin" && (
                 <RoleSwitcher onRoleChange={handleRoleChange} />
@@ -139,10 +135,15 @@ function MemberPortalContent() {
               <ThemeToggle />
             </div>
           </div>
+
+          {/* Bottom Row - Greeting */}
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+            {greeting}, {user?.name?.split(" ")[0]}!
+          </h1>
         </div>
 
         {/* Dashboard Content */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4 md:space-y-6">
+        <main className="flex-1 overflow-y-auto px-4 md:px-6 pt-2 md:pt-3 pb-4 md:pb-6 space-y-4 md:space-y-6">
           {/* Welcome Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
             {/* Announcements with effective user */}

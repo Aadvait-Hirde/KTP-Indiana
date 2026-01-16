@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation"; // useRouter
+import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { SignOutButton } from "@clerk/nextjs";
@@ -30,7 +30,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  //   useSidebar,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   DropdownMenu,
@@ -45,13 +45,14 @@ import Link from "next/link";
 export function MemberPortalSidebar() {
   //   const [isCollapsed, setIsCollapsed] = useState(false);
   //   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const { theme } = useTheme();
   const pathname = usePathname();
   const { user } = useAuthStore();
 
+  const { open, setOpen, isMobile } = useSidebar();
+
   useEffect(() => {
-    setMounted(true);
+    setOpen(!isMobile);
   }, []);
 
   // Close mobile sidebar when route changes
@@ -97,21 +98,11 @@ export function MemberPortalSidebar() {
   ];
 
   const logoSrc =
-    mounted && theme === "dark"
+    open && theme === "dark"
       ? "/ktp-logos/KTP Logo Dark Plain No BG Slim.png"
       : "/ktp-logos/KTP Logo Plain Text Slim.png";
 
   // Use dark sidebar for both themes - exact same styling
-
-  //   const {
-  //     state,
-  //     open,
-  //     setOpen,
-  //     openMobile,
-  //     setOpenMobile,
-  //     isMobile,
-  //     toggleSidebar,
-  //   } = useSidebar();
 
   // Check if current path matches navigation item
   const isActiveRoute = (href: string) => {
@@ -123,7 +114,7 @@ export function MemberPortalSidebar() {
 
   return (
     <Sidebar collapsible="offcanvas">
-      <SidebarHeader className="w-full items-center my-2">
+      <SidebarHeader className="flex items-center justify-center relative my-2">
         <Image src={logoSrc} alt={""} width={100} height={100} />
       </SidebarHeader>
       <SidebarContent>
