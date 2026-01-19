@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import {
   parseICS,
   expandRecurringEvents,
-  type CalendarEvent,
+  //   type CalendarEvent,
 } from "@/lib/ics-parser";
 
 const ICS_URL =

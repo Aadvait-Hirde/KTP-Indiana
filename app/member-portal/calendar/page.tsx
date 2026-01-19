@@ -6,8 +6,6 @@ import { Calendar, ExternalLink } from "lucide-react";
 import { GoogleCalendar } from "@/components/member-portal/google-calendar";
 
 export default function CalendarPage() {
-  const ktpCalendarUrl =
-    "https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=America%2FIndiana%2FIndianapolis&showPrint=0&title=KTP%20Website%20Calendar&src=ktpindiana%40gmail.com&color=%23039be5";
   const publicCalendarUrl =
     "https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=America%2FIndiana%2FIndianapolis&showPrint=0&title=KTP%20Website%20Calendar&src=ktpindiana%40gmail.com&color=%23039be5";
 

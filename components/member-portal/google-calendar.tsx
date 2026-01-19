@@ -46,7 +46,7 @@ function formatDateRange(
   isAllDay: boolean
 ): string {
   const startDate = new Date(start);
-  const endDate = new Date(end);
+  //   const endDate = new Date(end);
 
   if (isAllDay) {
     return startDate.toLocaleDateString("en-US", {

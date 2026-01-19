@@ -231,8 +231,8 @@ const dayMap: Record<string, number> = {
 
 function getNextOccurrence(
   currentDate: Date,
-  options: RRuleOptions,
-  startDate: Date
+  options: RRuleOptions
+  //   startDate: Date
 ): Date | null {
   const next = new Date(currentDate);
 
@@ -368,7 +368,7 @@ export function expandRecurringEvents(
         occurrenceCount++;
 
         // Get next occurrence
-        const nextDate = getNextOccurrence(currentDate, options, startDate);
+        const nextDate = getNextOccurrence(currentDate, options);
         if (!nextDate || nextDate.getTime() === currentDate.getTime()) break;
         currentDate = nextDate;
       }

@@ -1,15 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Calendar, ExternalLink, Maximize2, Minimize2 } from "lucide-react";
+import { Calendar, ExternalLink } from "lucide-react";
 import { GoogleCalendar } from "./google-calendar";
 
 export function CalendarWidget() {
-  // KTP Indiana Calendar Integration
-
   const publicCalendarUrl =
     "https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=America%2FIndiana%2FIndianapolis&showPrint=0&title=KTP%20Website%20Calendar&src=ktpindiana%40gmail.com&color=%23039be5";
 
