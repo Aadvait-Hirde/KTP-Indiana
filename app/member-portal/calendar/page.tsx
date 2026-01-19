@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import { ProtectedRoute } from '@/components/auth/protected-route'
-import { PageLayout } from '@/components/member-portal/page-layout'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Calendar, ExternalLink } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Calendar, ExternalLink } from "lucide-react";
 
-function CalendarPageContent() {
-  const ktpCalendarUrl = "https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=America%2FIndiana%2FIndianapolis&showPrint=0&title=KTP%20Website%20Calendar&src=ktpindiana%40gmail.com&color=%23039be5"
-  const publicCalendarUrl = "https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=America%2FIndiana%2FIndianapolis&showPrint=0&title=KTP%20Website%20Calendar&src=ktpindiana%40gmail.com&color=%23039be5"
+export default function CalendarPage() {
+  const ktpCalendarUrl =
+    "https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=America%2FIndiana%2FIndianapolis&showPrint=0&title=KTP%20Website%20Calendar&src=ktpindiana%40gmail.com&color=%23039be5";
+  const publicCalendarUrl =
+    "https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=America%2FIndiana%2FIndianapolis&showPrint=0&title=KTP%20Website%20Calendar&src=ktpindiana%40gmail.com&color=%23039be5";
 
   return (
     <div className="p-4 md:p-6 space-y-4 md:space-y-6">
@@ -16,11 +16,7 @@ function CalendarPageContent() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h1 className="text-2xl md:text-3xl font-bold">KTP Calendar</h1>
-          <a
-            href={publicCalendarUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href={publicCalendarUrl} target="_blank" rel="noopener noreferrer">
             <Button variant="outline" className="w-full sm:w-auto">
               <ExternalLink className="h-4 w-4 mr-2" />
               Open in Google Calendar
@@ -40,11 +36,11 @@ function CalendarPageContent() {
             <div className="w-full h-[600px] md:h-[800px]">
               <iframe
                 src={ktpCalendarUrl}
-                style={{ 
+                style={{
                   border: 0,
-                  width: '100%',
-                  height: '100%',
-                  borderRadius: '0 0 8px 8px'
+                  width: "100%",
+                  height: "100%",
+                  borderRadius: "0 0 8px 8px",
                 }}
                 frameBorder="0"
                 scrolling="no"
@@ -84,15 +80,5 @@ function CalendarPageContent() {
         </div>
       </div>
     </div>
-  )
+  );
 }
-
-export default function CalendarPage() {
-  return (
-    <ProtectedRoute>
-      <PageLayout>
-        <CalendarPageContent />
-      </PageLayout>
-    </ProtectedRoute>
-  )
-} 

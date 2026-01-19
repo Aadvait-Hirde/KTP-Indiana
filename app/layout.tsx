@@ -6,6 +6,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,7 +39,9 @@ export default function RootLayout({
             defaultTheme="light"
             disableTransitionOnChange
           >
-            <AuthProvider>{children}</AuthProvider>
+            <AuthProvider>
+              <SidebarProvider>{children}</SidebarProvider>
+            </AuthProvider>
           </ThemeProvider>
           <SpeedInsights />
           <Analytics />
