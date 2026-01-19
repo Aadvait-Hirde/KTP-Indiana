@@ -1,7 +1,5 @@
 "use client";
 
-import { ProtectedRoute } from "@/components/auth/protected-route";
-import { PageLayout } from "@/components/member-portal/page-layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, ExternalLink, TriangleAlert } from "lucide-react";
 
@@ -10,7 +8,7 @@ interface FormData {
   url: string;
 }
 
-function FormsPageContent() {
+export default function FormsPage() {
   // Forms data
   const formsData: FormData[] = [];
 
@@ -61,15 +59,5 @@ function FormsPageContent() {
         )}
       </div>
     </div>
-  );
-}
-
-export default function FormsPage() {
-  return (
-    <ProtectedRoute>
-      <PageLayout>
-        <FormsPageContent />
-      </PageLayout>
-    </ProtectedRoute>
   );
 }

@@ -173,7 +173,12 @@ export function MemberPortalSidebar() {
 
                   <div className="flex flex-col">
                     <div className="font-bold">{user?.name}</div>
-                    <div>{user?.email}</div>
+                    <div>
+                      {user?.role
+                        ? user.role.charAt(0).toUpperCase() +
+                          user.role.slice(1).toLowerCase()
+                        : ""}
+                    </div>
                   </div>
 
                   <ChevronUp className="ml-auto" />

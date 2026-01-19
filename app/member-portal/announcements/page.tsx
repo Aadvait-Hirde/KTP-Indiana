@@ -1,96 +1,100 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from 'react'
-import { ProtectedRoute } from '@/components/auth/protected-route'
-import { PageLayout } from '@/components/member-portal/page-layout'
-import { useAuthStore } from '@/lib/auth-store'
-import { supabase, Announcement } from '@/lib/supabase'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { RichTextEditor } from '@/components/member-portal/rich-text-editor'
-import { Megaphone, Plus, Calendar, User, Trash2 } from 'lucide-react'
-import { format } from 'date-fns'
+import { useState, useEffect } from "react";
+import { useAuthStore } from "@/lib/auth-store";
+import { supabase, Announcement } from "@/lib/supabase";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { RichTextEditor } from "@/components/member-portal/rich-text-editor";
+import { Megaphone, Plus, Calendar, User, Trash2 } from "lucide-react";
+import { format } from "date-fns";
 
-function AnnouncementsPageContent() {
-  const { 
-    user, 
-    announcements, 
+export default function AnnouncementsPage() {
+  const {
+    user,
+    announcements,
     isAnnouncementsLoading,
-    fetchAnnouncements, 
-    hideAnnouncement 
-  } = useAuthStore()
-  
-  const [isPosting, setIsPosting] = useState(false)
-  const [title, setTitle] = useState('')
-  const [content, setContent] = useState('')
-  const [error, setError] = useState('')
+    fetchAnnouncements,
+    hideAnnouncement,
+  } = useAuthStore();
 
+  const [isPosting, setIsPosting] = useState(false);
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [error, setError] = useState("");
 
-  const canPost = user?.role === 'admin' || user?.role === 'exec' || user?.role === 'director'
+  const canPost =
+    user?.role === "admin" ||
+    user?.role === "exec" ||
+    user?.role === "director";
 
   useEffect(() => {
-    fetchAnnouncements()
-    
+    fetchAnnouncements();
+
     // Subscribe to real-time changes and just refetch everything
     const channel = supabase
-      .channel('announcements-page-realtime')
-      .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'announcements' },
+      .channel("announcements-page-realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "announcements" },
         () => {
           // Simply refetch all announcements instead of trying to manage state manually
-          fetchAnnouncements()
+          fetchAnnouncements();
         }
       )
-      .subscribe()
+      .subscribe();
 
     return () => {
-      supabase.removeChannel(channel)
-    }
-  }, [fetchAnnouncements])
+      supabase.removeChannel(channel);
+    };
+  }, [fetchAnnouncements]);
 
   const handlePost = async () => {
-    if (!title.trim() || !content.trim() || !user) return
+    if (!title.trim() || !content.trim() || !user) return;
 
-    setError('')
+    setError("");
 
     try {
-      const { error } = await supabase
-        .from('announcements')
-        .insert([
-          {
-            title: title.trim(),
-            content: content.trim(),
-            author_id: user.id,
-            author_name: user.name,
-            hidden: false // Default to not hidden
-          }
-        ])
+      const { error } = await supabase.from("announcements").insert([
+        {
+          title: title.trim(),
+          content: content.trim(),
+          author_id: user.id,
+          author_name: user.name,
+          hidden: false, // Default to not hidden
+        },
+      ]);
 
-      if (error) throw error
+      if (error) throw error;
 
-      setTitle('')
-      setContent('')
-      setIsPosting(false)
-      
+      setTitle("");
+      setContent("");
+      setIsPosting(false);
+
       // Manually refetch to ensure we see the new announcement
-      setTimeout(() => fetchAnnouncements(), 100)
+      setTimeout(() => fetchAnnouncements(), 100);
     } catch (err: unknown) {
-      const error = err as { message?: string }
-      setError(error.message || 'Failed to post announcement')
+      const error = err as { message?: string };
+      setError(error.message || "Failed to post announcement");
     }
-  }
+  };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this announcement? This action cannot be undone.')) return
+    if (
+      !confirm(
+        "Are you sure you want to delete this announcement? This action cannot be undone."
+      )
+    )
+      return;
 
-    await hideAnnouncement(id)
-  }
+    await hideAnnouncement(id);
+  };
 
   const canDelete = (announcement: Announcement) => {
-    return user?.role === 'admin' || announcement.author_id === user?.id
-  }
+    return user?.role === "admin" || announcement.author_id === user?.id;
+  };
 
   if (isAnnouncementsLoading) {
     return (
@@ -102,7 +106,7 @@ function AnnouncementsPageContent() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -112,7 +116,11 @@ function AnnouncementsPageContent() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h1 className="text-2xl md:text-3xl font-bold">Announcements</h1>
           {canPost && (
-            <Button onClick={() => setIsPosting(true)} disabled={isPosting} className="w-full sm:w-auto">
+            <Button
+              onClick={() => setIsPosting(true)}
+              disabled={isPosting}
+              className="w-full sm:w-auto"
+            >
               <Plus className="h-4 w-4 mr-2" />
               New Announcement
             </Button>
@@ -129,7 +137,9 @@ function AnnouncementsPageContent() {
               <Input
                 placeholder="Announcement title..."
                 value={title}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setTitle(e.target.value)
+                }
               />
               <div className="min-h-[200px]">
                 <RichTextEditor
@@ -138,24 +148,22 @@ function AnnouncementsPageContent() {
                   placeholder="Write your announcement here..."
                 />
               </div>
-              {error && (
-                <p className="text-sm text-red-600">{error}</p>
-              )}
+              {error && <p className="text-sm text-red-600">{error}</p>}
               <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                <Button 
-                  onClick={handlePost} 
+                <Button
+                  onClick={handlePost}
                   disabled={!title.trim() || !content.trim()}
                   className="w-full sm:w-auto"
                 >
                   Post Announcement
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => {
-                    setIsPosting(false)
-                    setTitle('')
-                    setContent('')
-                    setError('')
+                    setIsPosting(false);
+                    setTitle("");
+                    setContent("");
+                    setError("");
                   }}
                   className="w-full sm:w-auto"
                 >
@@ -172,9 +180,13 @@ function AnnouncementsPageContent() {
             <Card>
               <CardContent className="text-center py-12">
                 <Megaphone className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No announcements yet</h3>
+                <h3 className="text-lg font-semibold mb-2">
+                  No announcements yet
+                </h3>
                 <p className="text-muted-foreground">
-                  {canPost ? 'Be the first to post an announcement!' : 'Check back later for updates from leadership.'}
+                  {canPost
+                    ? "Be the first to post an announcement!"
+                    : "Check back later for updates from leadership."}
                 </p>
               </CardContent>
             </Card>
@@ -183,7 +195,9 @@ function AnnouncementsPageContent() {
               <Card key={announcement.id}>
                 <CardContent className="p-4 md:p-6">
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2 mb-4">
-                    <h2 className="text-xl font-semibold">{announcement.title}</h2>
+                    <h2 className="text-xl font-semibold">
+                      {announcement.title}
+                    </h2>
                     <div className="flex items-center space-x-2">
                       {canDelete(announcement) && (
                         <Button
@@ -198,12 +212,12 @@ function AnnouncementsPageContent() {
                       )}
                     </div>
                   </div>
-                  
-                  <div 
+
+                  <div
                     className="prose prose-sm max-w-none mb-4"
                     dangerouslySetInnerHTML={{ __html: announcement.content }}
                   />
-                  
+
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t">
                     <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                       <div className="flex items-center space-x-2 text-sm text-muted-foreground">
@@ -216,7 +230,12 @@ function AnnouncementsPageContent() {
                     </div>
                     <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                       <Calendar className="h-4 w-4" />
-                      <span className="text-xs sm:text-sm">{format(new Date(announcement.created_at), 'MMM d, yyyy • h:mm a')}</span>
+                      <span className="text-xs sm:text-sm">
+                        {format(
+                          new Date(announcement.created_at),
+                          "MMM d, yyyy • h:mm a"
+                        )}
+                      </span>
                     </div>
                   </div>
                 </CardContent>
@@ -226,15 +245,5 @@ function AnnouncementsPageContent() {
         </div>
       </div>
     </div>
-  )
+  );
 }
-
-export default function AnnouncementsPage() {
-  return (
-    <ProtectedRoute>
-      <PageLayout>
-        <AnnouncementsPageContent />
-      </PageLayout>
-    </ProtectedRoute>
-  )
-} 
