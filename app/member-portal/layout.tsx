@@ -3,8 +3,8 @@
 import React from "react";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { MemberPortalSidebar } from "@/components/member-portal/sidebar";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { SidebarTrigger, SidebarProvider } from "@/components/ui/sidebar";
 
 type Props = {
   children: React.ReactNode;
@@ -13,16 +13,11 @@ type Props = {
 export default function MemberPortalLayout({ children }: Props) {
   return (
     <ProtectedRoute>
-      <div className="flex h-screen w-screen bg-muted/30 relative overflow-hidden">
-        {/* Sidebar */}
-        <div className="relative z-20">
-          <MemberPortalSidebar />
-        </div>
-
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-hidden relative z-10">
+      <SidebarProvider>
+        <MemberPortalSidebar />
+        <div className="flex flex-col w-full h-screen bg-muted/30">
           {/* Header with sidebar toggle */}
-          <div className="bg-transparent px-4 md:px-6 py-4 pt-4 md:pt-4 pb-2 md:pb-3">
+          <div className="bg-transparent px-4 md:px-6 py-4 pt-4 md:pt-4 pb-2 md:pb-3 border-b">
             <div className="flex items-center justify-between">
               <SidebarTrigger />
               <div className="flex items-center space-x-4">
@@ -35,7 +30,7 @@ export default function MemberPortalLayout({ children }: Props) {
             {children}
           </main>
         </div>
-      </div>
+      </SidebarProvider>
     </ProtectedRoute>
   );
 }
