@@ -14,10 +14,11 @@ import Link from "next/link";
 export default function MemberPortalPage() {
   const { user } = useAuthStore();
   const [greeting, setGreeting] = useState("");
-  const [viewingAsRole, setViewingAsRole] = useState<string | null>(null);
+  //   const [viewingAsRole, setViewingAsRole] = useState<string | null>(null);
 
   // Use the viewing role or actual user role
-  const effectiveRole = viewingAsRole || user?.role;
+  //   const effectiveRole = viewingAsRole || user?.role;
+  const effectiveRole = user?.role;
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -45,29 +46,29 @@ export default function MemberPortalPage() {
     return "/portal-images/active-dues/active-dues.png";
   };
 
-  const getDisplayRole = (role: string) => {
-    switch (role) {
-      case "newmember":
-        return "New Member";
-      case "admin":
-        return "Admin";
-      case "exec":
-        return "Exec";
-      case "director":
-        return "Director";
-      default:
-        return "Member";
-    }
-  };
+  //   const getDisplayRole = (role: string) => {
+  //     switch (role) {
+  //       case "newmember":
+  //         return "New Member";
+  //       case "admin":
+  //         return "Admin";
+  //       case "exec":
+  //         return "Exec";
+  //       case "director":
+  //         return "Director";
+  //       default:
+  //         return "Member";
+  //     }
+  //   };
 
-  const getRoleColor = () => {
-    // Use zinc-600 in light mode, zinc-300 in dark mode for better legibility
-    return "text-zinc-600 dark:text-zinc-300";
-  };
+  //   const getRoleColor = () => {
+  //     // Use zinc-600 in light mode, zinc-300 in dark mode for better legibility
+  //     return "text-zinc-600 dark:text-zinc-300";
+  //   };
 
-  const handleRoleChange = (newRole: string) => {
-    setViewingAsRole(newRole === user?.role ? null : newRole);
-  };
+  //   const handleRoleChange = (newRole: string) => {
+  //     setViewingAsRole(newRole === user?.role ? null : newRole);
+  //   };
 
   // Create effective user object for child components
   const effectiveUser = user
