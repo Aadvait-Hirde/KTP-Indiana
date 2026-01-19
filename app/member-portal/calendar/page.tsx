@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar, ExternalLink } from "lucide-react";
+import { GoogleCalendar } from "@/components/member-portal/google-calendar";
 
 export default function CalendarPage() {
   const ktpCalendarUrl =
@@ -32,22 +33,8 @@ export default function CalendarPage() {
               <span>Full Calendar View</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-0">
-            <div className="w-full h-[600px] md:h-[800px]">
-              <iframe
-                src={ktpCalendarUrl}
-                style={{
-                  border: 0,
-                  width: "100%",
-                  height: "100%",
-                  borderRadius: "0 0 8px 8px",
-                }}
-                frameBorder="0"
-                scrolling="no"
-                title="KTP Indiana Calendar"
-                className="rounded-b-lg"
-              />
-            </div>
+          <CardContent className="p-0 mx-2">
+            <GoogleCalendar />
           </CardContent>
         </Card>
 
