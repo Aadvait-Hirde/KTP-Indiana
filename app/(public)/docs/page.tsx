@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/sections/footer";
 import Image from "next/image";
 
 const sections = [
@@ -62,7 +60,7 @@ export default function DocsPage() {
 
     const observer = new IntersectionObserver(
       observerCallback,
-      observerOptions
+      observerOptions,
     );
 
     // Observe all section elements
@@ -79,15 +77,15 @@ export default function DocsPage() {
     };
   }, []);
 
-  const scrollToSection = (href: string) => {
-    // This is just for the main navbar functionality - no changes needed here
-    if (href.startsWith("#")) {
-      const element = document.querySelector(href);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
-    }
-  };
+  //   const scrollToSection = (href: string) => {
+  //     // This is just for the main navbar functionality - no changes needed here
+  //     if (href.startsWith("#")) {
+  //       const element = document.querySelector(href);
+  //       if (element) {
+  //         element.scrollIntoView({ behavior: "smooth" });
+  //       }
+  //     }
+  //   };
 
   const handleSectionClick = (sectionId: string) => {
     setActiveSection(sectionId);
@@ -110,7 +108,7 @@ export default function DocsPage() {
 
   return (
     <div className="min-h-screen min-w-screen bg-background">
-      <Navbar scrollToSection={scrollToSection} />
+      {/* <Navbar scrollToSection={scrollToSection} /> */}
 
       <div className="container-fluid px-0">
         <div className="flex min-h-screen">
@@ -1304,7 +1302,7 @@ export default function DocsPage() {
         </div>
       </div>
 
-      <Footer scrollToSection={scrollToSection} />
+      {/* <Footer scrollToSection={scrollToSection} /> */}
     </div>
   );
 }

@@ -11,19 +11,19 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 // import { Button } from "@/components/ui/button";
-import { Navbar } from "@/components/navbar";
-import { Footer } from "@/components/sections/footer";
+// import { Navbar } from "@/components/navbar";
+// import { Footer } from "@/components/sections/footer";
 // import { Linkedin, Instagram } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { User } from "@/lib/supabase";
 
 export default function CommunityPage() {
-  const scrollToSection = (href: string) => {
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+//   const scrollToSection = (href: string) => {
+//     const element = document.querySelector(href);
+//     if (element) {
+//       element.scrollIntoView({ behavior: "smooth" });
+//     }
+//   };
 
   const [users, setUsers] = useState<User[] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -59,7 +59,6 @@ export default function CommunityPage() {
 
   return (
     <div className="min-h-screen min-w-screen bg-background">
-      <Navbar scrollToSection={scrollToSection} />
       {/* Wave Pattern Background similar to About section */}
       <div className="absolute inset-0 opacity-5">
         <svg
@@ -197,7 +196,7 @@ export default function CommunityPage() {
           </TabsContent>
         </Tabs>
       </div>
-      <Footer scrollToSection={scrollToSection} />
+      {/* <Footer scrollToSection={scrollToSection} /> */}
     </div>
   );
 }

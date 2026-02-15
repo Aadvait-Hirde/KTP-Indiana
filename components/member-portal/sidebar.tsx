@@ -53,7 +53,7 @@ export function MemberPortalSidebar() {
 
   useEffect(() => {
     setOpen(!isMobile);
-  }, [isMobile]);
+  }, [isMobile, setOpen]);
 
   // Close mobile sidebar when route changes
   //   useEffect(() => {

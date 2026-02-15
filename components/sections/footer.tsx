@@ -1,27 +1,30 @@
-"use client"
+"use client";
 
-import React, { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { Instagram, Linkedin, Mail } from "lucide-react"
-import { useTheme } from "next-themes"
-import Image from "next/image"
+import React, { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Instagram, Linkedin, Mail } from "lucide-react";
+import { useTheme } from "next-themes";
+import Image from "next/image";
+import Link from "next/link";
 
-interface FooterProps {
-  scrollToSection: (href: string) => void
-}
+// interface FooterProps {
+//   scrollToSection: (href: string) => void;
+// }
 
-export function Footer({ scrollToSection }: FooterProps) {
-  const [mounted, setMounted] = useState(false)
-  const { theme } = useTheme()
+// export function Footer({ scrollToSection }: FooterProps) {
+export function Footer() {
+  const [mounted, setMounted] = useState(false);
+  const { theme } = useTheme();
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
-  const logoSrc = mounted && theme === "dark" 
-    ? "/ktp-logos/KTP Logo Dark Plain No BG.png" 
-    : "/ktp-logos/KTP Logo Plain Text.png"
+  const logoSrc =
+    mounted && theme === "dark"
+      ? "/ktp-logos/KTP Logo Dark Plain No BG.png"
+      : "/ktp-logos/KTP Logo Plain Text.png";
 
   return (
     <footer className="bg-muted/50 py-12">
@@ -42,12 +45,20 @@ export function Footer({ scrollToSection }: FooterProps) {
             </p>
             <div className="flex space-x-4">
               <Button variant="ghost" size="icon" asChild>
-                <a href="https://instagram.com/ktp.iu" target="_blank" rel="noopener noreferrer">
+                <a
+                  href="https://instagram.com/ktp.iu"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <Instagram className="h-4 w-4" />
                 </a>
               </Button>
               <Button variant="ghost" size="icon" asChild>
-                <a href="https://www.linkedin.com/company/kappa-theta-pi-indiana-university" target="_blank" rel="noopener noreferrer">
+                <a
+                  href="https://www.linkedin.com/company/kappa-theta-pi-indiana-university"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <Linkedin className="h-4 w-4" />
                 </a>
               </Button>
@@ -58,37 +69,38 @@ export function Footer({ scrollToSection }: FooterProps) {
               </Button>
             </div>
           </div>
-          
+
           <div>
             <h3 className="font-semibold mb-4">Quick Links</h3>
             <div className="space-y-2">
-              <button 
-                onClick={() => scrollToSection('#home')}
+              <button
+                // onClick={() => scrollToSection("#home")}
                 className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                Home
+                <Link href="/">Home</Link>
               </button>
-              {/* <button 
+
+              {/* <button
                 onClick={() => scrollToSection('#rush')}
                 className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 Rush
               </button> */}
-              <button 
-                onClick={() => scrollToSection('/members')}
+              <button
+                // onClick={() => scrollToSection("/members")}
                 className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                Members
+                <Link href="/members">Members</Link>
               </button>
-              <button 
-                onClick={() => scrollToSection('#partnerships')}
+              <button
+                // onClick={() => scrollToSection("#partnerships")}
                 className="block text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                Partnerships
+                <Link href="/#partnerships">Partnerships</Link>
               </button>
             </div>
           </div>
-          
+
           <div>
             <h3 className="font-semibold mb-4">Contact</h3>
             <div className="space-y-2 text-sm text-muted-foreground">
@@ -98,15 +110,15 @@ export function Footer({ scrollToSection }: FooterProps) {
             </div>
           </div>
         </div>
-        
+
         <Separator className="my-8" />
-        
+
         <div className="flex flex-col md:flex-row justify-between items-center">
-                      <p className="text-sm text-muted-foreground">
-              © 2025 Kappa Theta Pi - Indiana University. All rights reserved.
-            </p>
+          <p className="text-sm text-muted-foreground">
+            © 2025 Kappa Theta Pi - Indiana University. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>
-  )
+  );
 }
