@@ -107,7 +107,7 @@ export function MemberPortalSidebar() {
     },
     {
       icon: KeyRound,
-      label: "Roles",
+      label: "Role Management",
       href: "/member-portal/admin/roles",
     },
   ];
@@ -198,9 +198,9 @@ export function MemberPortalSidebar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild className="h-full">
                 <SidebarMenuButton>
-                  <Avatar className="w-10 h-10">
+                  <Avatar className="w-10 h-10 rounded-lg">
                     <AvatarImage src={user?.avatar} />
-                    <AvatarFallback>
+                    <AvatarFallback className="w-10 h-10 rounded-lg">
                       {user
                         ? user.name.charAt(0) +
                           user.name.split(" ")[1].charAt(0)
