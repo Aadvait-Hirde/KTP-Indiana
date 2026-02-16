@@ -66,16 +66,19 @@ export async function loadUsersData(): Promise<LoadUsersDataResult> {
   if (rolesRes.error) throw rolesRes.error;
   if (userRolesRes.error) throw userRolesRes.error;
 
-  const roles = (rolesRes.data ?? [])
-    .filter(
-      (role): role is { id: string; name: string; priority?: number } =>
-        typeof role.id === "string" && typeof role.name === "string",
-    )
-    .map((role) => ({
-      id: role.id,
-      name: role.name,
-      priority: typeof role.priority === "number" ? role.priority : 0,
-    }));
+  const roles = (rolesRes.data ?? []).flatMap((role) => {
+    if (typeof role.id !== "string" || typeof role.name !== "string") {
+      return [];
+    }
+
+    return [
+      {
+        id: role.id,
+        name: role.name,
+        priority: typeof role.priority === "number" ? role.priority : 0,
+      },
+    ];
+  });
 
   const userRoleIds: Record<string, string[]> = {};
   for (const row of (userRolesRes.data ?? []) as UserRoleJoinRow[]) {
