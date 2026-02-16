@@ -51,16 +51,14 @@ export function MemberPortalSidebar() {
   const pathname = usePathname();
   const { user } = useAuthStore();
 
-  const { open, setOpen, isMobile } = useSidebar();
+  const { open, setOpenMobile, isMobile } = useSidebar();
 
+  // Close mobile sidebar when route changes.
   useEffect(() => {
-    setOpen(!isMobile);
-  }, [isMobile, setOpen]);
-
-  // Close mobile sidebar when route changes
-  //   useEffect(() => {
-  //     setIsMobileOpen(false);
-  //   }, [pathname]);
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  }, [isMobile, pathname, setOpenMobile]);
 
   // const canPostAnnouncements = user?.role === 'admin' || user?.role === 'exec' || user?.role === 'director'
 
