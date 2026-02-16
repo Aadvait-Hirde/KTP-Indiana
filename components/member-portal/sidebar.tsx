@@ -18,6 +18,8 @@ import {
   ChevronUp,
   Slack,
   MessageCircle,
+  Shield,
+  KeyRound,
 } from "lucide-react";
 import {
   Sidebar,
@@ -97,6 +99,19 @@ export function MemberPortalSidebar() {
     },
   ];
 
+  const adminItems = [
+    {
+      icon: Shield,
+      label: "User Management",
+      href: "/member-portal/admin/users",
+    },
+    {
+      icon: KeyRound,
+      label: "Roles",
+      href: "/member-portal/admin/roles",
+    },
+  ];
+
   const logoSrc =
     open && theme === "dark"
       ? "/ktp-logos/KTP Logo Dark Plain No BG Slim.png"
@@ -137,6 +152,28 @@ export function MemberPortalSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        {user?.role === "exec" && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Admin</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {adminItems.map((item) => (
+                  <SidebarMenuItem key={item.label}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActiveRoute(item.href)}
+                    >
+                      <Link href={item.href}>
+                        <item.icon />
+                        <span>{item.label}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
         <SidebarGroup>
           <SidebarGroupLabel>External Links</SidebarGroupLabel>
           <SidebarGroupContent>

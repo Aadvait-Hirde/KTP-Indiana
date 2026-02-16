@@ -5,6 +5,7 @@ import { ProtectedRoute } from "@/components/auth/protected-route";
 import { MemberPortalSidebar } from "@/components/member-portal/sidebar";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SidebarTrigger, SidebarProvider } from "@/components/ui/sidebar";
+import { Toaster } from "@/components/ui/sonner";
 
 type Props = {
   children: React.ReactNode;
@@ -30,6 +31,7 @@ export default function MemberPortalLayout({ children }: Props) {
             {children}
           </main>
         </div>
+        <Toaster richColors />
       </SidebarProvider>
     </ProtectedRoute>
   );
