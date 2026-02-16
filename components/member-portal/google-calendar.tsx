@@ -185,6 +185,8 @@ function getEventsForDay(events: CalendarEvent[], day: Date): CalendarEvent[] {
 
 export function GoogleCalendar({ className }: { className?: string }) {
   const [currentDate, setCurrentDate] = React.useState(new Date());
+  const [useListView, setUseListView] = React.useState(false);
+  const containerRef = React.useRef<HTMLDivElement | null>(null);
   const today = new Date();
 
   const year = currentDate.getFullYear();
@@ -207,6 +209,28 @@ export function GoogleCalendar({ className }: { className?: string }) {
   const days = getDaysInMonth(year, month);
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+  const upcomingEvents = React.useMemo(() => {
+    const now = new Date();
+    return events
+      .filter((event) => new Date(event.end).getTime() >= now.getTime())
+      .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
+      .slice(0, 5);
+  }, [events]);
+
+  const groupedUpcomingEvents = React.useMemo(() => {
+    const grouped: { date: Date; items: CalendarEvent[] }[] = [];
+    for (const event of upcomingEvents) {
+      const eventDate = new Date(event.start);
+      const last = grouped[grouped.length - 1];
+      if (!last || !isSameDay(last.date, eventDate)) {
+        grouped.push({ date: eventDate, items: [event] });
+      } else {
+        last.items.push(event);
+      }
+    }
+    return grouped;
+  }, [upcomingEvents]);
+
   const goToPreviousMonth = () => {
     setCurrentDate(new Date(year, month - 1, 1));
   };
@@ -224,8 +248,29 @@ export function GoogleCalendar({ className }: { className?: string }) {
     year: "numeric",
   });
 
+  React.useEffect(() => {
+    if (!containerRef.current) return;
+
+    const MIN_COLUMN_WIDTH = 120;
+    const updateViewMode = (width: number) => {
+      const columnWidth = width / 7;
+      setUseListView(columnWidth < MIN_COLUMN_WIDTH);
+    };
+
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        updateViewMode(entry.contentRect.width);
+      }
+    });
+
+    observer.observe(containerRef.current);
+    updateViewMode(containerRef.current.getBoundingClientRect().width);
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className={cn("w-full h-full", className)}>
+    <div ref={containerRef} className={cn("w-full h-full", className)}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b">
         <h2 className="text-xl font-semibold text-foreground">
@@ -255,8 +300,76 @@ export function GoogleCalendar({ className }: { className?: string }) {
         )}
       </div>
 
-      {/* Calendar Grid */}
-      <div className="p-2">
+      {/* List View (auto) */}
+      {useListView && (
+        <div className="p-2">
+        {isLoading && (
+          <div className="text-sm text-muted-foreground px-2 py-4">
+            Loading events...
+          </div>
+        )}
+        {!isLoading && groupedUpcomingEvents.length === 0 && (
+          <div className="text-sm text-muted-foreground px-2 py-4">
+            No upcoming events.
+          </div>
+        )}
+        <div className="space-y-4">
+          {groupedUpcomingEvents.map((group) => (
+            <div key={group.date.toISOString()} className="space-y-2">
+              <div className="text-sm font-semibold text-foreground px-2">
+                {group.date.toLocaleDateString("en-US", {
+                  weekday: "long",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </div>
+              <div className="space-y-2">
+                {group.items.map((event) => (
+                  <Popover key={event.uid}>
+                    <PopoverTrigger asChild>
+                      <button className="w-full text-left rounded-lg border bg-card p-3 hover:bg-muted/50 transition-colors">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="space-y-1">
+                            <div className="font-medium text-sm text-foreground">
+                              {event.summary}
+                            </div>
+                            {!event.isAllDay && (
+                              <div className="text-xs text-muted-foreground flex items-center gap-1">
+                                <Clock className="size-3" />
+                                {formatTime(event.start)} -{" "}
+                                {formatTime(event.end)}
+                              </div>
+                            )}
+                            {event.isAllDay && (
+                              <div className="text-xs text-muted-foreground">
+                                All day
+                              </div>
+                            )}
+                            {event.location && (
+                              <div className="text-xs text-muted-foreground flex items-center gap-1">
+                                <MapPin className="size-3" />
+                                {event.location}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80" align="start">
+                      <EventPopover event={event} />
+                    </PopoverContent>
+                  </Popover>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      )}
+
+      {/* Calendar Grid (auto) */}
+      {!useListView && (
+        <div className="p-2">
         {/* Week day headers */}
         <div className="grid grid-cols-7 mb-1">
           {weekDays.map((day) => (
@@ -358,6 +471,7 @@ export function GoogleCalendar({ className }: { className?: string }) {
           })}
         </div>
       </div>
+      )}
     </div>
   );
 }
