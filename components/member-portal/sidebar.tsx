@@ -77,7 +77,7 @@ export function MemberPortalSidebar() {
     },
     { icon: Users, label: "Alumni Directory", href: "/member-portal/alumni" },
     { icon: ShoppingBag, label: "Merch Store", href: "/member-portal/merch" },
-    { icon: CreditCard, label: "Pay Dues", href: "/member-portal/dues" },
+    { icon: CreditCard, label: "Finances", href: "/member-portal/finances" },
     // { icon: Vote, label: "Elections", href: "/member-portal/elections" },
     { icon: FileText, label: "Forms", href: "/member-portal/forms" },
   ];
