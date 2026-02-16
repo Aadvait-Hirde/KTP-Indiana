@@ -1,27 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import { useEffect, useMemo, useState } from "react";
 import { useAuthStore } from "@/lib/auth-store";
-import { supabase, User as SupabaseUser } from "@/lib/supabase";
+import { User as SupabaseUser } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Table,
@@ -32,67 +22,48 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { format } from "date-fns";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import {
-  Instagram,
-  Linkedin,
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-} from "lucide-react";
-
-type EditableFields = Pick<
-  SupabaseUser,
-  | "name"
-  | "email"
-  | "role"
-  | "title"
-  | "major"
-  | "class"
-  | "pledgeClass"
-  | "avatar"
-  | "socials"
->;
-
-type SocialPlatform = "insta" | "linkedin";
-
-type SocialEntry = {
-  platform: SocialPlatform;
-  url: string;
-};
-
-type EditState = Partial<EditableFields> & {
-  linkedinUrl?: string;
-  instagramUrl?: string;
-};
+  EditDialogSection,
+  EditUserDialog,
+} from "@/components/member-portal/admin/users/edit-user-dialog";
+import { DeleteUserDialog } from "@/components/member-portal/admin/users/delete-user-dialog";
+import {
+  EditState,
+  EditableFields,
+  RoleOption,
+  SortKey,
+  buildSocialsUpdate,
+  deleteUserRecord,
+  getEditableValue,
+  getRoleDiff,
+  getRoleNameMap,
+  getSocialUrl,
+  loadUsersData,
+  sortRoles,
+  sortUsers,
+  syncUserRoles,
+  toggleRoleIds,
+  updateUserRecord,
+  userTableColumns,
+} from "@/components/member-portal/admin/users/users-utils";
 
 export default function AdminUsersPage() {
   const { user } = useAuthStore();
   const [users, setUsers] = useState<SupabaseUser[]>([]);
+  const [roles, setRoles] = useState<RoleOption[]>([]);
+  const [userRoleIds, setUserRoleIds] = useState<Record<string, string[]>>({});
+  const [editRoleIds, setEditRoleIds] = useState<Record<string, string[]>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [saveUserId, setSaveUserId] = useState<string | null>(null);
   const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
-  const [uploadingAvatarUserId, setUploadingAvatarUserId] = useState<
-    string | null
-  >(null);
-  const [removingAvatarUserId, setRemovingAvatarUserId] = useState<
-    string | null
-  >(null);
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [pendingDeleteUser, setPendingDeleteUser] =
     useState<SupabaseUser | null>(null);
   const [editState, setEditState] = useState<Record<string, EditState>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [avatarDialogUserId, setAvatarDialogUserId] = useState<string | null>(
-    null,
-  );
-  const [avatarSourceUrl, setAvatarSourceUrl] = useState<string | null>(null);
-  const [avatarZoom, setAvatarZoom] = useState(1);
-  const [avatarOffset, setAvatarOffset] = useState({ x: 0, y: 0 });
-  const dragStateRef = useRef<{
-    pointerId: number;
-    anchorX: number;
-    anchorY: number;
-  } | null>(null);
+  const [editDialogSection, setEditDialogSection] =
+    useState<EditDialogSection>("profile");
 
   const isExec = user?.role === "exec";
 
@@ -104,15 +75,12 @@ export default function AdminUsersPage() {
     async function loadUsers() {
       try {
         setIsLoading(true);
-        const { data, error } = await supabase
-          .from("users")
-          .select("*")
-          .order("name", { ascending: true });
-
-        if (error) throw error;
+        const { users, roles, userRoleIds } = await loadUsersData();
 
         if (isMounted) {
-          setUsers(data || []);
+          setUsers(users);
+          setRoles(roles);
+          setUserRoleIds(userRoleIds);
         }
       } catch (err) {
         console.error("Failed to load users:", err);
@@ -128,12 +96,6 @@ export default function AdminUsersPage() {
     };
   }, [isExec]);
 
-  useEffect(() => {
-    return () => {
-      if (avatarSourceUrl) URL.revokeObjectURL(avatarSourceUrl);
-    };
-  }, [avatarSourceUrl]);
-
   const handleEditChange = (
     userId: string,
     field: keyof EditState,
@@ -148,93 +110,20 @@ export default function AdminUsersPage() {
     }));
   };
 
-  const getEditableValue = (
-    currentUser: SupabaseUser,
-    field: keyof EditState,
+  const getEditableRoleIds = (currentUserId: string) =>
+    editRoleIds[currentUserId] ?? userRoleIds[currentUserId] ?? [];
+
+  const handleRoleToggle = (
+    currentUserId: string,
+    roleId: string,
+    checked: boolean,
   ) => {
-    const override = editState[currentUser.id]?.[field];
-    if (typeof override === "string") return override;
-    const value = currentUser[field as keyof SupabaseUser];
-    return value ? String(value) : "";
-  };
+    setEditRoleIds((prev) => {
+      const current = prev[currentUserId] ?? userRoleIds[currentUserId] ?? [];
+      const next = toggleRoleIds(current, roleId, checked);
 
-  const getSocialUrl = (
-    currentUser: SupabaseUser,
-    platform: SocialPlatform,
-  ) => {
-    const socials = currentUser.socials as unknown;
-    let entries: SocialEntry[] = [];
-
-    const fromRecord = (record: Record<string, unknown>) => {
-      const linkedin =
-        typeof record.linkedin === "string" ? record.linkedin : "";
-      const insta =
-        typeof record.insta === "string"
-          ? record.insta
-          : typeof record.instagram === "string"
-            ? record.instagram
-            : "";
-      entries = [
-        ...(linkedin ? [{ platform: "linkedin" as const, url: linkedin }] : []),
-        ...(insta ? [{ platform: "insta" as const, url: insta }] : []),
-      ];
-    };
-
-    if (Array.isArray(socials)) {
-      entries = socials
-        .filter(
-          (item): item is { platform: SocialPlatform; url: string } =>
-            Boolean(item) &&
-            typeof item === "object" &&
-            "platform" in item &&
-            "url" in item &&
-            ((item as { platform?: string }).platform === "insta" ||
-              (item as { platform?: string }).platform === "linkedin") &&
-            typeof (item as { url?: unknown }).url === "string",
-        )
-        .map((item) => ({ platform: item.platform, url: item.url }));
-    } else if (socials && typeof socials === "object") {
-      const record = socials as Record<string, unknown>;
-      if (
-        typeof record.platform === "string" &&
-        typeof record.url === "string"
-      ) {
-        const normalizedPlatform =
-          record.platform === "instagram" ? "insta" : record.platform;
-        if (
-          normalizedPlatform === "insta" ||
-          normalizedPlatform === "linkedin"
-        ) {
-          entries = [{ platform: normalizedPlatform, url: record.url }];
-        }
-      } else {
-        fromRecord(record);
-      }
-    } else if (typeof socials === "string") {
-      try {
-        const parsed = JSON.parse(socials) as unknown;
-        if (Array.isArray(parsed)) {
-          entries = parsed
-            .filter(
-              (item): item is { platform: SocialPlatform; url: string } =>
-                Boolean(item) &&
-                typeof item === "object" &&
-                "platform" in item &&
-                "url" in item &&
-                ((item as { platform?: string }).platform === "insta" ||
-                  (item as { platform?: string }).platform === "linkedin") &&
-                typeof (item as { url?: unknown }).url === "string",
-            )
-            .map((item) => ({ platform: item.platform, url: item.url }));
-        } else if (parsed && typeof parsed === "object") {
-          fromRecord(parsed as Record<string, unknown>);
-        }
-      } catch {
-        entries = [];
-      }
-    }
-
-    return entries.find((entry) => entry.platform === platform)?.url ?? "";
+      return { ...prev, [currentUserId]: next };
+    });
   };
 
   const handleSave = async (
@@ -250,53 +139,46 @@ export default function AdminUsersPage() {
 
       if (nextState.name !== undefined) updates.name = nextState.name;
       if (nextState.email !== undefined) updates.email = nextState.email;
-      if (nextState.role !== undefined)
-        updates.role = nextState.role as SupabaseUser["role"];
-      if (nextState.title !== undefined) updates.title = nextState.title;
       if (nextState.major !== undefined) updates.major = nextState.major;
-      if (nextState.class !== undefined)
-        updates.class = nextState.class as SupabaseUser["class"];
-      if (nextState.pledgeClass !== undefined)
-        updates.pledgeClass =
-          nextState.pledgeClass as SupabaseUser["pledgeClass"];
       if (nextState.avatar !== undefined) updates.avatar = nextState.avatar;
       if (forcedUpdates) Object.assign(updates, forcedUpdates);
+      const socialsUpdate = buildSocialsUpdate(currentUser, nextState);
+      if (socialsUpdate !== undefined) updates.socials = socialsUpdate;
 
-      const socialsWereEdited =
-        nextState.linkedinUrl !== undefined ||
-        nextState.instagramUrl !== undefined;
-      if (socialsWereEdited) {
-        const linkedinUrl = (
-          nextState.linkedinUrl ?? getSocialUrl(currentUser, "linkedin")
-        ).trim();
-        const instagramUrl = (
-          nextState.instagramUrl ?? getSocialUrl(currentUser, "insta")
-        ).trim();
+      const nextRoleIds = getEditableRoleIds(currentUser.id);
+      const { roleIdsToInsert, roleIdsToDelete, rolesChanged } = getRoleDiff(
+        userRoleIds[currentUser.id] ?? [],
+        nextRoleIds,
+      );
+      const userFieldsChanged = Object.keys(updates).length > 0;
 
-        updates.socials = [
-          ...(instagramUrl ? [{ platform: "insta", url: instagramUrl }] : []),
-          ...(linkedinUrl ? [{ platform: "linkedin", url: linkedinUrl }] : []),
-        ] as unknown as EditableFields["socials"];
-      }
-
-      if (Object.keys(updates).length === 0) {
+      if (!userFieldsChanged && !rolesChanged) {
         return true;
       }
 
-      const { data, error } = await supabase
-        .from("users")
-        .update(updates)
-        .eq("id", currentUser.id)
-        .select("*")
-        .single();
+      if (userFieldsChanged) {
+        const data = await updateUserRecord(currentUser.id, updates);
 
-      if (error) throw error;
+        setUsers((prev) =>
+          prev.map((userItem) =>
+            userItem.id === currentUser.id ? data : userItem,
+          ),
+        );
+      }
 
-      setUsers((prev) =>
-        prev.map((userItem) =>
-          userItem.id === currentUser.id ? data : userItem,
-        ),
-      );
+      await syncUserRoles(currentUser.id, roleIdsToInsert, roleIdsToDelete);
+
+      if (rolesChanged) {
+        setUserRoleIds((prev) => ({
+          ...prev,
+          [currentUser.id]: nextRoleIds,
+        }));
+        setEditRoleIds((prev) => {
+          const next = { ...prev };
+          delete next[currentUser.id];
+          return next;
+        });
+      }
       return true;
     } catch (err) {
       console.error("Failed to update user:", err);
@@ -313,12 +195,7 @@ export default function AdminUsersPage() {
   const handleDelete = async (currentUser: SupabaseUser) => {
     setDeleteUserId(currentUser.id);
     try {
-      const { error } = await supabase
-        .from("users")
-        .delete()
-        .eq("id", currentUser.id);
-
-      if (error) throw error;
+      await deleteUserRecord(currentUser.id);
 
       setUsers((prev) =>
         prev.filter((userItem) => userItem.id !== currentUser.id),
@@ -334,50 +211,14 @@ export default function AdminUsersPage() {
     }
   };
 
-  type SortKey =
-    | "name"
-    | "email"
-    | "role"
-    | "title"
-    | "major"
-    | "class"
-    | "pledgeClass"
-    | "created_at";
-
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-
-  const tableColumns: Array<{
-    label: string;
-    sortKey?: SortKey;
-  }> = [
-    { label: "User", sortKey: "name" },
-    { label: "Role", sortKey: "role" },
-    { label: "Title", sortKey: "title" },
-    { label: "Major", sortKey: "major" },
-    { label: "Class", sortKey: "class" },
-    { label: "Pledge Class", sortKey: "pledgeClass" },
-    { label: "Created", sortKey: "created_at" },
-    { label: "", sortKey: undefined },
-  ];
-
-  const sortedUsers = [...users].sort((a, b) => {
-    const key = sortKey;
-    const aValue = a[key] ?? "";
-    const bValue = b[key] ?? "";
-
-    if (key === "created_at") {
-      const aDate = a.created_at ? new Date(a.created_at).getTime() : 0;
-      const bDate = b.created_at ? new Date(b.created_at).getTime() : 0;
-      return sortDirection === "asc" ? aDate - bDate : bDate - aDate;
-    }
-
-    const aText = String(aValue).toLowerCase();
-    const bText = String(bValue).toLowerCase();
-    if (aText < bText) return sortDirection === "asc" ? -1 : 1;
-    if (aText > bText) return sortDirection === "asc" ? 1 : -1;
-    return 0;
-  });
+  const roleNameById = useMemo(() => getRoleNameMap(roles), [roles]);
+  const sortedRoles = useMemo(() => sortRoles(roles), [roles]);
+  const sortedUsers = useMemo(
+    () => sortUsers(users, sortKey, sortDirection),
+    [users, sortKey, sortDirection],
+  );
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -387,15 +228,6 @@ export default function AdminUsersPage() {
     setSortKey(key);
     setSortDirection("asc");
   };
-
-  const avatarDialogUser = avatarDialogUserId
-    ? (users.find((item) => item.id === avatarDialogUserId) ?? null)
-    : null;
-  const isAvatarUploading =
-    Boolean(avatarDialogUser) && uploadingAvatarUserId === avatarDialogUser?.id;
-  const isAvatarRemoving =
-    Boolean(avatarDialogUser) && removingAvatarUserId === avatarDialogUser?.id;
-  const isAvatarBusy = isAvatarUploading || isAvatarRemoving;
 
   if (!isExec) {
     return (
@@ -423,7 +255,7 @@ export default function AdminUsersPage() {
       <Table>
         <TableHeader>
           <TableRow>
-            {tableColumns.map((column) => (
+            {userTableColumns.map((column) => (
               <TableHead key={column.label || "actions"}>
                 {column.sortKey ? (
                   <Button
@@ -448,7 +280,7 @@ export default function AdminUsersPage() {
           {isLoading ? (
             <TableRow>
               <TableCell
-                colSpan={tableColumns.length}
+                colSpan={userTableColumns.length}
                 className="py-8 text-center text-muted-foreground"
               >
                 Loading users...
@@ -457,7 +289,7 @@ export default function AdminUsersPage() {
           ) : users.length === 0 ? (
             <TableRow>
               <TableCell
-                colSpan={tableColumns.length}
+                colSpan={userTableColumns.length}
                 className="py-8 text-center text-muted-foreground"
               >
                 No users found.
@@ -488,16 +320,19 @@ export default function AdminUsersPage() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="secondary">
-                    {currentUser.role
-                      ? currentUser.role.toUpperCase()
-                      : "NO ROLE"}
-                  </Badge>
+                  <div className="flex flex-wrap gap-1">
+                    {(userRoleIds[currentUser.id] ?? []).length > 0 ? (
+                      (userRoleIds[currentUser.id] ?? []).map((roleId) => (
+                        <Badge key={roleId} variant="secondary">
+                          {roleNameById.get(roleId) ?? "Unknown Role"}
+                        </Badge>
+                      ))
+                    ) : (
+                      <Badge variant="secondary">NO ROLES</Badge>
+                    )}
+                  </div>
                 </TableCell>
-                <TableCell>{currentUser.title || "—"}</TableCell>
                 <TableCell>{currentUser.major || "—"}</TableCell>
-                <TableCell>{currentUser.class || "—"}</TableCell>
-                <TableCell>{currentUser.pledgeClass || "—"}</TableCell>
                 <TableCell>
                   {currentUser.created_at
                     ? format(new Date(currentUser.created_at), "PPP")
@@ -512,7 +347,16 @@ export default function AdminUsersPage() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem
-                        onClick={() => setEditingUserId(currentUser.id)}
+                        onClick={() => {
+                          setEditDialogSection("profile");
+                          setEditRoleIds((prev) => ({
+                            ...prev,
+                            [currentUser.id]: [
+                              ...(userRoleIds[currentUser.id] ?? []),
+                            ],
+                          }));
+                          setEditingUserId(currentUser.id);
+                        }}
                       >
                         <Pencil className="h-4 w-4" />
                         Edit
@@ -526,228 +370,83 @@ export default function AdminUsersPage() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  <Dialog
+                  <EditUserDialog
+                    currentUser={currentUser}
                     open={editingUserId === currentUser.id}
+                    section={editDialogSection}
+                    values={{
+                      name: getEditableValue(currentUser, editState, "name"),
+                      email: getEditableValue(currentUser, editState, "email"),
+                      major: getEditableValue(currentUser, editState, "major"),
+                      instagramUrl:
+                        getEditableValue(
+                          currentUser,
+                          editState,
+                          "instagramUrl",
+                        ) || getSocialUrl(currentUser, "insta"),
+                      linkedinUrl:
+                        getEditableValue(
+                          currentUser,
+                          editState,
+                          "linkedinUrl",
+                        ) || getSocialUrl(currentUser, "linkedin"),
+                    }}
+                    roles={sortedRoles}
+                    selectedRoleIds={getEditableRoleIds(currentUser.id)}
+                    error={errors[currentUser.id]}
+                    isSaving={saveUserId === currentUser.id}
                     onOpenChange={(isOpen) => {
                       setEditingUserId(isOpen ? currentUser.id : null);
+                      if (isOpen) {
+                        setEditDialogSection("profile");
+                        setEditRoleIds((prev) => ({
+                          ...prev,
+                          [currentUser.id]: [
+                            ...(userRoleIds[currentUser.id] ?? []),
+                          ],
+                        }));
+                      } else {
+                        setEditRoleIds((prev) => {
+                          const next = { ...prev };
+                          delete next[currentUser.id];
+                          return next;
+                        });
+                      }
                     }}
-                  >
-                    <DialogContent className="sm:max-w-xl">
-                      <DialogHeader>
-                        <DialogTitle>Edit User</DialogTitle>
-                        <DialogDescription>
-                          Update profile information for {currentUser.name}.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="space-y-3">
-                        <div className="space-y-1">
-                          <p className="text-sm font-medium">Name</p>
-                          <Input
-                            value={getEditableValue(currentUser, "name")}
-                            onChange={(event) =>
-                              handleEditChange(
-                                currentUser.id,
-                                "name",
-                                event.target.value,
-                              )
-                            }
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-sm font-medium">Email</p>
-                          <Input
-                            value={getEditableValue(currentUser, "email")}
-                            onChange={(event) =>
-                              handleEditChange(
-                                currentUser.id,
-                                "email",
-                                event.target.value,
-                              )
-                            }
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-sm font-medium">Role</p>
-                          <Input
-                            value={getEditableValue(currentUser, "role")}
-                            onChange={(event) =>
-                              handleEditChange(
-                                currentUser.id,
-                                "role",
-                                event.target.value,
-                              )
-                            }
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-sm font-medium">Title</p>
-                          <Input
-                            value={getEditableValue(currentUser, "title")}
-                            onChange={(event) =>
-                              handleEditChange(
-                                currentUser.id,
-                                "title",
-                                event.target.value,
-                              )
-                            }
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-sm font-medium">Major</p>
-                          <Input
-                            value={getEditableValue(currentUser, "major")}
-                            onChange={(event) =>
-                              handleEditChange(
-                                currentUser.id,
-                                "major",
-                                event.target.value,
-                              )
-                            }
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-sm font-medium">Class</p>
-                          <Input
-                            value={getEditableValue(currentUser, "class")}
-                            onChange={(event) =>
-                              handleEditChange(
-                                currentUser.id,
-                                "class",
-                                event.target.value,
-                              )
-                            }
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-sm font-medium">Pledge Class</p>
-                          <Input
-                            value={getEditableValue(currentUser, "pledgeClass")}
-                            onChange={(event) =>
-                              handleEditChange(
-                                currentUser.id,
-                                "pledgeClass",
-                                event.target.value,
-                              )
-                            }
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-sm font-medium">Instagram URL</p>
-                          <div className="relative">
-                            <Instagram className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-                            <Input
-                              className="pl-9"
-                              placeholder="https://instagram.com/username"
-                              value={
-                                getEditableValue(currentUser, "instagramUrl") ||
-                                getSocialUrl(currentUser, "insta")
-                              }
-                              onChange={(event) =>
-                                handleEditChange(
-                                  currentUser.id,
-                                  "instagramUrl",
-                                  event.target.value,
-                                )
-                              }
-                            />
-                          </div>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-sm font-medium">LinkedIn URL</p>
-                          <div className="relative">
-                            <Linkedin className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-                            <Input
-                              className="pl-9"
-                              placeholder="https://linkedin.com/in/username"
-                              value={
-                                getEditableValue(currentUser, "linkedinUrl") ||
-                                getSocialUrl(currentUser, "linkedin")
-                              }
-                              onChange={(event) =>
-                                handleEditChange(
-                                  currentUser.id,
-                                  "linkedinUrl",
-                                  event.target.value,
-                                )
-                              }
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      {errors[currentUser.id] && (
-                        <p className="text-xs text-red-600">
-                          {errors[currentUser.id]}
-                        </p>
-                      )}
-                      <DialogFooter className="gap-2 sm:justify-between">
-                        <Button
-                          size="sm"
-                          onClick={async () => {
-                            const saved = await handleSave(currentUser);
-                            if (saved) setEditingUserId(null);
-                          }}
-                          disabled={
-                            saveUserId === currentUser.id ||
-                            uploadingAvatarUserId === currentUser.id ||
-                            removingAvatarUserId === currentUser.id
-                          }
-                        >
-                          {saveUserId === currentUser.id
-                            ? "Saving..."
-                            : "Save Changes"}
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
+                    onSectionChange={setEditDialogSection}
+                    onFieldChange={(field, value) =>
+                      handleEditChange(currentUser.id, field, value)
+                    }
+                    onRoleToggle={(roleId, checked) =>
+                      handleRoleToggle(currentUser.id, roleId, checked)
+                    }
+                    onSave={async () => {
+                      const saved = await handleSave(currentUser);
+                      if (saved) setEditingUserId(null);
+                    }}
+                  />
                 </TableCell>
               </TableRow>
             ))
           )}
         </TableBody>
       </Table>
-      <Dialog
+      <DeleteUserDialog
         open={Boolean(pendingDeleteUser)}
+        userName={pendingDeleteUser?.name}
+        isDeleting={Boolean(
+          pendingDeleteUser && deleteUserId === pendingDeleteUser.id,
+        )}
         onOpenChange={(isOpen) => {
           if (!isOpen) setPendingDeleteUser(null);
         }}
-      >
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Delete User</DialogTitle>
-            <DialogDescription>
-              {pendingDeleteUser
-                ? `Delete ${pendingDeleteUser.name}'s account? This action cannot be undone.`
-                : "This action cannot be undone."}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setPendingDeleteUser(null)}
-              disabled={Boolean(deleteUserId)}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="button"
-              variant="destructive"
-              disabled={
-                !pendingDeleteUser || deleteUserId === pendingDeleteUser.id
-              }
-              onClick={async () => {
-                if (!pendingDeleteUser) return;
-                await handleDelete(pendingDeleteUser);
-                setPendingDeleteUser(null);
-              }}
-            >
-              {pendingDeleteUser && deleteUserId === pendingDeleteUser.id
-                ? "Deleting..."
-                : "Delete User"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        onCancel={() => setPendingDeleteUser(null)}
+        onConfirm={async () => {
+          if (!pendingDeleteUser) return;
+          await handleDelete(pendingDeleteUser);
+          setPendingDeleteUser(null);
+        }}
+      />
     </div>
   );
 }
