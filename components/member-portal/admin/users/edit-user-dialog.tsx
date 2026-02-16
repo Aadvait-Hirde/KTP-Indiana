@@ -73,7 +73,9 @@ export function EditUserDialog({
               type="button"
               onClick={() => onSectionChange("profile")}
               className={`w-full rounded-md px-3 py-2 text-left text-sm transition-colors ${
-                section === "profile" ? "bg-accent font-medium" : "hover:bg-muted"
+                section === "profile"
+                  ? "bg-accent font-medium"
+                  : "hover:bg-muted"
               }`}
             >
               <span className="flex items-center gap-2">
@@ -105,21 +107,22 @@ export function EditUserDialog({
                   <p className="text-sm font-medium">Name</p>
                   <Input
                     value={values.name}
-                    onChange={(event) => onFieldChange("name", event.target.value)}
+                    onChange={(event) =>
+                      onFieldChange("name", event.target.value)
+                    }
                   />
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm font-medium">Email</p>
-                  <Input
-                    value={values.email}
-                    onChange={(event) => onFieldChange("email", event.target.value)}
-                  />
+                  <Input value={values.email} disabled />
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm font-medium">Major</p>
                   <Input
                     value={values.major}
-                    onChange={(event) => onFieldChange("major", event.target.value)}
+                    onChange={(event) =>
+                      onFieldChange("major", event.target.value)
+                    }
                   />
                 </div>
                 <div className="space-y-1">
