@@ -65,18 +65,18 @@ export function MemberPortalSidebar() {
   const navigationItems = [
     { icon: Home, label: "Dashboard", href: "/member-portal" },
     { icon: Calendar, label: "Calendar", href: "/member-portal/calendar" },
-    {
-      icon: Briefcase,
-      label: "Internships",
-      href: "/member-portal/internships",
-    },
+    // {
+    //   icon: Briefcase,
+    //   label: "Internships",
+    //   href: "/member-portal/internships",
+    // },
     {
       icon: Megaphone,
       label: "Announcements",
       href: "/member-portal/announcements",
     },
-    { icon: Users, label: "Alumni Directory", href: "/member-portal/alumni" },
-    { icon: ShoppingBag, label: "Merch Store", href: "/member-portal/merch" },
+    // { icon: Users, label: "Alumni Directory", href: "/member-portal/alumni" },
+    // { icon: ShoppingBag, label: "Merch Store", href: "/member-portal/merch" },
     { icon: CreditCard, label: "Finances", href: "/member-portal/finances" },
     // { icon: Vote, label: "Elections", href: "/member-portal/elections" },
     { icon: FileText, label: "Forms", href: "/member-portal/forms" },
