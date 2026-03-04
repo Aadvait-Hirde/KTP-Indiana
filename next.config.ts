@@ -14,6 +14,15 @@ const nextConfig: NextConfig = {
     };
     return config;
   },
+  onDemandEntries: {
+    maxInactiveAge: 1000 * 60 * 60,
+    pagesBufferLength: 5,
+  },
+  logging: {
+    fetches: {
+      fullUrl: process.env.NODE_ENV === "development" ? false : true,
+    },
+  },
 };
 
 export default nextConfig;
