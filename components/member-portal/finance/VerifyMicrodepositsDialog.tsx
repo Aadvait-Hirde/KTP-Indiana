@@ -37,9 +37,8 @@ export default function VerifyMicrodepositsDialog({
   onOpenChange,
   onVerified,
 }: VerifyMicrodepositsDialogProps) {
-  const [verifyInputMode, setVerifyInputMode] = useState<VerifyInputMode>(
-    "amounts",
-  );
+  const [verifyInputMode, setVerifyInputMode] =
+    useState<VerifyInputMode>("amounts");
   const [verifyAmountOne, setVerifyAmountOne] = useState("");
   const [verifyAmountTwo, setVerifyAmountTwo] = useState("");
   const [verifyDescriptorCode, setVerifyDescriptorCode] = useState("");
@@ -84,7 +83,9 @@ export default function VerifyMicrodepositsDialog({
           amountOne <= 0 ||
           amountTwo <= 0
         ) {
-          throw new Error("Enter both micro-deposit amounts as positive cents.");
+          throw new Error(
+            "Enter both micro-deposit amounts as positive cents.",
+          );
         }
 
         payload = {
@@ -105,18 +106,23 @@ export default function VerifyMicrodepositsDialog({
         };
       }
 
-      const response = await fetch("/api/stripe/setup-intents/verify-microdeposits", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const response = await fetch(
+        "/api/stripe/setup-intents/verify-microdeposits",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
+      );
       const result = await response.json();
 
       if (!response.ok) {
         throw new Error(result.error || "Failed to verify micro-deposits.");
       }
 
-      const setupIntentStatus = result.setupIntent?.status as string | undefined;
+      const setupIntentStatus = result.setupIntent?.status as
+        | string
+        | undefined;
       if (setupIntentStatus === "succeeded") {
         toast.success("Bank account verified successfully.");
       } else if (setupIntentStatus === "processing") {
@@ -165,7 +171,9 @@ export default function VerifyMicrodepositsDialog({
           <p className="text-muted-foreground text-xs">
             You can also verify on Stripe&apos;s hosted page:{" "}
             <a
-              href={paymentMethod.usBankAccount.verification.hostedVerificationUrl}
+              href={
+                paymentMethod.usBankAccount.verification.hostedVerificationUrl
+              }
               target="_blank"
               rel="noreferrer"
               className="text-primary underline"
@@ -177,7 +185,9 @@ export default function VerifyMicrodepositsDialog({
 
         <Tabs
           value={verifyInputMode}
-          onValueChange={(value) => setVerifyInputMode(value as VerifyInputMode)}
+          onValueChange={(value) =>
+            setVerifyInputMode(value as VerifyInputMode)
+          }
           className="space-y-4"
         >
           <TabsList className="grid w-full grid-cols-2">
@@ -188,7 +198,9 @@ export default function VerifyMicrodepositsDialog({
           <TabsContent value="amounts" className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <Label htmlFor="microdeposit-amount-one">Amount 1 (cents)</Label>
+                <Label htmlFor="microdeposit-amount-one">
+                  Amount 1 (cents)
+                </Label>
                 <Input
                   id="microdeposit-amount-one"
                   inputMode="numeric"
@@ -198,7 +210,9 @@ export default function VerifyMicrodepositsDialog({
               </div>
 
               <div className="space-y-1">
-                <Label htmlFor="microdeposit-amount-two">Amount 2 (cents)</Label>
+                <Label htmlFor="microdeposit-amount-two">
+                  Amount 2 (cents)
+                </Label>
                 <Input
                   id="microdeposit-amount-two"
                   inputMode="numeric"
@@ -210,10 +224,11 @@ export default function VerifyMicrodepositsDialog({
           </TabsContent>
 
           <TabsContent value="descriptor_code" className="space-y-1">
-            <Label htmlFor="microdeposit-descriptor-code">Descriptor code</Label>
+            <Label htmlFor="microdeposit-descriptor-code">
+              Descriptor code
+            </Label>
             <Input
               id="microdeposit-descriptor-code"
-              placeholder="SM11AA"
               value={verifyDescriptorCode}
               onChange={(event) => setVerifyDescriptorCode(event.target.value)}
             />
