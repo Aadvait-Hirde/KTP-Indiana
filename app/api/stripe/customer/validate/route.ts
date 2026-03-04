@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
 
     const customer = await stripe.customers.retrieve(id);
 
-    if (customer && !(customer as any).deleted) {
+    if (!("deleted" in customer && customer.deleted)) {
       return NextResponse.json({ valid: true });
     } else {
       return NextResponse.json({ valid: false });

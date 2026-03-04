@@ -9,11 +9,8 @@ import { SignOutButton } from "@clerk/nextjs";
 import {
   Calendar,
   Megaphone,
-  Users,
   CreditCard,
-  ShoppingBag,
   Home,
-  Briefcase,
   FileText,
   ChevronUp,
   Slack,
