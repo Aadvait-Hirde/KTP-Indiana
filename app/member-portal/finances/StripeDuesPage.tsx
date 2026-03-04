@@ -35,11 +35,48 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 type FinanceNotSetupProps = {
   onEnablePortal: () => Promise<void>;
   creatingCustomer: boolean;
 };
+
+function FinanceLoadingSkeleton() {
+  return (
+    <div className="w-full h-full flex flex-col gap-5">
+      <Card className="w-full">
+        <CardContent>
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex flex-col space-y-2">
+              <Skeleton className="h-7 w-28" />
+              <Skeleton className="h-10 w-40" />
+              <Skeleton className="h-4 w-64" />
+            </div>
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-10 w-28" />
+              <Skeleton className="h-10 w-10" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="h-full">
+        <CardHeader>
+          <Skeleton className="h-6 w-32" />
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 
 export function FinanceNotSetup({
   onEnablePortal,
@@ -207,13 +244,8 @@ export default function StripeDuesPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-10rem)]">
-        <div className="w-full max-w-md space-y-4">
-          <Skeleton className="h-8 w-48 mx-auto" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-5/6 mx-auto" />
-          <Skeleton className="h-10 w-36 mx-auto" />
-        </div>
+      <div className="w-full h-full">
+        <FinanceLoadingSkeleton />
       </div>
     );
   }
