@@ -6,10 +6,8 @@ import { AnnouncementsSection } from "@/components/member-portal/announcements";
 import { CalendarWidget } from "@/components/member-portal/calendar-widget";
 import { InternshipsWidget } from "@/components/member-portal/internships-widget";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ShoppingBag, CreditCard, Vote, FileText } from "lucide-react";
+import { CreditCard } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 
 export default function MemberPortalPage() {
   const { user } = useAuthStore();
@@ -135,8 +133,7 @@ export default function MemberPortalPage() {
         </div>
 
         {/* Additional Sections */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-          {/* Merch Store */}
+        {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           <Card className="h-fit">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
@@ -161,7 +158,6 @@ export default function MemberPortalPage() {
             </CardContent>
           </Card>
 
-          {/* Elections */}
           <Card className="h-fit">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
@@ -185,7 +181,6 @@ export default function MemberPortalPage() {
             </CardContent>
           </Card>
 
-          {/* Applications and Forms */}
           <Card className="h-fit">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
@@ -208,7 +203,7 @@ export default function MemberPortalPage() {
               </div>
             </CardContent>
           </Card>
-        </div>
+        </div> */}
       </main>
     </div>
   );
