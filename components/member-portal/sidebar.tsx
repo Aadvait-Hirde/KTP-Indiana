@@ -10,6 +10,7 @@ import {
   Calendar,
   Megaphone,
   CreditCard,
+  Landmark,
   Home,
   FileText,
   ChevronUp,
@@ -17,6 +18,7 @@ import {
   MessageCircle,
   Shield,
   KeyRound,
+  Flame,
 } from "lucide-react";
 import {
   Sidebar,
@@ -75,22 +77,20 @@ export function MemberPortalSidebar() {
     },
     // { icon: Users, label: "Alumni Directory", href: "/member-portal/alumni" },
     // { icon: ShoppingBag, label: "Merch Store", href: "/member-portal/merch" },
-    { icon: CreditCard, label: "Finances", href: "/member-portal/finances" },
+    {
+      icon: CreditCard,
+      label: "Finance Portal",
+      href: "/member-portal/finances",
+    },
     // { icon: Vote, label: "Elections", href: "/member-portal/elections" },
     { icon: FileText, label: "Forms", href: "/member-portal/forms" },
   ];
 
   const externalLinks = [
     {
-      icon: Slack,
-      label: "Slack",
-      href: "https://app.slack.com",
-      external: true,
-    },
-    {
-      icon: MessageCircle,
-      label: "GroupMe",
-      href: "https://web.groupme.com/chats",
+      icon: Flame,
+      label: "Flare",
+      href: "https://www.theflareapp.com/",
       external: true,
     },
   ];
@@ -98,20 +98,20 @@ export function MemberPortalSidebar() {
   const coreAdminItems = [
     {
       icon: Shield,
-      label: "User Management",
+      label: "Users",
       href: "/member-portal/admin/users",
     },
     {
       icon: KeyRound,
-      label: "Role Management",
+      label: "Roles and Permissions",
       href: "/member-portal/admin/roles",
     },
   ];
 
   const financeAdminItems = [
     {
-      icon: CreditCard,
-      label: "Finance Admin",
+      icon: Landmark,
+      label: "Finance Management",
       href: "/member-portal/admin/finance",
     },
   ];
