@@ -40,13 +40,14 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthStore } from "@/lib/auth-store";
 import Link from "next/link";
+import { canViewFinanceAdmin } from "@/lib/permissions";
 
 export function MemberPortalSidebar() {
   //   const [isCollapsed, setIsCollapsed] = useState(false);
   //   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const { theme } = useTheme();
   const pathname = usePathname();
-  const { user } = useAuthStore();
+  const { user, permissions } = useAuthStore();
 
   const { open, setOpenMobile, isMobile } = useSidebar();
 
@@ -94,7 +95,7 @@ export function MemberPortalSidebar() {
     },
   ];
 
-  const adminItems = [
+  const coreAdminItems = [
     {
       icon: Shield,
       label: "User Management",
@@ -104,6 +105,14 @@ export function MemberPortalSidebar() {
       icon: KeyRound,
       label: "Role Management",
       href: "/member-portal/admin/roles",
+    },
+  ];
+
+  const financeAdminItems = [
+    {
+      icon: CreditCard,
+      label: "Finance Admin",
+      href: "/member-portal/admin/finance",
     },
   ];
 
@@ -121,6 +130,13 @@ export function MemberPortalSidebar() {
     }
     return pathname.startsWith(href);
   };
+
+  const canViewFinance = canViewFinanceAdmin(permissions);
+  const showAdminGroup = user?.role === "exec" || canViewFinance;
+  const adminItems = [
+    ...(user?.role === "exec" ? coreAdminItems : []),
+    ...(canViewFinance ? financeAdminItems : []),
+  ];
 
   return (
     <Sidebar collapsible="offcanvas">
@@ -147,7 +163,7 @@ export function MemberPortalSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        {user?.role === "exec" && (
+        {showAdminGroup && (
           <SidebarGroup>
             <SidebarGroupLabel>Admin</SidebarGroupLabel>
             <SidebarGroupContent>

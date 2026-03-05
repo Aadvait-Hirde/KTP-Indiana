@@ -2,22 +2,167 @@ import { NextRequest, NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
 import { supabase } from "@/lib/supabase";
+import {
+  allocateByFifo,
+  normalizeManualAllocations,
+} from "@/lib/finance-utils";
+import type {
+  FinanceAllocationInput,
+  FinanceAllocationMode,
+} from "@/lib/finance-types";
+import { loadObligationBalancesForUser } from "@/lib/finance-server";
 
-async function updateTransactionStatusByPaymentIntentId(
-  paymentIntentId: string,
-  status: "completed" | "failed",
-) {
-  const { error } = await supabase
-    .from("transactions")
-    .update({ status })
-    .eq("stripe_intent_id", paymentIntentId)
-    .eq("type", "Payment");
+type FinancePaymentWebhookRow = {
+  id?: string;
+  user_id?: string;
+  amount_cents?: number;
+  status?: string;
+  allocation_mode?: string;
+  pending_allocations_json?: unknown;
+};
+
+async function findFinancePaymentByIntentId(paymentIntentId: string) {
+  const { data, error } = await supabase
+    .from("finance_payments")
+    .select("id, user_id, amount_cents, status, allocation_mode, pending_allocations_json")
+    .eq("stripe_payment_intent_id", paymentIntentId)
+    .maybeSingle();
 
   if (error) {
     throw new Error(
-      `Failed to update transactions for payment intent ${paymentIntentId}: ${error.message}`,
+      `Failed to load finance payment for intent ${paymentIntentId}: ${error.message}`,
     );
   }
+
+  return (data ?? null) as FinancePaymentWebhookRow | null;
+}
+
+async function markFinancePaymentStatus(
+  paymentId: string,
+  status: "failed" | "canceled" | "completed",
+) {
+  const updatePayload: {
+    status: "failed" | "canceled" | "completed";
+    updated_at: string;
+    pending_allocations_json?: null;
+  } = {
+    status,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (status === "completed") {
+    updatePayload.pending_allocations_json = null;
+  }
+
+  const { error } = await supabase
+    .from("finance_payments")
+    .update(updatePayload)
+    .eq("id", paymentId);
+
+  if (error) {
+    throw new Error(`Failed to update finance payment status: ${error.message}`);
+  }
+}
+
+async function completeFinancePayment(payment: FinancePaymentWebhookRow) {
+  if (
+    typeof payment.id !== "string" ||
+    typeof payment.user_id !== "string" ||
+    typeof payment.amount_cents !== "number"
+  ) {
+    throw new Error("Finance payment row is malformed.");
+  }
+
+  if (payment.status === "completed") {
+    return;
+  }
+
+  const obligations = (await loadObligationBalancesForUser(payment.user_id)).filter(
+    (obligation) => obligation.remaining_cents > 0,
+  );
+
+  const allocationMode: FinanceAllocationMode =
+    payment.allocation_mode === "manual_selection"
+      ? "manual_selection"
+      : "auto_fifo";
+
+  const allocations =
+    allocationMode === "manual_selection"
+      ? normalizeManualAllocations({
+          allocations: Array.isArray(payment.pending_allocations_json)
+            ? (payment.pending_allocations_json as FinanceAllocationInput[])
+            : [],
+          obligationById: new Map(
+            obligations.map((obligation) => [obligation.id, obligation]),
+          ),
+          amountCents: payment.amount_cents,
+        })
+      : allocateByFifo({
+          obligations,
+          amountCents: payment.amount_cents,
+        });
+
+  if (allocations.length > 0) {
+    const { error: allocationError } = await supabase
+      .from("finance_payment_allocations")
+      .upsert(
+        allocations.map((allocation) => ({
+          payment_id: payment.id,
+          obligation_id: allocation.obligationId,
+          amount_cents: allocation.amountCents,
+        })),
+        {
+          onConflict: "payment_id,obligation_id",
+          ignoreDuplicates: true,
+        },
+      );
+
+    if (allocationError) {
+      throw new Error(
+        `Failed to insert finance allocations for payment ${payment.id}: ${allocationError.message}`,
+      );
+    }
+  }
+
+  await markFinancePaymentStatus(payment.id, "completed");
+}
+
+async function handleSucceededPaymentIntent(paymentIntentId: string) {
+  const financePayment = await findFinancePaymentByIntentId(paymentIntentId);
+
+  if (!financePayment) {
+    console.info("No finance payment row found for succeeded intent", {
+      paymentIntentId,
+    });
+    return;
+  }
+
+  await completeFinancePayment(financePayment);
+}
+
+async function handleFailedOrCanceledPaymentIntent(
+  paymentIntentId: string,
+  status: "failed" | "canceled",
+) {
+  const financePayment = await findFinancePaymentByIntentId(paymentIntentId);
+
+  if (!financePayment) {
+    console.info("No finance payment row found for failed/canceled intent", {
+      paymentIntentId,
+      status,
+    });
+    return;
+  }
+
+  if (typeof financePayment.id !== "string") {
+    throw new Error("Finance payment row is malformed.");
+  }
+
+  if (financePayment.status === "completed") {
+    return;
+  }
+
+  await markFinancePaymentStatus(financePayment.id, status);
 }
 
 export async function POST(req: NextRequest) {
@@ -74,7 +219,7 @@ export async function POST(req: NextRequest) {
       }
       case "payment_intent.succeeded": {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        await updateTransactionStatusByPaymentIntentId(paymentIntent.id, "completed");
+        await handleSucceededPaymentIntent(paymentIntent.id);
         break;
       }
       case "payment_intent.processing":
@@ -91,17 +236,22 @@ export async function POST(req: NextRequest) {
         });
         break;
       }
-      case "payment_intent.payment_failed":
+      case "payment_intent.payment_failed": {
+        const paymentIntent = event.data.object as Stripe.PaymentIntent;
+        await handleFailedOrCanceledPaymentIntent(paymentIntent.id, "failed");
+        break;
+      }
       case "payment_intent.canceled": {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        await updateTransactionStatusByPaymentIntentId(paymentIntent.id, "failed");
+        await handleFailedOrCanceledPaymentIntent(paymentIntent.id, "canceled");
         break;
       }
       default:
         break;
     }
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Webhook processing failed";
+    const message =
+      error instanceof Error ? error.message : "Webhook processing failed";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 

@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
+  BadgeAlert,
+  BadgeCheck,
   Banknote,
   CheckCircle2,
   CreditCard,
@@ -92,14 +94,14 @@ function formatArrivalDate(arrivalDate: number | null): string | null {
 
 function getVerificationMessage(
   verification: StripeUsBankVerificationSummary | undefined,
-): string {
+): string | null {
   if (!verification) {
     return "Verification status unavailable.";
   }
 
   switch (verification.state) {
     case "verified":
-      return "Bank account is verified for payment.";
+      return null;
     case "pending_microdeposits": {
       const arrivalDate = formatArrivalDate(verification.arrivalDate);
       if (arrivalDate) {
@@ -151,18 +153,19 @@ function PaymentMethodRow({
     paymentMethod.type === "us_bank_account" &&
     verification?.state !== "verified";
   const canSetAsDefault =
-    paymentMethod.type !== "us_bank_account" || verification?.state === "verified";
+    paymentMethod.type !== "us_bank_account" ||
+    verification?.state === "verified";
 
   return (
     <div
       className={cn(
-        "flex items-center gap-2 rounded-md border p-2",
+        "flex w-full min-w-0 max-w-full flex-col gap-2 rounded-md border p-2 sm:flex-row sm:items-start",
         isSelected && !allowDelete ? "bg-secondary" : "bg-background",
       )}
     >
       <button
         type="button"
-        className="flex min-w-0 flex-1 items-start justify-between gap-3 rounded-md px-2 py-2 text-left"
+        className="flex min-w-0 max-w-full flex-1 items-start justify-between gap-3 rounded-md px-2 py-2 text-left"
         onClick={onSelect}
       >
         <div className="flex min-w-0 items-start gap-3">
@@ -179,31 +182,45 @@ function PaymentMethodRow({
               {formatPaymentMethodDetails(paymentMethod)}
             </p>
             {paymentMethod.type === "us_bank_account" ? (
-              <p className="text-muted-foreground truncate whitespace-nowrap text-xs">
+              <p className="text-muted-foreground break-words text-xs">
                 {getVerificationMessage(verification)}
-                {blockedForPayment ? " Verification required before payment." : ""}
+                {blockedForPayment
+                  ? " Verification required before payment."
+                  : ""}
               </p>
             ) : null}
           </div>
         </div>
 
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
           {paymentMethod.type === "us_bank_account" &&
           verification?.state === "verified" ? (
             <Badge variant="secondary">
-              <CheckCircle2 className="size-3" />
+              <BadgeCheck className="size-3" />
               Verified
+            </Badge>
+          ) : null}
+          {showVerifyButton ? (
+            <Badge variant="destructive">
+              <BadgeAlert className="size-3" />
+              Unverified
             </Badge>
           ) : null}
           {paymentMethod.isDefault ? <Badge>Default</Badge> : null}
         </div>
       </button>
 
-      {showVerifyButton ? (
-        <Button type="button" size="sm" variant="outline" onClick={onRequestVerify}>
+      {/* {showVerifyButton ? (
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          className="w-full shrink-0 sm:w-auto"
+          onClick={onRequestVerify}
+        >
           Verify deposits
         </Button>
-      ) : null}
+      ) : null} */}
 
       {allowDelete ? (
         <DropdownMenu>
@@ -223,19 +240,30 @@ function PaymentMethodRow({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="space-y-0.5">
-            <DropdownMenuItem
-              disabled={
-                paymentMethod.isDefault ||
-                deleting ||
-                settingDefault ||
-                !canSetAsDefault
-              }
-              onSelect={() => {
-                onRequestSetDefault();
-              }}
-            >
-              Make default
-            </DropdownMenuItem>
+            {showVerifyButton ? (
+              <DropdownMenuItem
+                onSelect={() => {
+                  onRequestVerify();
+                }}
+              >
+                Verify
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem
+                disabled={
+                  paymentMethod.isDefault ||
+                  deleting ||
+                  settingDefault ||
+                  !canSetAsDefault
+                }
+                onSelect={() => {
+                  onRequestSetDefault();
+                }}
+              >
+                Make default
+              </DropdownMenuItem>
+            )}
+
             <DropdownMenuItem
               variant="destructive"
               disabled={deleting || settingDefault}
@@ -296,7 +324,8 @@ export default function ManagePaymentMethods({
         throw new Error(result.error || "Failed to fetch payment methods.");
       }
 
-      const methods = (result.paymentMethods || []) as StripePaymentMethodSummary[];
+      const methods = (result.paymentMethods ||
+        []) as StripePaymentMethodSummary[];
       setPaymentMethods(methods);
       onPaymentMethodsChange(methods);
     } catch (error) {
@@ -352,7 +381,8 @@ export default function ManagePaymentMethods({
     paymentMethod: StripePaymentMethodSummary,
   ) {
     if (paymentMethod.type === "us_bank_account") {
-      const verificationState = paymentMethod.usBankAccount?.verification?.state;
+      const verificationState =
+        paymentMethod.usBankAccount?.verification?.state;
       if (verificationState !== "verified") {
         toast.error("Verify this bank account before setting it as default.");
         return;
@@ -373,7 +403,9 @@ export default function ManagePaymentMethods({
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || "Failed to set default payment method.");
+        throw new Error(
+          result.error || "Failed to set default payment method.",
+        );
       }
 
       onSelectedPaymentMethodChange(paymentMethod.id);
@@ -420,7 +452,9 @@ export default function ManagePaymentMethods({
     }
   }
 
-  function handleSelectPaymentMethod(paymentMethod: StripePaymentMethodSummary) {
+  function handleSelectPaymentMethod(
+    paymentMethod: StripePaymentMethodSummary,
+  ) {
     if (!isSelectableForPayment(paymentMethod, enforceVerifiedSelection)) {
       toast.error("This bank account must be verified before payment.");
       return;
@@ -431,7 +465,7 @@ export default function ManagePaymentMethods({
 
   return (
     <>
-      <div className="space-y-4">
+      <div className="min-w-0 w-full space-y-4">
         <div className="flex justify-end">
           <Button
             type="button"
@@ -453,7 +487,7 @@ export default function ManagePaymentMethods({
             No payment methods yet. Add one to continue.
           </p>
         ) : (
-          <div className="space-y-2">
+          <div className="min-w-0 w-full space-y-2">
             {paymentMethods.map((paymentMethod) => (
               <PaymentMethodRow
                 key={paymentMethod.id}
@@ -462,7 +496,9 @@ export default function ManagePaymentMethods({
                 onSelect={() => handleSelectPaymentMethod(paymentMethod)}
                 allowDelete={allowDelete}
                 deleting={deletingPaymentMethodId === paymentMethod.id}
-                settingDefault={settingDefaultPaymentMethodId === paymentMethod.id}
+                settingDefault={
+                  settingDefaultPaymentMethodId === paymentMethod.id
+                }
                 onRequestSetDefault={() => {
                   void handleSetDefaultPaymentMethod(paymentMethod);
                 }}

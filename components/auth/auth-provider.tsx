@@ -4,6 +4,7 @@ import { useUser } from '@clerk/nextjs'
 import { useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/auth-store'
+import { fetchUserPermissionKeys } from '@/lib/permissions'
 
 interface AuthProviderProps {
   children: React.ReactNode
@@ -11,7 +12,8 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const { user: clerkUser, isLoaded } = useUser()
-  const { setUser, setAuthorized, setLoading, reset } = useAuthStore()
+  const { setUser, setAuthorized, setLoading, setPermissions, reset } =
+    useAuthStore()
 
   useEffect(() => {
     async function checkUserAuthorization() {
@@ -20,6 +22,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setLoading(true)
 
       if (!clerkUser?.emailAddresses?.[0]?.emailAddress) {
+        setPermissions([])
         reset()
         return
       }
@@ -47,16 +50,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (error || !data) {
           console.log('User not found in database or timeout:', email)
           setAuthorized(false)
+          setPermissions([])
           setUser(null)
         } else {
           console.log('User found in database:', data)
           setAuthorized(true)
           setUser(data)
+
+          try {
+            const permissionKeys = await fetchUserPermissionKeys(data.id)
+            setPermissions(permissionKeys)
+          } catch (permissionError) {
+            console.error('Failed to load permissions:', permissionError)
+            setPermissions([])
+          }
         }
       } catch (error) {
         console.error('Error checking user authorization:', error)
         // On timeout or error, assume unauthorized but don't block the UI
         setAuthorized(false)
+        setPermissions([])
         setUser(null)
       } finally {
         setLoading(false)
@@ -64,7 +77,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     checkUserAuthorization()
-  }, [clerkUser, isLoaded, setUser, setAuthorized, setLoading, reset])
+  }, [
+    clerkUser,
+    isLoaded,
+    reset,
+    setAuthorized,
+    setLoading,
+    setPermissions,
+    setUser,
+  ])
 
   return <>{children}</>
 } 
