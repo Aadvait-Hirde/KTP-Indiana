@@ -243,56 +243,58 @@ export async function POST(req: NextRequest) {
 
     const chargeId = chargeData.id;
 
-    if (input.includeRoleIds.length > 0) {
-      const includeRolePayload = input.includeRoleIds.map((roleId) => ({
+    const targets: Array<{
+      charge_id: string;
+      target_type: "role" | "user";
+      target_id: string;
+      mode: "include" | "exclude";
+      amount_cents: number | null;
+    }> = [];
+
+    for (const roleId of input.includeRoleIds) {
+      targets.push({
         charge_id: chargeId,
-        role_id: roleId,
+        target_type: "role",
+        target_id: roleId,
+        mode: "include",
         amount_cents: input.roleAmounts?.[roleId] ?? null,
-      }));
-
-      const { error } = await supabase
-        .from("finance_charge_include_roles")
-        .insert(includeRolePayload);
-
-      if (error) throw error;
+      });
     }
 
-    if (input.excludeRoleIds.length > 0) {
-      const excludeRolePayload = input.excludeRoleIds.map((roleId) => ({
+    for (const roleId of input.excludeRoleIds) {
+      targets.push({
         charge_id: chargeId,
-        role_id: roleId,
-      }));
-
-      const { error } = await supabase
-        .from("finance_charge_exclude_roles")
-        .insert(excludeRolePayload);
-
-      if (error) throw error;
+        target_type: "role",
+        target_id: roleId,
+        mode: "exclude",
+        amount_cents: null,
+      });
     }
 
-    if (input.includeUsers.length > 0) {
-      const includeUserPayload = input.includeUsers.map((entry) => ({
+    for (const entry of input.includeUsers) {
+      targets.push({
         charge_id: chargeId,
-        user_id: entry.userId,
+        target_type: "user",
+        target_id: entry.userId,
+        mode: "include",
         amount_cents: entry.amountCents ?? null,
-      }));
-
-      const { error } = await supabase
-        .from("finance_charge_include_users")
-        .insert(includeUserPayload);
-
-      if (error) throw error;
+      });
     }
 
-    if (input.excludeUserIds.length > 0) {
-      const excludeUserPayload = input.excludeUserIds.map((userId) => ({
+    for (const userId of input.excludeUserIds) {
+      targets.push({
         charge_id: chargeId,
-        user_id: userId,
-      }));
+        target_type: "user",
+        target_id: userId,
+        mode: "exclude",
+        amount_cents: null,
+      });
+    }
 
+    if (targets.length > 0) {
       const { error } = await supabase
-        .from("finance_charge_exclude_users")
-        .insert(excludeUserPayload);
+        .from("finance_charge_targets")
+        .insert(targets);
 
       if (error) throw error;
     }

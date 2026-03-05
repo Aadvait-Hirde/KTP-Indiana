@@ -11,14 +11,11 @@ import {
   loadObligationBalancesForCharge,
 } from "@/lib/finance-server";
 
-type ChargeTargetRoleRow = {
-  role_id: string | null;
-  amount_cents?: number | null;
-};
-
-type ChargeTargetUserRow = {
-  user_id: string | null;
-  amount_cents?: number | null;
+type ChargeTargetRow = {
+  target_type: string | null;
+  target_id: string | null;
+  mode: string | null;
+  amount_cents: number | null;
 };
 
 export async function GET(
@@ -31,7 +28,7 @@ export async function GET(
 
     const { chargeId } = await context.params;
 
-    const [chargeRes, obligations, roles, includeRolesRes, excludeRolesRes, includeUsersRes, excludeUsersRes] =
+    const [chargeRes, obligations, roles, targetsRes] =
       await Promise.all([
         supabase
           .from("finance_charges")
@@ -41,28 +38,13 @@ export async function GET(
         loadObligationBalancesForCharge(chargeId),
         loadAllBasicRoles(),
         supabase
-          .from("finance_charge_include_roles")
-          .select("role_id, amount_cents")
-          .eq("charge_id", chargeId),
-        supabase
-          .from("finance_charge_exclude_roles")
-          .select("role_id")
-          .eq("charge_id", chargeId),
-        supabase
-          .from("finance_charge_include_users")
-          .select("user_id, amount_cents")
-          .eq("charge_id", chargeId),
-        supabase
-          .from("finance_charge_exclude_users")
-          .select("user_id")
+          .from("finance_charge_targets")
+          .select("target_type, target_id, mode, amount_cents")
           .eq("charge_id", chargeId),
       ]);
 
     if (chargeRes.error) throw chargeRes.error;
-    if (includeRolesRes.error) throw includeRolesRes.error;
-    if (excludeRolesRes.error) throw excludeRolesRes.error;
-    if (includeUsersRes.error) throw includeUsersRes.error;
-    if (excludeUsersRes.error) throw excludeUsersRes.error;
+    if (targetsRes.error) throw targetsRes.error;
 
     if (!chargeRes.data || typeof chargeRes.data.id !== "string") {
       return NextResponse.json({ error: "Charge not found." }, { status: 404 });
@@ -70,12 +52,15 @@ export async function GET(
 
     const roleNameById = new Map(roles.map((role) => [role.id, role.name]));
 
+    const targetRows = (targetsRes.data ?? []) as ChargeTargetRow[];
+
+    const targetUserIds = targetRows
+      .filter((row) => row.target_type === "user" && typeof row.target_id === "string")
+      .map((row) => row.target_id as string);
+
     const allUserIds = new Set<string>([
       ...obligations.map((item) => item.user_id),
-      ...((includeUsersRes.data ?? []) as ChargeTargetUserRow[])
-        .flatMap((item) => (item.user_id ? [item.user_id] : [])),
-      ...((excludeUsersRes.data ?? []) as ChargeTargetUserRow[])
-        .flatMap((item) => (item.user_id ? [item.user_id] : [])),
+      ...targetUserIds,
     ]);
 
     const usersById = await loadBasicUsersByIds(Array.from(allUserIds));
@@ -96,39 +81,39 @@ export async function GET(
       };
     });
 
-    const includeRoles = ((includeRolesRes.data ?? []) as ChargeTargetRoleRow[])
-      .filter((row) => typeof row.role_id === "string")
+    const includeRoles = targetRows
+      .filter((row) => row.target_type === "role" && row.mode === "include" && typeof row.target_id === "string")
       .map((row) => ({
-        roleId: row.role_id as string,
-        roleName: roleNameById.get(row.role_id as string) ?? "Unknown Role",
+        roleId: row.target_id as string,
+        roleName: roleNameById.get(row.target_id as string) ?? "Unknown Role",
         amountCents: typeof row.amount_cents === "number" ? row.amount_cents : null,
       }));
 
-    const excludeRoles = ((excludeRolesRes.data ?? []) as ChargeTargetRoleRow[])
-      .filter((row) => typeof row.role_id === "string")
+    const excludeRoles = targetRows
+      .filter((row) => row.target_type === "role" && row.mode === "exclude" && typeof row.target_id === "string")
       .map((row) => ({
-        roleId: row.role_id as string,
-        roleName: roleNameById.get(row.role_id as string) ?? "Unknown Role",
+        roleId: row.target_id as string,
+        roleName: roleNameById.get(row.target_id as string) ?? "Unknown Role",
       }));
 
-    const includeUsers = ((includeUsersRes.data ?? []) as ChargeTargetUserRow[])
-      .filter((row) => typeof row.user_id === "string")
+    const includeUsers = targetRows
+      .filter((row) => row.target_type === "user" && row.mode === "include" && typeof row.target_id === "string")
       .map((row) => {
-        const user = usersById.get(row.user_id as string);
+        const user = usersById.get(row.target_id as string);
         return {
-          userId: row.user_id as string,
+          userId: row.target_id as string,
           name: user?.name ?? "Unknown User",
           email: user?.email ?? "",
           amountCents: typeof row.amount_cents === "number" ? row.amount_cents : null,
         };
       });
 
-    const excludeUsers = ((excludeUsersRes.data ?? []) as ChargeTargetUserRow[])
-      .filter((row) => typeof row.user_id === "string")
+    const excludeUsers = targetRows
+      .filter((row) => row.target_type === "user" && row.mode === "exclude" && typeof row.target_id === "string")
       .map((row) => {
-        const user = usersById.get(row.user_id as string);
+        const user = usersById.get(row.target_id as string);
         return {
-          userId: row.user_id as string,
+          userId: row.target_id as string,
           name: user?.name ?? "Unknown User",
           email: user?.email ?? "",
         };

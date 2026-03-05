@@ -182,7 +182,7 @@ function PaymentMethodRow({
               {formatPaymentMethodDetails(paymentMethod)}
             </p>
             {paymentMethod.type === "us_bank_account" ? (
-              <p className="text-muted-foreground break-words text-xs">
+              <p className="text-muted-foreground wrap-break-word text-xs">
                 {getVerificationMessage(verification)}
                 {blockedForPayment
                   ? " Verification required before payment."
@@ -466,17 +466,6 @@ export default function ManagePaymentMethods({
   return (
     <>
       <div className="min-w-0 w-full space-y-4">
-        <div className="flex justify-end">
-          <Button
-            type="button"
-            onClick={() => setSetupDialogOpen(true)}
-            size="sm"
-          >
-            <Plus className="size-4" />
-            Add method
-          </Button>
-        </div>
-
         {loading ? (
           <div className="space-y-2">
             <Skeleton className="h-16 w-full" />
@@ -513,6 +502,18 @@ export default function ManagePaymentMethods({
                 }}
               />
             ))}
+            <button
+              type="button"
+              onClick={() => setSetupDialogOpen(true)}
+              className="flex w-full min-w-0 max-w-full flex-col gap-2 rounded-md border border-dashed p-2 text-left hover:bg-muted/50 sm:flex-row sm:items-start"
+            >
+              <div className="flex min-w-0 max-w-full flex-1 items-start gap-3 px-2 py-2">
+                <Plus className="mt-0.5 size-4 shrink-0" />
+                <div className="min-w-0 space-y-0.5">
+                  <p className="font-medium">Add another account</p>
+                </div>
+              </div>
+            </button>
           </div>
         )}
       </div>

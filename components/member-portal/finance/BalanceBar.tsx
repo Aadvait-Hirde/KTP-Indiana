@@ -8,21 +8,69 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+type BalanceBarObligation = {
+  remaining_cents: number;
+  due_at: string | null;
+  is_overdue: boolean;
+};
+
 type BalanceBarProps = {
   balanceCents: number;
   payingBalance: boolean;
+  obligations?: BalanceBarObligation[];
   onPayBalanceClick: () => void;
   onManagePaymentMethodsClick: () => void;
 };
 
+function formatDate(date: string | null): string {
+  if (!date) return "";
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) return "";
+  return parsed.toLocaleDateString("en-US", {
+    month: "numeric",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function getNextDueInfo(
+  obligations: BalanceBarObligation[] = [],
+): { date: string; amountCents: number } | null {
+  const unpaidWithDueDate = obligations
+    .filter((o) => o.remaining_cents > 0 && o.due_at)
+    .sort(
+      (a, b) =>
+        (new Date(a.due_at!).getTime() || 0) -
+        (new Date(b.due_at!).getTime() || 0),
+    );
+
+  if (unpaidWithDueDate.length === 0) return null;
+
+  const nextDueDate = unpaidWithDueDate[0].due_at!;
+  const amountDueOnDate = unpaidWithDueDate
+    .filter((o) => o.due_at === nextDueDate)
+    .reduce((sum, o) => sum + o.remaining_cents, 0);
+
+  return {
+    date: formatDate(nextDueDate),
+    amountCents: amountDueOnDate,
+  };
+}
+
 export default function BalanceBar({
   balanceCents,
   payingBalance,
+  obligations = [],
   onPayBalanceClick,
   onManagePaymentMethodsClick,
 }: BalanceBarProps) {
   const balance = balanceCents / 100;
   const payDisabled = balanceCents <= 0 || payingBalance;
+  const nextDueInfo = getNextDueInfo(obligations);
+  const nextDueAmount = nextDueInfo
+    ? `$${(nextDueInfo.amountCents / 100).toFixed(2)}`
+    : "$0.00";
+  const nextDueDate = nextDueInfo?.date ?? "";
 
   return (
     <Card className="w-full">
@@ -34,7 +82,9 @@ export default function BalanceBar({
             <p className="text-muted-foreground text-sm">
               {balance <= 0
                 ? "No payment is currently due."
-                : 'Click "pay balance" to make a payment.'}
+                : nextDueInfo
+                  ? `You have a ${nextDueAmount} payment due on ${nextDueDate}.`
+                  : 'Select "Pay Balance" to make a full or partial payment.'}
             </p>
           </div>
 

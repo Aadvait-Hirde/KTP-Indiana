@@ -97,7 +97,7 @@ export default function Ledger({
         <CardTitle>Transactions</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="max-h-96 overflow-auto rounded-md border">
+        <div className="h-full overflow-auto rounded-md border">
           {loadingLedger ? (
             <p className="p-4 text-sm text-muted-foreground">
               Loading transactions...
@@ -106,14 +106,12 @@ export default function Ledger({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead></TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Amount</TableHead>
                   <TableHead>Remaining</TableHead>
-                  <TableHead>Selected Amount ($)</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -142,7 +140,14 @@ export default function Ledger({
                               status.label.substring(1, status.label.length)}
                           </Badge>
                         </TableCell>
-                        <TableCell>{formatCents(entry.amountCents)}</TableCell>
+                        <TableCell className="text-red-500">
+                          {formatCents(entry.amountCents)}
+                        </TableCell>
+                        <TableCell>
+                          {entry.remainingCents > 0
+                            ? formatCents(entry.remainingCents)
+                            : "-"}
+                        </TableCell>
                       </TableRow>
                     );
                   }
@@ -166,6 +171,7 @@ export default function Ledger({
                         </Badge>
                       </TableCell>
                       <TableCell>{formatCents(entry.amountCents)}</TableCell>
+                      <TableCell>-</TableCell>
                     </TableRow>
                   );
                 })}

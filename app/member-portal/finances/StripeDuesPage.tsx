@@ -34,6 +34,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 
 type FinanceNotSetupProps = {
   onEnablePortal: () => Promise<void>;
@@ -59,6 +60,7 @@ type FinancePayment = {
   source: string;
   status: string;
   amountCents: number;
+  allocationMode: string;
   paymentMethodLabel: string | null;
   notes: string | null;
   createdAt: string;
@@ -83,6 +85,7 @@ type PayMode = "balance" | "selected";
 
 const EMPTY_OBLIGATIONS: FinanceObligation[] = [];
 const EMPTY_PAYMENTS: FinancePayment[] = [];
+const MIN_PAYMENT_CENTS = 50; // $0.50
 
 function FinanceLoadingSkeleton() {
   return (
@@ -274,7 +277,12 @@ export default function StripeDuesPage() {
       id: payment.id,
       kind: "payment",
       createdAt: payment.createdAt,
-      title: payment.source === "manual" ? "Manual payment" : "Stripe payment",
+      title:
+        payment.source === "manual"
+          ? "Manual Payment"
+          : payment.allocationMode === "auto_fifo"
+            ? "Full Balance Payment"
+            : "Partial Balance Payment",
       description: payment.paymentMethodLabel ?? payment.notes,
       amountCents: payment.amountCents,
       status: payment.status,
@@ -438,8 +446,8 @@ export default function StripeDuesPage() {
       return;
     }
 
-    if (payMode === "selected" && selectedTotalCents <= 0) {
-      toast.error("Select at least one charge amount to pay.");
+    if (payMode === "selected" && selectedTotalCents < MIN_PAYMENT_CENTS) {
+      toast.error(`Minimum payment is ${formatCents(MIN_PAYMENT_CENTS)}.`);
       return;
     }
 
@@ -516,6 +524,7 @@ export default function StripeDuesPage() {
         <BalanceBar
           balanceCents={outstandingCents}
           payingBalance={paying}
+          obligations={obligations}
           onPayBalanceClick={handlePayDialogOpen}
           onManagePaymentMethodsClick={() => setManageDialogOpen(true)}
         />
@@ -530,7 +539,8 @@ export default function StripeDuesPage() {
           <DialogHeader>
             <DialogTitle>Pay balance</DialogTitle>
             <DialogDescription>
-              Pay the full outstanding balance or select specific charges to pay.
+              Pay the full outstanding balance or select specific charges to
+              pay.
             </DialogDescription>
           </DialogHeader>
 
@@ -598,8 +608,7 @@ export default function StripeDuesPage() {
                               </div>
                             ) : null}
                             <div className="text-xs text-muted-foreground">
-                              Due: {formatDate(obligation.due_at)} ·
-                              Remaining:{" "}
+                              Due: {formatDate(obligation.due_at)} · Remaining:{" "}
                               {formatCents(obligation.remaining_cents)}
                             </div>
                           </div>
@@ -631,7 +640,7 @@ export default function StripeDuesPage() {
               )}
             </TabsContent>
           </Tabs>
-
+          <Separator />
           <ManagePaymentMethods
             stripeCustomerId={stripeCustomerId}
             selectedPaymentMethodId={selectedPaymentMethodId}
@@ -658,7 +667,7 @@ export default function StripeDuesPage() {
                 !selectedPaymentMethodId ||
                 (payMode === "balance"
                   ? outstandingCents <= 0
-                  : selectedTotalCents <= 0)
+                  : selectedTotalCents < MIN_PAYMENT_CENTS)
               }
             >
               {paying ? (
