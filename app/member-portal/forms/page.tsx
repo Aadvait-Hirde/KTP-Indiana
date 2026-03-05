@@ -10,7 +10,7 @@ import {
   EmptyDescription,
   EmptyContent,
 } from "@/components/ui/empty";
-import { FileText, ExternalLink, TriangleAlert, Icon } from "lucide-react";
+import { FileText, ExternalLink, TriangleAlert } from "lucide-react";
 
 interface FormData {
   title: string;

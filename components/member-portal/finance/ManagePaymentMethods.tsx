@@ -6,7 +6,6 @@ import {
   BadgeAlert,
   BadgeCheck,
   Banknote,
-  CheckCircle2,
   CreditCard,
   MoreVertical,
   Plus,

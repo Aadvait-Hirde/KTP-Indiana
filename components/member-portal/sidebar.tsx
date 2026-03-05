@@ -14,8 +14,6 @@ import {
   Home,
   FileText,
   ChevronUp,
-  Slack,
-  MessageCircle,
   Shield,
   KeyRound,
   Flame,

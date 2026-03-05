@@ -77,10 +77,10 @@ function getPaymentStatusVariant(status: string) {
 export default function Ledger({
   entries,
   loadingLedger,
-  selectedChargeIds,
-  selectedChargeAmounts,
-  onToggleChargeSelection,
-  onChargeAmountChange,
+  //   selectedChargeIds,
+  //   selectedChargeAmounts,
+  //   onToggleChargeSelection,
+  //   onChargeAmountChange,
 }: {
   entries: LedgerEntry[];
   loadingLedger: boolean;
@@ -89,7 +89,7 @@ export default function Ledger({
   onToggleChargeSelection?: (chargeId: string, checked: boolean) => void;
   onChargeAmountChange?: (chargeId: string, value: string) => void;
 }) {
-  const selectedChargeSet = new Set(selectedChargeIds ?? []);
+  //   const selectedChargeSet = new Set(selectedChargeIds ?? []);
 
   return (
     <Card className="h-full">
