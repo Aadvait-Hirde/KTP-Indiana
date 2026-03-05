@@ -7,37 +7,78 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
-export enum TransactionType {
-  CHARGE = "Charge",
-  PAYMENT = "Payment",
-}
-
-export enum TransactionStatus {
-  PENDING = "pending",
-  COMPLETED = "completed",
-  FAILED = "failed",
-  REFUNDED = "refunded",
-}
-
-export interface Transaction {
+export type LedgerChargeEntry = {
   id: string;
-  created_at: string;
-  customer_id: string;
-  name: string;
+  kind: "charge";
+  createdAt: string;
+  title: string;
   description: string | null;
-  type: TransactionType;
-  stripe_intent_id: string | null;
-  amount: number;
-  status: TransactionStatus;
-  due_date: Date | null;
+  amountCents: number;
+  remainingCents: number;
+  dueAt: string | null;
+  isOverdue: boolean;
+  paymentState: "paid" | "partial" | "unpaid";
+};
+
+export type LedgerPaymentEntry = {
+  id: string;
+  kind: "payment";
+  createdAt: string;
+  title: string;
+  description: string | null;
+  amountCents: number;
+  status: string;
+};
+
+export type LedgerEntry = LedgerChargeEntry | LedgerPaymentEntry;
+
+function formatDate(date: string | null) {
+  if (!date) return "-";
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) return "-";
+  return parsed.toLocaleDateString("en-US");
+}
+
+function formatCents(amountCents: number) {
+  return `$${(amountCents / 100).toFixed(2)}`;
+}
+
+function getChargeStatus(entry: LedgerChargeEntry) {
+  if (entry.isOverdue && entry.remainingCents > 0) {
+    return {
+      label: "overdue",
+      variant: "destructive" as const,
+    };
+  }
+
+  if (entry.paymentState === "paid") {
+    return {
+      label: "paid",
+      variant: "default" as const,
+    };
+  }
+
+  return {
+    label: entry.paymentState,
+    variant: "secondary" as const,
+  };
+}
+
+function getPaymentStatusVariant(status: string) {
+  if (status === "completed") return "default" as const;
+  if (status === "failed" || status === "canceled") {
+    return "destructive" as const;
+  }
+  return "secondary" as const;
 }
 
 export default function Ledger({
-  ledger,
+  entries,
   loadingLedger,
 }: {
-  ledger: Transaction[];
+  entries: LedgerEntry[];
   loadingLedger: boolean;
 }) {
   return (
@@ -46,9 +87,11 @@ export default function Ledger({
         <CardTitle>Transactions</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex-1 overflow-auto">
+        <div className="max-h-96 overflow-auto rounded-md border">
           {loadingLedger ? (
-            <p>Loading ledger...</p>
+            <p className="p-4 text-sm text-muted-foreground">
+              Loading transactions...
+            </p>
           ) : (
             <Table>
               <TableHeader>
@@ -61,30 +104,58 @@ export default function Ledger({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {ledger.map((transaction) => (
-                  <TableRow key={transaction.id}>
-                    <TableCell>
-                      {new Date(transaction.created_at).toLocaleDateString(
-                        "en-US",
-                      )}
-                    </TableCell>
-                    <TableCell>{transaction.name}</TableCell>
-                    <TableCell>{transaction.type}</TableCell>
-                    <TableCell>
-                      {transaction.status.charAt(0).toUpperCase() +
-                        transaction.status.substring(1)}
-                    </TableCell>
-                    <TableCell
-                      className={
-                        transaction.type === TransactionType.CHARGE
-                          ? "text-red-500"
-                          : ""
-                      }
-                    >
-                      ${(transaction.amount / 100).toFixed(2)}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {entries.map((entry) => {
+                  if (entry.kind === "charge") {
+                    const status = getChargeStatus(entry);
+
+                    return (
+                      <TableRow key={`charge-${entry.id}`}>
+                        <TableCell>{formatDate(entry.createdAt)}</TableCell>
+                        <TableCell>
+                          <div className="font-medium">{entry.title}</div>
+                          {entry.description ? (
+                            <div className="text-xs text-muted-foreground">
+                              {entry.description}
+                            </div>
+                          ) : null}
+                          <div className="text-xs text-muted-foreground">
+                            Due: {formatDate(entry.dueAt)}
+                          </div>
+                        </TableCell>
+                        <TableCell>Charge</TableCell>
+                        <TableCell>
+                          <Badge variant={status.variant}>
+                            {status.label.charAt(0).toUpperCase() +
+                              status.label.substring(1, status.label.length)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{formatCents(entry.amountCents)}</TableCell>
+                      </TableRow>
+                    );
+                  }
+
+                  return (
+                    <TableRow key={`payment-${entry.id}`}>
+                      <TableCell>{formatDate(entry.createdAt)}</TableCell>
+                      <TableCell>
+                        <div className="font-medium">{entry.title}</div>
+                        {entry.description ? (
+                          <div className="text-xs text-muted-foreground">
+                            {entry.description}
+                          </div>
+                        ) : null}
+                      </TableCell>
+                      <TableCell>Payment</TableCell>
+                      <TableCell>
+                        <Badge variant={getPaymentStatusVariant(entry.status)}>
+                          {entry.status.charAt(0).toUpperCase() +
+                            entry.status.substring(1, entry.status.length)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{formatCents(entry.amountCents)}</TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           )}
