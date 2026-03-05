@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { TriangleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
 import {
   Empty,
   EmptyContent,
@@ -32,6 +33,7 @@ import {
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
 import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type FinanceNotSetupProps = {
   onEnablePortal: () => Promise<void>;
@@ -153,6 +155,13 @@ function parseDollarsToCents(input: string) {
 function toTimestamp(value: string) {
   const parsed = Date.parse(value);
   return Number.isNaN(parsed) ? 0 : parsed;
+}
+
+function formatDate(date: string | null) {
+  if (!date) return "-";
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) return "-";
+  return parsed.toLocaleDateString("en-US");
 }
 
 export default function StripeDuesPage() {
@@ -403,6 +412,13 @@ export default function StripeDuesPage() {
     }));
   }
 
+  function handlePayDialogOpen() {
+    setPayMode("balance");
+    setSelectedObligationIds([]);
+    setSelectedAmounts({});
+    setPayDialogOpen(true);
+  }
+
   async function handleSubmitPayment() {
     if (!selectedPaymentMethod) {
       toast.error("Select a payment method before paying.");
@@ -456,10 +472,8 @@ export default function StripeDuesPage() {
         "Payment submitted. Status will update once Stripe finalizes it.",
       );
       setPayDialogOpen(false);
-      if (payMode === "selected") {
-        setSelectedObligationIds([]);
-        setSelectedAmounts({});
-      }
+      setSelectedObligationIds([]);
+      setSelectedAmounts({});
 
       await loadOverview();
     } catch (paymentError) {
@@ -502,60 +516,121 @@ export default function StripeDuesPage() {
         <BalanceBar
           balanceCents={outstandingCents}
           payingBalance={paying}
-          onPayBalanceClick={() => {
-            setPayMode("balance");
-            setPayDialogOpen(true);
-          }}
+          onPayBalanceClick={handlePayDialogOpen}
           onManagePaymentMethodsClick={() => setManageDialogOpen(true)}
         />
       </div>
 
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          {overview.summary.overdueCount > 0
-            ? `${overview.summary.overdueCount} overdue charge${overview.summary.overdueCount === 1 ? "" : "s"}`
-            : `${overview.summary.obligationCount} total charge${overview.summary.obligationCount === 1 ? "" : "s"}`}
-        </p>
-        <Button
-          variant="outline"
-          disabled={selectedTotalCents <= 0}
-          onClick={() => {
-            setPayMode("selected");
-            setPayDialogOpen(true);
-          }}
-        >
-          Pay Selected Charges
-        </Button>
-      </div>
-
       <div className="flex-1 overflow-auto">
-        <Ledger
-          entries={ledgerEntries}
-          loadingLedger={false}
-          selectedChargeIds={selectedObligationIds}
-          selectedChargeAmounts={selectedAmounts}
-          onToggleChargeSelection={handleToggleChargeSelection}
-          onChargeAmountChange={(obligationId, value) => {
-            setSelectedAmounts((current) => ({
-              ...current,
-              [obligationId]: value,
-            }));
-          }}
-        />
+        <Ledger entries={ledgerEntries} loadingLedger={false} />
       </div>
 
       <Dialog open={payDialogOpen} onOpenChange={setPayDialogOpen}>
         <DialogContent className="max-h-[calc(100dvh-2rem)] w-full overflow-x-hidden overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>
-              {payMode === "balance" ? "Pay balance" : "Pay selected charges"}
-            </DialogTitle>
+            <DialogTitle>Pay balance</DialogTitle>
             <DialogDescription>
-              {payMode === "balance"
-                ? `Submit ${formatCents(outstandingCents)} to your outstanding obligations.`
-                : `Submit ${formatCents(selectedTotalCents)} to selected obligations.`}
+              Pay the full outstanding balance or select specific charges to pay.
             </DialogDescription>
           </DialogHeader>
+
+          <Tabs
+            value={payMode}
+            onValueChange={(value) => {
+              setPayMode(value as PayMode);
+              if (value === "balance") {
+                setSelectedObligationIds([]);
+                setSelectedAmounts({});
+              }
+            }}
+          >
+            <TabsList className="w-full">
+              <TabsTrigger value="balance">Full Balance</TabsTrigger>
+              <TabsTrigger value="selected">Select Charges</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="balance">
+              <div className="rounded-md border p-4">
+                <p className="text-sm text-muted-foreground">
+                  Outstanding balance
+                </p>
+                <p className="text-2xl font-semibold">
+                  {formatCents(outstandingCents)}
+                </p>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="selected">
+              <div className="max-h-64 overflow-auto rounded-md border">
+                {unpaidObligations.length === 0 ? (
+                  <p className="p-4 text-sm text-muted-foreground">
+                    No unpaid charges.
+                  </p>
+                ) : (
+                  <div className="divide-y">
+                    {unpaidObligations.map((obligation) => {
+                      const checked = selectedObligationIds.includes(
+                        obligation.id,
+                      );
+                      return (
+                        <label
+                          key={obligation.id}
+                          className="flex items-center gap-3 p-3 hover:bg-muted/50 cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={(e) =>
+                              handleToggleChargeSelection(
+                                obligation.id,
+                                e.target.checked,
+                              )
+                            }
+                            className="size-4 shrink-0"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm">
+                              {obligation.chargeTitle}
+                            </div>
+                            {obligation.chargeDescription ? (
+                              <div className="text-xs text-muted-foreground">
+                                {obligation.chargeDescription}
+                              </div>
+                            ) : null}
+                            <div className="text-xs text-muted-foreground">
+                              Due: {formatDate(obligation.due_at)} ·
+                              Remaining:{" "}
+                              {formatCents(obligation.remaining_cents)}
+                            </div>
+                          </div>
+                          <Input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            className="h-8 w-28"
+                            disabled={!checked}
+                            placeholder="Amount"
+                            value={selectedAmounts[obligation.id] ?? ""}
+                            onChange={(e) =>
+                              setSelectedAmounts((current) => ({
+                                ...current,
+                                [obligation.id]: e.target.value,
+                              }))
+                            }
+                          />
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+              {selectedTotalCents > 0 && (
+                <div className="mt-2 text-sm text-right font-medium">
+                  Selected total: {formatCents(selectedTotalCents)}
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
 
           <ManagePaymentMethods
             stripeCustomerId={stripeCustomerId}

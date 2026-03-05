@@ -8,7 +8,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 
 export type LedgerChargeEntry = {
   id: string;
@@ -120,25 +119,10 @@ export default function Ledger({
               <TableBody>
                 {entries.map((entry) => {
                   if (entry.kind === "charge") {
-                    const selectable = entry.remainingCents > 0;
-                    const checked = selectedChargeSet.has(entry.id);
                     const status = getChargeStatus(entry);
 
                     return (
                       <TableRow key={`charge-${entry.id}`}>
-                        <TableCell>
-                          <input
-                            type="checkbox"
-                            disabled={!selectable || !onToggleChargeSelection}
-                            checked={checked}
-                            onChange={(event) =>
-                              onToggleChargeSelection?.(
-                                entry.id,
-                                event.target.checked,
-                              )
-                            }
-                          />
-                        </TableCell>
                         <TableCell>{formatDate(entry.createdAt)}</TableCell>
                         <TableCell>
                           <div className="font-medium">{entry.title}</div>
@@ -159,37 +143,12 @@ export default function Ledger({
                           </Badge>
                         </TableCell>
                         <TableCell>{formatCents(entry.amountCents)}</TableCell>
-                        <TableCell>
-                          {formatCents(entry.remainingCents)}
-                        </TableCell>
-                        <TableCell>
-                          <Input
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            className="h-8 w-32"
-                            disabled={
-                              !checked ||
-                              !selectable ||
-                              !onChargeAmountChange ||
-                              !selectedChargeAmounts
-                            }
-                            value={selectedChargeAmounts?.[entry.id] ?? ""}
-                            onChange={(event) =>
-                              onChargeAmountChange?.(
-                                entry.id,
-                                event.target.value,
-                              )
-                            }
-                          />
-                        </TableCell>
                       </TableRow>
                     );
                   }
 
                   return (
                     <TableRow key={`payment-${entry.id}`}>
-                      <TableCell></TableCell>
                       <TableCell>{formatDate(entry.createdAt)}</TableCell>
                       <TableCell>
                         <div className="font-medium">{entry.title}</div>
@@ -207,8 +166,6 @@ export default function Ledger({
                         </Badge>
                       </TableCell>
                       <TableCell>{formatCents(entry.amountCents)}</TableCell>
-                      <TableCell>-</TableCell>
-                      <TableCell>-</TableCell>
                     </TableRow>
                   );
                 })}
