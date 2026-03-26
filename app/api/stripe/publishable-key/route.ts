@@ -4,7 +4,6 @@ const PUBLISHABLE_KEY_CANDIDATES = [
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
   process.env.STRIPE_PUBLISHABLE_KEY,
   process.env.NEXT_PUBLIC_STRIPE_API_TEST,
-  process.env.STRIPE_API_TEST,
 ];
 
 function getPublishableKey(): string | null {
@@ -26,7 +25,7 @@ export async function GET() {
     return NextResponse.json(
       {
         error:
-          "Missing Stripe publishable key. Set NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY (recommended) or STRIPE_PUBLISHABLE_KEY.",
+          "Missing Stripe publishable key. Set NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY (recommended) or STRIPE_PUBLISHABLE_KEY to a pk_ value.",
       },
       { status: 500 },
     );

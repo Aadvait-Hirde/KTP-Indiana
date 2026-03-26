@@ -122,6 +122,29 @@ function getVerificationMessage(
   }
 }
 
+function AddPaymentMethodTrigger({
+  label,
+  onClick,
+}: {
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex w-full min-w-0 max-w-full flex-col gap-2 rounded-md border border-dashed p-2 text-left hover:bg-muted/50 sm:flex-row sm:items-start"
+    >
+      <div className="flex min-w-0 max-w-full flex-1 items-start gap-3 px-2 py-2">
+        <Plus className="mt-0.5 size-4 shrink-0" />
+        <div className="min-w-0 space-y-0.5">
+          <p className="font-medium">{label}</p>
+        </div>
+      </div>
+    </button>
+  );
+}
+
 function PaymentMethodRow({
   paymentMethod,
   isSelected,
@@ -471,9 +494,15 @@ export default function ManagePaymentMethods({
             <Skeleton className="h-16 w-full" />
           </div>
         ) : paymentMethods.length === 0 ? (
-          <p className="text-muted-foreground text-sm">
-            No payment methods yet. Add one to continue.
-          </p>
+          <div className="space-y-3">
+            <p className="text-muted-foreground text-sm">
+              No payment methods yet. Add one to continue.
+            </p>
+            <AddPaymentMethodTrigger
+              label="Add payment method"
+              onClick={() => setSetupDialogOpen(true)}
+            />
+          </div>
         ) : (
           <div className="min-w-0 w-full space-y-2">
             {paymentMethods.map((paymentMethod) => (
@@ -501,18 +530,10 @@ export default function ManagePaymentMethods({
                 }}
               />
             ))}
-            <button
-              type="button"
+            <AddPaymentMethodTrigger
+              label="Add another account"
               onClick={() => setSetupDialogOpen(true)}
-              className="flex w-full min-w-0 max-w-full flex-col gap-2 rounded-md border border-dashed p-2 text-left hover:bg-muted/50 sm:flex-row sm:items-start"
-            >
-              <div className="flex min-w-0 max-w-full flex-1 items-start gap-3 px-2 py-2">
-                <Plus className="mt-0.5 size-4 shrink-0" />
-                <div className="min-w-0 space-y-0.5">
-                  <p className="font-medium">Add another account</p>
-                </div>
-              </div>
-            </button>
+            />
           </div>
         )}
       </div>
