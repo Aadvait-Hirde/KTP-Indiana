@@ -147,6 +147,7 @@ export default function AddPaymentMethodDialog({
   const [setupIntentClientSecret, setSetupIntentClientSecret] = useState<
     string | null
   >(null);
+  const [setupError, setSetupError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open || setupIntentClientSecret) {
@@ -157,6 +158,7 @@ export default function AddPaymentMethodDialog({
 
     async function initializeSetupIntent() {
       try {
+        setSetupError(null);
         await stripePromise;
 
         if (!active) {
@@ -182,12 +184,15 @@ export default function AddPaymentMethodDialog({
 
         setSetupIntentClientSecret(result.clientSecret);
       } catch (error) {
-        toast.error(
+        const message =
           error instanceof Error
             ? error.message
-            : "Unable to initialize payment method setup.",
+            : "Unable to initialize payment method setup.";
+
+        toast.error(
+          message,
         );
-        onOpenChange(false);
+        setSetupError(message);
         setSetupIntentClientSecret(null);
       } finally {
         if (active) {
@@ -208,12 +213,14 @@ export default function AddPaymentMethodDialog({
 
     if (!nextOpen) {
       setSetupIntentClientSecret(null);
+      setSetupError(null);
     }
   }
 
   async function handleSuccess() {
     await onAdded();
     setSetupIntentClientSecret(null);
+    setSetupError(null);
     onOpenChange(false);
   }
 
@@ -247,7 +254,9 @@ export default function AddPaymentMethodDialog({
             />
           </Elements>
         ) : (
-          <p className="text-destructive text-sm">Unable to load Stripe setup form.</p>
+          <p className="text-destructive text-sm">
+            {setupError ?? "Unable to load Stripe setup form."}
+          </p>
         )}
       </DialogContent>
     </Dialog>

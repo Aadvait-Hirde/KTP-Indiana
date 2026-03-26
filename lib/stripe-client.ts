@@ -1,6 +1,11 @@
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
 
 let stripePromise: Promise<Stripe | null> | null = null;
+const publicPublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+
+function isPublishableKey(value: string | undefined | null): value is string {
+  return typeof value === "string" && value.startsWith("pk_");
+}
 
 async function fetchPublishableKey(): Promise<string> {
   const response = await fetch("/api/stripe/publishable-key");
@@ -13,11 +18,22 @@ async function fetchPublishableKey(): Promise<string> {
   return result.publishableKey;
 }
 
+async function resolvePublishableKey(): Promise<string> {
+  if (isPublishableKey(publicPublishableKey)) {
+    return publicPublishableKey;
+  }
+
+  return fetchPublishableKey();
+}
+
 export function getStripePromise(): Promise<Stripe | null> {
   if (!stripePromise) {
-    stripePromise = fetchPublishableKey().then((publishableKey) =>
-      loadStripe(publishableKey),
-    );
+    stripePromise = resolvePublishableKey()
+      .then((publishableKey) => loadStripe(publishableKey))
+      .catch((error) => {
+        stripePromise = null;
+        throw error;
+      });
   }
 
   return stripePromise;
