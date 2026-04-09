@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
+  CardContent,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -16,14 +17,17 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 // import { Linkedin, Instagram } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { User } from "@/lib/supabase";
+import { Button } from "@/components/ui/button";
+import { Linkedin } from "lucide-react";
+import { getSocialUrl } from "@/components/member-portal/admin/users/users-utils";
 
 export default function CommunityPage() {
-//   const scrollToSection = (href: string) => {
-//     const element = document.querySelector(href);
-//     if (element) {
-//       element.scrollIntoView({ behavior: "smooth" });
-//     }
-//   };
+  //   const scrollToSection = (href: string) => {
+  //     const element = document.querySelector(href);
+  //     if (element) {
+  //       element.scrollIntoView({ behavior: "smooth" });
+  //     }
+  //   };
 
   const [users, setUsers] = useState<User[] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,7 +48,7 @@ export default function CommunityPage() {
         setUsers(null);
       } else {
         const sortedUsers = (data as User[] | null)?.sort((a, b) =>
-          a.name.localeCompare(b.name)
+          a.name.localeCompare(b.name),
         );
         setUsers(sortedUsers as User[] | null);
       }
@@ -131,32 +135,38 @@ export default function CommunityPage() {
                       </div>
                       <div className="h-8 flex items-center justify-center">
                         <CardDescription className="text-xs leading-tight line-clamp-2 text-center">
-                          {user.class ? user.class : "Unknown class"} •{" "}
-                          {user.pledgeClass
-                            ? user.pledgeClass + " Class"
-                            : "Unknown PC"}{" "}
-                          • {user.major ? user.major : "Unknown major"}
+                          {user.class ? user.class : ""} •{" "}
+                          {user.pledgeClass ? user.pledgeClass + " Class" : ""}{" "}
+                          • {user.major ? user.major : ""}
                         </CardDescription>
                       </div>
                     </CardHeader>
-                    {/* <CardContent className="text-center pt-0 pb-2 px-3 mt-auto">
-                    <div className="flex justify-center items-center space-x-1 h-6">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 hover:bg-primary/10 hover:text-primary transition-colors"
-                      >
-                        <Linkedin className="h-3 w-3" />
-                      </Button>
-                      <Button
+                    <CardContent className="text-center pt-0 pb-2 px-3 mt-auto">
+                      <div className="flex justify-center items-center space-x-1 h-6">
+                        {getSocialUrl(user, "linkedin") ? (
+                          <a
+                            href={getSocialUrl(user, "linkedin")}
+                            target="_blank"
+                          >
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 hover:bg-primary/10 hover:text-primary transition-colors"
+                            >
+                              <Linkedin className="h-3 w-3" />
+                            </Button>
+                          </a>
+                        ) : null}
+
+                        {/* <Button
                         variant="ghost"
                         size="icon"
                         className="h-6 w-6 hover:bg-primary/10 hover:text-primary transition-colors"
                       >
                         <Instagram className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </CardContent> */}
+                      </Button> */}
+                      </div>
+                    </CardContent>
                   </Card>
                 ))
               ) : loading ? (
