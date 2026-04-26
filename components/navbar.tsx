@@ -27,7 +27,7 @@ const navItems = [
   { href: "/members", label: "Members" },
   //   { href: "/#portal", label: "Portal" },
   //   { href: "/#partnerships", label: "Partnerships" },
-  { href: "/docs", label: "Docs" },
+  //   { href: "/docs", label: "Docs" },
 ];
 
 const HOME_PAGE = "/";
