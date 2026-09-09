@@ -14,12 +14,14 @@ interface AuthState {
   user: User | null;
   isAuthorized: boolean;
   isLoading: boolean;
+  authError: string | null;
   permissions: string[];
   announcements: Announcement[];
   isAnnouncementsLoading: boolean;
   setUser: (user: User | null) => void;
   setAuthorized: (authorized: boolean) => void;
   setLoading: (loading: boolean) => void;
+  setAuthError: (error: string | null) => void;
   setPermissions: (permissions: string[]) => void;
   setAnnouncements: (announcements: Announcement[]) => void;
   setAnnouncementsLoading: (loading: boolean) => void;
@@ -32,12 +34,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isAuthorized: false,
   isLoading: true,
+  authError: null,
   permissions: [],
   announcements: [],
   isAnnouncementsLoading: true,
   setUser: (user) => set({ user }),
   setAuthorized: (isAuthorized) => set({ isAuthorized }),
   setLoading: (isLoading) => set({ isLoading }),
+  setAuthError: (authError) => set({ authError }),
   setPermissions: (permissions) => set({ permissions }),
   setAnnouncements: (announcements) => set({ announcements }),
   setAnnouncementsLoading: (isAnnouncementsLoading) =>
@@ -47,6 +51,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       user: null,
       isAuthorized: false,
       isLoading: false,
+      authError: null,
       permissions: [],
       announcements: [],
       isAnnouncementsLoading: false,

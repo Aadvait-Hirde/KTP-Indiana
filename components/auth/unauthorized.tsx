@@ -4,7 +4,13 @@ import { AlertTriangle, Mail, LogIn } from 'lucide-react'
 import Link from 'next/link'
 import { SignOutButton } from '@clerk/nextjs'
 
-export function Unauthorized() {
+interface UnauthorizedProps {
+  message?: string | null
+}
+
+export function Unauthorized({ message }: UnauthorizedProps) {
+  const isSetupIssue = Boolean(message)
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30">
       <Card className="max-w-md mx-auto">
@@ -12,14 +18,19 @@ export function Unauthorized() {
           <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <AlertTriangle className="w-8 h-8 text-destructive" />
           </div>
-          <CardTitle className="text-2xl">Access Restricted</CardTitle>
+          <CardTitle className="text-2xl">
+            {isSetupIssue ? 'Account Setup Needed' : 'Access Restricted'}
+          </CardTitle>
           <CardDescription>
-            Your email address is not authorized to access the KTP member portal.
+            {isSetupIssue
+              ? 'We could not finish creating your KTP member portal profile.'
+              : 'Your email address is not authorized to access the KTP member portal.'}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 text-center">
           <p className="text-sm text-muted-foreground">
-            Only current KTP members and alumni can access this portal. If you believe this is an error, please contact an administrator or try a different account.
+            {message ||
+              'Only current KTP members and alumni can access this portal. If you believe this is an error, please contact an administrator or try a different account.'}
           </p>
           <div className="space-y-2">
             <SignOutButton>

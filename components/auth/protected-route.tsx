@@ -12,7 +12,7 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { isSignedIn, isLoaded: clerkLoaded } = useUser();
-  const { isAuthorized, isLoading } = useAuthStore();
+  const { isAuthorized, isLoading, authError } = useAuthStore();
 
   // Show loading while Clerk loads
   if (!clerkLoaded || isLoading) {
@@ -33,7 +33,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   // Show unauthorized if not in whitelist
   if (!isAuthorized) {
-    return <Unauthorized />;
+    return <Unauthorized message={authError} />;
   }
 
   // User is authenticated and authorized

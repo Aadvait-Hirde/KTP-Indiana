@@ -1,5 +1,6 @@
 import { getPermissionId, getPermissionKey } from "@/lib/utils";
-import { supabase } from "@/lib/supabase";
+import { supabase as browserSupabase } from "@/lib/supabase";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export const ADMIN_FINANCE_VIEW = "admin.finance.view";
 export const ADMIN_FINANCE_EDIT = "admin.finance.edit";
@@ -71,7 +72,14 @@ export function canEditFinanceAdmin(permissions: Iterable<string> | null | undef
   return hasPermission(permissions, ADMIN_FINANCE_EDIT);
 }
 
-export async function fetchUserPermissionKeys(userId: string): Promise<string[]> {
+/**
+ * Resolves a user's permission keys through user_roles -> role_permissions -> permissions.
+ * Pass the server admin client from server code; the browser client is the default.
+ */
+export async function fetchUserPermissionKeys(
+  userId: string,
+  supabase: SupabaseClient = browserSupabase,
+): Promise<string[]> {
   const { data: userRoleRows, error: userRoleError } = await supabase
     .from("user_roles")
     .select("role_id")

@@ -1,7 +1,7 @@
 import "server-only";
 
 import { stripe } from "@/lib/stripe";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin as supabase } from "@/lib/supabase-admin";
 import type {
   FinanceAllocationResult,
   FinanceObligationBalance,
