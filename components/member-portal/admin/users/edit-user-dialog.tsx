@@ -13,8 +13,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Instagram, Linkedin, Shield, User } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Camera, Instagram, Linkedin, Shield, User } from "lucide-react";
+import { useRef } from "react";
 import { RoleOption } from "@/components/member-portal/admin/users/users-utils";
+import { AVATAR_ACCEPT, validateAvatarFile } from "@/lib/avatar-upload";
 
 export type EditDialogSection = "profile" | "roles";
 export type SocialPlatform = "insta" | "linkedin";
@@ -36,12 +39,24 @@ type EditUserDialogProps = {
   selectedRoleIds: string[];
   error?: string;
   isSaving: boolean;
+  isUploadingAvatar: boolean;
   onOpenChange: (open: boolean) => void;
   onSectionChange: (section: EditDialogSection) => void;
   onFieldChange: (field: keyof EditUserDialogValues, value: string) => void;
   onRoleToggle: (roleId: string, checked: boolean) => void;
+  onAvatarUpload: (file: File) => Promise<void>;
+  onAvatarError: (message: string) => void;
   onSave: () => Promise<void>;
 };
+
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+}
 
 export function EditUserDialog({
   currentUser,
@@ -52,12 +67,35 @@ export function EditUserDialog({
   selectedRoleIds,
   error,
   isSaving,
+  isUploadingAvatar,
   onOpenChange,
   onSectionChange,
   onFieldChange,
   onRoleToggle,
+  onAvatarUpload,
+  onAvatarError,
   onSave,
 }: EditUserDialogProps) {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const hasAvatar = Boolean(currentUser.avatar);
+
+  const handleFileSelected = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    // Reset so selecting the same file again re-triggers onChange.
+    event.target.value = "";
+    if (!file) return;
+
+    const validationError = validateAvatarFile(file);
+    if (validationError) {
+      onAvatarError(validationError);
+      return;
+    }
+
+    await onAvatarUpload(file);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-4xl h-[85vh] max-h-[85vh] flex flex-col">
@@ -103,6 +141,48 @@ export function EditUserDialog({
           >
             {section === "profile" ? (
               <>
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Profile Picture</p>
+                  <div className="flex items-center gap-4 rounded-md border p-3">
+                    <Avatar className="h-16 w-16 rounded-lg">
+                      <AvatarImage
+                        src={currentUser.avatar}
+                        alt={currentUser.name}
+                        className="object-cover"
+                      />
+                      <AvatarFallback className="h-16 w-16 rounded-lg text-lg">
+                        {getInitials(currentUser.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col gap-1">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="w-fit"
+                        disabled={isUploadingAvatar || isSaving}
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <Camera className="h-4 w-4" />
+                        {isUploadingAvatar
+                          ? "Uploading..."
+                          : hasAvatar
+                            ? "Replace Photo"
+                            : "Upload Photo"}
+                      </Button>
+                      <p className="text-xs text-muted-foreground">
+                        JPEG, PNG, WebP, or GIF up to 4MB. Saved immediately.
+                      </p>
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept={AVATAR_ACCEPT}
+                      className="hidden"
+                      onChange={(event) => void handleFileSelected(event)}
+                    />
+                  </div>
+                </div>
                 <div className="space-y-1">
                   <p className="text-sm font-medium">Name</p>
                   <Input

@@ -314,3 +314,23 @@ export async function deleteUserRecord(userId: string) {
   const { error } = await supabase.from("users").delete().eq("id", userId);
   if (error) throw error;
 }
+
+export async function uploadUserAvatar(userId: string, file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch(
+    `/api/admin/users/${encodeURIComponent(userId)}/avatar`,
+    { method: "POST", body: formData },
+  );
+
+  const payload = (await response.json().catch(() => null)) as
+    | { user?: SupabaseUser; error?: string }
+    | null;
+
+  if (!response.ok || !payload?.user) {
+    throw new Error(payload?.error ?? "Failed to upload profile picture.");
+  }
+
+  return payload.user;
+}

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useAuthStore } from "@/lib/auth-store";
+import { canDeleteUsersAdmin, canEditUsersAdmin } from "@/lib/permissions";
 import { User as SupabaseUser } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -45,17 +46,21 @@ import {
   syncUserRoles,
   toggleRoleIds,
   updateUserRecord,
+  uploadUserAvatar,
   userTableColumns,
 } from "@/components/member-portal/admin/users/users-utils";
 
 export default function AdminUsersPage() {
-  const { user } = useAuthStore();
+  const { user, permissions } = useAuthStore();
   const [users, setUsers] = useState<SupabaseUser[]>([]);
   const [roles, setRoles] = useState<RoleOption[]>([]);
   const [userRoleIds, setUserRoleIds] = useState<Record<string, string[]>>({});
   const [editRoleIds, setEditRoleIds] = useState<Record<string, string[]>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [saveUserId, setSaveUserId] = useState<string | null>(null);
+  const [avatarUploadUserId, setAvatarUploadUserId] = useState<string | null>(
+    null,
+  );
   const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [pendingDeleteUser, setPendingDeleteUser] =
@@ -66,6 +71,9 @@ export default function AdminUsersPage() {
     useState<EditDialogSection>("profile");
 
   const isExec = user?.role === "exec";
+  const canEdit = canEditUsersAdmin(permissions);
+  const canDelete = canDeleteUsersAdmin(permissions);
+  const canManage = canEdit || canDelete;
 
   useEffect(() => {
     if (!isExec) return;
@@ -130,6 +138,7 @@ export default function AdminUsersPage() {
     currentUser: SupabaseUser,
     forcedUpdates?: Partial<EditableFields>,
   ) => {
+    if (!canEdit) return false;
     setErrors((prev) => ({ ...prev, [currentUser.id]: "" }));
     setSaveUserId(currentUser.id);
 
@@ -192,7 +201,34 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleAvatarUpload = async (currentUser: SupabaseUser, file: File) => {
+    if (!canEdit) return;
+    setErrors((prev) => ({ ...prev, [currentUser.id]: "" }));
+    setAvatarUploadUserId(currentUser.id);
+
+    try {
+      const updated = await uploadUserAvatar(currentUser.id, file);
+      setUsers((prev) =>
+        prev.map((userItem) =>
+          userItem.id === currentUser.id ? updated : userItem,
+        ),
+      );
+    } catch (err) {
+      console.error("Failed to upload profile picture:", err);
+      setErrors((prev) => ({
+        ...prev,
+        [currentUser.id]:
+          err instanceof Error && err.message
+            ? err.message
+            : "Failed to upload profile picture. Please try again.",
+      }));
+    } finally {
+      setAvatarUploadUserId(null);
+    }
+  };
+
   const handleDelete = async (currentUser: SupabaseUser) => {
+    if (!canDelete) return;
     setDeleteUserId(currentUser.id);
     try {
       await deleteUserRecord(currentUser.id);
@@ -249,7 +285,9 @@ export default function AdminUsersPage() {
       <div className="flex flex-col gap-2">
         <h1 className="text-2xl md:text-3xl font-bold">User Management</h1>
         <p className="text-sm text-muted-foreground">
-          Review member profiles, update details, or remove accounts.
+          {canManage
+            ? "Review member profiles, update details, or remove accounts."
+            : "Review member profiles. You do not have permission to edit or remove accounts."}
         </p>
       </div>
       <Table>
@@ -339,40 +377,46 @@ export default function AdminUsersPage() {
                     : "Unknown"}
                 </TableCell>
                 <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setEditDialogSection("profile");
-                          setEditRoleIds((prev) => ({
-                            ...prev,
-                            [currentUser.id]: [
-                              ...(userRoleIds[currentUser.id] ?? []),
-                            ],
-                          }));
-                          setEditingUserId(currentUser.id);
-                        }}
-                      >
-                        <Pencil className="h-4 w-4" />
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        variant="destructive"
-                        onClick={() => setPendingDeleteUser(currentUser)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  {canManage ? (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        {canEdit ? (
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setEditDialogSection("profile");
+                              setEditRoleIds((prev) => ({
+                                ...prev,
+                                [currentUser.id]: [
+                                  ...(userRoleIds[currentUser.id] ?? []),
+                                ],
+                              }));
+                              setEditingUserId(currentUser.id);
+                            }}
+                          >
+                            <Pencil className="h-4 w-4" />
+                            Edit
+                          </DropdownMenuItem>
+                        ) : null}
+                        {canDelete ? (
+                          <DropdownMenuItem
+                            variant="destructive"
+                            onClick={() => setPendingDeleteUser(currentUser)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        ) : null}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  ) : null}
                   <EditUserDialog
                     currentUser={currentUser}
-                    open={editingUserId === currentUser.id}
+                    open={canEdit && editingUserId === currentUser.id}
                     section={editDialogSection}
                     values={{
                       name: getEditableValue(currentUser, editState, "name"),
@@ -395,6 +439,7 @@ export default function AdminUsersPage() {
                     selectedRoleIds={getEditableRoleIds(currentUser.id)}
                     error={errors[currentUser.id]}
                     isSaving={saveUserId === currentUser.id}
+                    isUploadingAvatar={avatarUploadUserId === currentUser.id}
                     onOpenChange={(isOpen) => {
                       setEditingUserId(isOpen ? currentUser.id : null);
                       if (isOpen) {
@@ -419,6 +464,15 @@ export default function AdminUsersPage() {
                     }
                     onRoleToggle={(roleId, checked) =>
                       handleRoleToggle(currentUser.id, roleId, checked)
+                    }
+                    onAvatarUpload={(file) =>
+                      handleAvatarUpload(currentUser, file)
+                    }
+                    onAvatarError={(message) =>
+                      setErrors((prev) => ({
+                        ...prev,
+                        [currentUser.id]: message,
+                      }))
                     }
                     onSave={async () => {
                       const saved = await handleSave(currentUser);
