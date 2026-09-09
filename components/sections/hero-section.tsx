@@ -15,7 +15,7 @@ function useCountUp(end: number, duration: number = 2000, suffix: string = "") {
           setIsVisible(true);
         }
       },
-      { threshold: 0.3 }
+      { threshold: 0.3 },
     );
 
     const element = document.getElementById("stats-section");
@@ -83,72 +83,79 @@ export function HeroSection() {
       </div>
 
       <div className="container mx-auto grid grid-cols-1 lg:grid-cols-5 items-center px-3 sm:px-5 py-12 sm:py-16 gap-6 min-h-screen relative z-10">
-        
         {/* Left Content */}
         <div className="lg:col-span-2 space-y-5 sm:space-y-6 text-center lg:text-left">
-            {/* Main Heading */}
-            <div className="space-y-3 sm:space-y-4">
-              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-                Kappa<br className="hidden lg:block" /> Theta Pi
-              </h1>
-              <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground max-w-lg mx-auto mt-8 lg:mx-0 tracking-tight">
-                The world&apos;s first co-educational professional technology fraternity, here in Indiana.
-              </p>
-            </div>
+          {/* Main Heading */}
+          <div className="space-y-3 sm:space-y-4">
+            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+              Kappa
+              <br className="hidden lg:block" /> Theta Pi
+            </h1>
+            <p className="text-lg sm:text-xl lg:text-2xl text-muted-foreground max-w-lg mx-auto mt-8 lg:mx-0 tracking-tight">
+              The world&apos;s first co-educational professional technology
+              fraternity, here in Indiana.
+            </p>
+          </div>
 
-            {/* Mobile Hero Image */}
-            <div className="lg:hidden w-full max-w-lg mx-auto my-8">
-              <div className="relative aspect-square rounded-2xl overflow-hidden shadow-xl">
-                <Image
-                  src="/hero-section-images/ktp-hero.png"
-                  alt="Kappa Theta Pi Members"
-                  fill
-                  className="object-cover object-center transition-transform duration-500 cursor-pointer"
-                  priority
-                />
-              </div>
+          {/* Mobile Hero Image */}
+          <div className="lg:hidden w-full max-w-lg mx-auto my-8">
+            <div className="relative aspect-square rounded-2xl overflow-hidden shadow-xl">
+              <Image
+                src="/hero-section-images/ktp-hero.png"
+                alt="Kappa Theta Pi Members"
+                fill
+                className="object-cover object-center transition-transform duration-500 cursor-pointer"
+                priority
+              />
             </div>
+          </div>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
-              <Button
-                size="lg"
-                className="group shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto text-lg px-8 py-6"
-                onClick={() => scrollToSection("#rush")}
-              >
-                Rush KTP
-                <ArrowRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="group shadow-sm hover:shadow-md transition-all duration-300 w-full sm:w-auto text-lg px-8 py-6"
-                onClick={() => scrollToSection("#partnerships")}
-              >
-                Partner With Us
-                <HandshakeIcon className="w-4 h-4 group-hover:scale-110 transition-transform" />
-              </Button>
-              
-            </div>
-
-            {/* Stats with Animation */}
-            <div
-              id="stats-section"
-              className="flex flex-wrap gap-8 sm:gap-12 pt-6 justify-center lg:justify-start"
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
+            <Button
+              size="lg"
+              className="group shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto text-lg px-8 py-6"
+              onClick={() => {
+                window.location.href =
+                  "https://airtable.com/appT97E7YHDPXi6IW/pagQyL26sqPbGiQfB/form";
+              }}
             >
-              <div className="text-center">
-                <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary">
-                  {chaptersCount}
-                </div>
-                <div className="text-base sm:text-lg text-muted-foreground">Chapters</div>
+              Apply Now
+              <ArrowRightIcon className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              className="group shadow-sm hover:shadow-md transition-all duration-300 w-full sm:w-auto text-lg px-8 py-6"
+              onClick={() => scrollToSection("#partnerships")}
+            >
+              Partner With Us
+              <HandshakeIcon className="w-4 h-4 group-hover:scale-110 transition-transform" />
+            </Button>
+          </div>
+
+          {/* Stats with Animation */}
+          <div
+            id="stats-section"
+            className="flex flex-wrap gap-8 sm:gap-12 pt-6 justify-center lg:justify-start"
+          >
+            <div className="text-center">
+              <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary">
+                {chaptersCount}
               </div>
-              <div className="text-center">
-                <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary">
-                  {membersCount}
-                </div>
-                <div className="text-base sm:text-lg text-muted-foreground">Members</div>
+              <div className="text-base sm:text-lg text-muted-foreground">
+                Chapters
               </div>
             </div>
+            <div className="text-center">
+              <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary">
+                {membersCount}
+              </div>
+              <div className="text-base sm:text-lg text-muted-foreground">
+                Members
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Right Image - Desktop only */}
