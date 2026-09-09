@@ -1,9 +1,45 @@
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseKey =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!;
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+type ClerkSessionLike = {
+  getToken: () => Promise<string | null>;
+};
+
+type ClerkGlobal = {
+  session?: ClerkSessionLike | null;
+};
+
+/**
+ * Supabase is configured with Clerk as a third-party auth provider, so the
+ * Clerk session token is sent as the Supabase access token. Postgres then sees
+ * the request as `authenticated` with the Clerk user id in the JWT `sub` claim,
+ * which `public.current_app_user_id()` resolves to a `users` row for RLS.
+ *
+ * Returns null when there is no Clerk session (public pages, server rendering),
+ * in which case requests fall back to the anon role.
+ */
+async function getClerkSessionToken(): Promise<string | null> {
+  if (typeof window === "undefined") return null;
+
+  const clerk = (window as Window & { Clerk?: ClerkGlobal }).Clerk;
+  const session = clerk?.session;
+  if (!session) return null;
+
+  try {
+    return (await session.getToken()) ?? null;
+  } catch (error) {
+    console.error("Failed to read Clerk session token for Supabase:", error);
+    return null;
+  }
+}
+
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  accessToken: getClerkSessionToken,
+});
 
 export type UserRole = "admin" | "exec" | "director" | "member" | "newmember";
 
@@ -28,6 +64,7 @@ export interface User {
   socials: JSON;
   major: string;
   title: string;
+  clerk_user_id?: string | null;
 }
 
 export interface Announcement {

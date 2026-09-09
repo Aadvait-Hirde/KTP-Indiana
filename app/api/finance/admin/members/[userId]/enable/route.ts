@@ -4,7 +4,7 @@ import {
   requireAppAuthContext,
   RouteAuthError,
 } from "@/lib/server-auth";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin as supabase } from "@/lib/supabase-admin";
 import { ensureFinanceCustomerForUser } from "@/lib/finance-server";
 
 export async function POST(

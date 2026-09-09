@@ -1,10 +1,12 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { supabase } from "@/lib/supabase";
 import {
   ADMIN_FINANCE_EDIT,
   ADMIN_FINANCE_VIEW,
   fetchUserPermissionKeys,
 } from "@/lib/permissions";
+import { ensureAppUser } from "@/lib/app-user";
+import { supabaseAdmin } from "@/lib/supabase-admin";
+import type { User as SupabaseUser } from "@/lib/supabase";
 
 export type AppUser = {
   id: string;
@@ -15,6 +17,7 @@ export type AppUser = {
 
 export type AppAuthContext = {
   appUser: AppUser;
+  profile: SupabaseUser;
   permissions: Set<string>;
 };
 
@@ -48,7 +51,7 @@ function parseAppUser(row: unknown): AppUser | null {
   };
 }
 
-async function getSignedInEmail() {
+async function getSignedInIdentity() {
   const authState = await auth();
 
   if (!authState.userId) {
@@ -61,43 +64,62 @@ async function getSignedInEmail() {
   }
 
   const primaryEmail = clerkUser.primaryEmailAddress?.emailAddress;
-  if (typeof primaryEmail === "string" && primaryEmail.length > 0) {
-    return primaryEmail;
-  }
-
   const firstEmail = clerkUser.emailAddresses[0]?.emailAddress;
-  if (typeof firstEmail === "string" && firstEmail.length > 0) {
-    return firstEmail;
+  const email =
+    typeof primaryEmail === "string" && primaryEmail.length > 0
+      ? primaryEmail
+      : typeof firstEmail === "string" && firstEmail.length > 0
+        ? firstEmail
+        : null;
+
+  if (!email) {
+    return null;
   }
 
-  return null;
+  const fullName =
+    clerkUser.fullName ||
+    [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") ||
+    null;
+
+  return {
+    clerkUserId: authState.userId,
+    email,
+    name: fullName,
+  };
 }
 
+/**
+ * Verifies the Clerk session, links it to a public.users profile (creating one
+ * on first sign-in), and loads the user's permission keys. Runs with the
+ * Supabase secret key, so it is the trusted path for provisioning.
+ */
 export async function requireAppAuthContext(): Promise<AppAuthContext> {
-  const email = await getSignedInEmail();
-  if (!email) {
+  const identity = await getSignedInIdentity();
+  if (!identity) {
     throw new RouteAuthError(401, "Unauthorized.");
   }
 
-  const { data, error } = await supabase
-    .from("users")
-    .select("id, name, email, role")
-    .eq("email", email)
-    .maybeSingle();
-
-  if (error) {
-    throw new RouteAuthError(500, error.message || "Failed to load user context.");
+  let profile: SupabaseUser;
+  try {
+    ({ user: profile } = await ensureAppUser(identity));
+  } catch (error) {
+    const message =
+      error instanceof Error && error.message
+        ? error.message
+        : "Failed to load user context.";
+    throw new RouteAuthError(500, message);
   }
 
-  const appUser = parseAppUser(data);
+  const appUser = parseAppUser(profile);
   if (!appUser) {
     throw new RouteAuthError(403, "Not authorized for this application.");
   }
 
-  const permissionKeys = await fetchUserPermissionKeys(appUser.id);
+  const permissionKeys = await fetchUserPermissionKeys(appUser.id, supabaseAdmin);
 
   return {
     appUser,
+    profile,
     permissions: new Set(permissionKeys),
   };
 }

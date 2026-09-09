@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin as supabase } from "@/lib/supabase-admin";
 import { requireAppAuthContext, RouteAuthError } from "@/lib/server-auth";
 import { loadObligationBalancesForUser } from "@/lib/finance-server";
 

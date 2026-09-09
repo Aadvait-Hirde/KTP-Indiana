@@ -2,86 +2,98 @@
 
 import { useUser } from '@clerk/nextjs'
 import { useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/auth-store'
-import { fetchUserPermissionKeys } from '@/lib/permissions'
+import type { User as SupabaseUser } from '@/lib/supabase'
 
 interface AuthProviderProps {
   children: React.ReactNode
 }
 
+type MeResponse = {
+  user?: SupabaseUser
+  permissions?: string[]
+  error?: string
+}
+
+const SETUP_ERROR_MESSAGE =
+  "We couldn't finish setting up your portal account. Please try again, and contact an administrator if the issue continues."
+
 export function AuthProvider({ children }: AuthProviderProps) {
   const { user: clerkUser, isLoaded } = useUser()
-  const { setUser, setAuthorized, setLoading, setPermissions, reset } =
+  const {
+    setUser,
+    setAuthorized,
+    setLoading,
+    setPermissions,
+    setAuthError,
+    reset,
+  } =
     useAuthStore()
 
   useEffect(() => {
+    const controller = new AbortController()
+
     async function checkUserAuthorization() {
       if (!isLoaded) return
-      
+
       setLoading(true)
 
-      if (!clerkUser?.emailAddresses?.[0]?.emailAddress) {
+      if (!clerkUser) {
         setPermissions([])
         reset()
         return
       }
 
-      const email = clerkUser.emailAddresses[0].emailAddress
+      // Abort if the server takes too long so the UI is not stuck loading.
+      const timeout = setTimeout(() => controller.abort(), 10000)
 
       try {
-        // Add timeout to prevent long delays
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Timeout')), 5000) // 5 second timeout
+        // The server verifies the Clerk session, links it to the Supabase
+        // profile (users.clerk_user_id) and returns the profile + permissions.
+        const response = await fetch('/api/auth/me', {
+          cache: 'no-store',
+          signal: controller.signal,
         })
 
-        // Check if user exists in Supabase with timeout
-        const supabasePromise = supabase
-          .from('users')
-          .select('*')
-          .eq('email', email)
-          .single()
+        const body = (await response.json().catch(() => ({}))) as MeResponse
 
-        const { data, error } = await Promise.race([
-          supabasePromise,
-          timeoutPromise
-        ]) as Awaited<typeof supabasePromise>
-
-        if (error || !data) {
-          console.log('User not found in database or timeout:', email)
+        if (!response.ok || !body.user) {
+          console.error('Failed to resolve app user:', body.error ?? response.status)
+          setAuthError(
+            response.status === 403 && body.error ? body.error : SETUP_ERROR_MESSAGE
+          )
           setAuthorized(false)
           setPermissions([])
           setUser(null)
-        } else {
-          console.log('User found in database:', data)
-          setAuthorized(true)
-          setUser(data)
-
-          try {
-            const permissionKeys = await fetchUserPermissionKeys(data.id)
-            setPermissions(permissionKeys)
-          } catch (permissionError) {
-            console.error('Failed to load permissions:', permissionError)
-            setPermissions([])
-          }
+          return
         }
+
+        setAuthError(null)
+        setAuthorized(true)
+        setUser(body.user)
+        setPermissions(body.permissions ?? [])
       } catch (error) {
+        if (controller.signal.aborted && !isLoaded) return
         console.error('Error checking user authorization:', error)
-        // On timeout or error, assume unauthorized but don't block the UI
+        setAuthError(SETUP_ERROR_MESSAGE)
         setAuthorized(false)
         setPermissions([])
         setUser(null)
       } finally {
+        clearTimeout(timeout)
         setLoading(false)
       }
     }
 
     checkUserAuthorization()
+
+    return () => controller.abort()
   }, [
     clerkUser,
     isLoaded,
     reset,
     setAuthorized,
+    setAuthError,
     setLoading,
     setPermissions,
     setUser,
