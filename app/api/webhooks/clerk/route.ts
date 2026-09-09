@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { verifyWebhook } from "@clerk/nextjs/webhooks";
 import { ensureAppUser } from "@/lib/app-user";
 import { supabaseAdmin } from "@/lib/supabase-admin";
@@ -37,7 +37,7 @@ function getName(user: ClerkUserData) {
   return full || user.username || null;
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   let event;
   try {
     event = await verifyWebhook(request);
