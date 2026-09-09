@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { verifyWebhook } from "@clerk/nextjs/webhooks";
-import { ensureAppUser } from "@/lib/app-user";
+import { ensureAppUser, findAppUserByClerkId } from "@/lib/app-user";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export const dynamic = "force-dynamic";
@@ -11,9 +11,11 @@ export const dynamic = "force-dynamic";
  * before an admin can see and assign roles to them.
  *
  * Configure in the Clerk dashboard (Webhooks -> Add endpoint) with the URL
- * https://<site>/api/webhooks/clerk and subscribe to user.created and
- * user.deleted. Put the endpoint's signing secret in CLERK_WEBHOOK_SIGNING_SECRET.
+ * https://<site>/api/webhooks/clerk and subscribe to user.created, user.updated
+ * and user.deleted. Put the endpoint's signing secret in CLERK_WEBHOOK_SIGNING_SECRET.
  */
+
+const UNIQUE_VIOLATION = "23505";
 
 type ClerkEmailAddress = { id: string; email_address: string };
 
@@ -63,6 +65,49 @@ export async function POST(request: NextRequest) {
         });
 
         return NextResponse.json({ ok: true, created, linked });
+      }
+
+      case "user.updated": {
+        // Keep the profile's email in sync with the Clerk primary email so
+        // sign-in, email matching and admin lookups keep working after a change.
+        const user = event.data as ClerkUserData;
+        const email = getPrimaryEmail(user);
+        if (!email) {
+          return NextResponse.json({ ok: true, skipped: "no email" });
+        }
+
+        const profile = await findAppUserByClerkId(user.id);
+        if (!profile) {
+          // Missed or pre-dated the user.created webhook; provision now.
+          const { created, linked } = await ensureAppUser({
+            clerkUserId: user.id,
+            email,
+            name: getName(user),
+          });
+          return NextResponse.json({ ok: true, created, linked });
+        }
+
+        const normalizedEmail = email.trim().toLowerCase();
+        if (profile.email.toLowerCase() === normalizedEmail) {
+          return NextResponse.json({ ok: true, unchanged: true });
+        }
+
+        const { error } = await supabaseAdmin
+          .from("users")
+          .update({ email: normalizedEmail })
+          .eq("id", profile.id);
+
+        if (error?.code === UNIQUE_VIOLATION) {
+          // Another profile already owns this email. Retrying will not help,
+          // so acknowledge the event and leave it for an admin to merge.
+          console.error(
+            `Clerk user ${user.id} changed email to ${normalizedEmail}, but another profile already uses it.`,
+          );
+          return NextResponse.json({ ok: true, conflict: "email already in use" });
+        }
+        if (error) throw error;
+
+        return NextResponse.json({ ok: true, emailUpdated: true });
       }
 
       case "user.deleted": {
