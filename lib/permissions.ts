@@ -4,6 +4,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 export const ADMIN_FINANCE_VIEW = "admin.finance.view";
 export const ADMIN_FINANCE_EDIT = "admin.finance.edit";
+export const ADMIN_USERS_EDIT = "admin.users.edit";
+export const ADMIN_USERS_DELETE = "admin.users.delete";
 
 type RolePermissionRowLike = {
   role_id?: string | null;
@@ -66,6 +68,14 @@ export function hasAnyPermission(
 
 export function canViewFinanceAdmin(permissions: Iterable<string> | null | undefined) {
   return hasAnyPermission(permissions, [ADMIN_FINANCE_VIEW, ADMIN_FINANCE_EDIT]);
+}
+
+export function canEditUsersAdmin(permissions: Iterable<string> | null | undefined) {
+  return hasPermission(permissions, ADMIN_USERS_EDIT);
+}
+
+export function canDeleteUsersAdmin(permissions: Iterable<string> | null | undefined) {
+  return hasPermission(permissions, ADMIN_USERS_DELETE);
 }
 
 export function canEditFinanceAdmin(permissions: Iterable<string> | null | undefined) {

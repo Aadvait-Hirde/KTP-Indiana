@@ -2,6 +2,7 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import {
   ADMIN_FINANCE_EDIT,
   ADMIN_FINANCE_VIEW,
+  ADMIN_USERS_EDIT,
   fetchUserPermissionKeys,
 } from "@/lib/permissions";
 import { ensureAppUser } from "@/lib/app-user";
@@ -136,5 +137,11 @@ export function assertFinanceViewPermission(context: AppAuthContext) {
 export function assertFinanceEditPermission(context: AppAuthContext) {
   if (!context.permissions.has(ADMIN_FINANCE_EDIT)) {
     throw new RouteAuthError(403, "Missing finance admin edit permission.");
+  }
+}
+
+export function assertUsersEditPermission(context: AppAuthContext) {
+  if (!context.permissions.has(ADMIN_USERS_EDIT)) {
+    throw new RouteAuthError(403, "Missing user admin edit permission.");
   }
 }
