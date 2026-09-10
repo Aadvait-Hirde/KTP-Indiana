@@ -43,16 +43,16 @@ function MemberCard({ member }: { member: PublicMember }) {
             {getInitials(member.name)}
           </AvatarFallback>
         </Avatar>
-        <div className="h-12 flex flex-col justify-center">
-          <CardTitle className="text-md group-hover:text-primary transition-colors leading-normal mb-1">
+        <div className="min-h-16 flex flex-col justify-center">
+          <CardTitle className="text-md group-hover:text-primary transition-colors leading-snug line-clamp-3">
             {member.name}
           </CardTitle>
         </div>
-        <div className="h-14 flex flex-col items-center justify-start gap-0.5 text-xs leading-tight text-muted-foreground">
+        <div className="min-h-16 flex flex-col items-center justify-start gap-0.5 text-xs leading-normal text-muted-foreground">
           {details.map((line, index) => (
             <span
               key={index}
-              className={index === details.length - 1 ? "line-clamp-2" : "truncate max-w-full"}
+              className={index === details.length - 1 ? "line-clamp-2" : "line-clamp-1"}
               title={line}
             >
               {line}
