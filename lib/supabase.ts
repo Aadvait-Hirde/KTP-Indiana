@@ -43,14 +43,16 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
 
 export type UserRole = "admin" | "exec" | "director" | "member" | "newmember";
 
-export type ClassStanding =
-  | "Freshman"
-  | "Sophomore"
-  | "Junior"
-  | "Senior"
-  | "Alumni";
+export type RoleType = "general" | "pledge_class";
 
-export type PledgeClass = "Alpha" | "Beta";
+export interface Role {
+  id: string;
+  name: string;
+  description: string;
+  hidden: boolean;
+  priority: number;
+  type: RoleType;
+}
 
 export interface User {
   id: string;
@@ -59,11 +61,13 @@ export interface User {
   role: UserRole;
   created_at: string;
   avatar: string;
-  class: ClassStanding;
-  pledgeClass: PledgeClass;
   socials: JSON;
   major: string;
   title: string;
+  /** Expected graduation year; grade is derived from it (see lib/members.ts). */
+  graduation_year: number | null;
+  /** Set manually once a member graduates. */
+  is_alumni: boolean;
   clerk_user_id?: string | null;
 }
 

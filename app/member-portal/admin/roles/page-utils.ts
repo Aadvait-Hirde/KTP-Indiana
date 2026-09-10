@@ -80,7 +80,8 @@ export function hasUnsavedRoleChanges(
       baseRole.name !== draftRole.name ||
       baseRole.description !== draftRole.description ||
       baseRole.hidden !== draftRole.hidden ||
-      baseRole.priority !== draftRole.priority
+      baseRole.priority !== draftRole.priority ||
+      baseRole.type !== draftRole.type
     ) {
       return true;
     }
@@ -155,7 +156,7 @@ export async function fetchRolesData(): Promise<RolesDataBundle> {
   const [rolesRes, permissionsRes, rolePermissionsRes] = await Promise.all([
     supabase
       .from("roles")
-      .select("id, name, description, hidden, priority")
+      .select("id, name, description, hidden, priority, type")
       .order("priority", { ascending: false })
       .order("name", { ascending: true }),
     supabase.from("permissions").select("*").order("key", { ascending: true }),
@@ -218,6 +219,7 @@ export async function createRoleRecord(input: {
   name: string;
   description: string;
   hidden: boolean;
+  type: RoleRecord["type"];
 }) {
   const { data, error } = await supabase
     .from("roles")
@@ -226,8 +228,9 @@ export async function createRoleRecord(input: {
       description: input.description,
       hidden: input.hidden,
       priority: 0,
+      type: input.type,
     })
-    .select("id, name, description, hidden, priority")
+    .select("id, name, description, hidden, priority, type")
     .single();
 
   if (error) throw error;
@@ -347,7 +350,8 @@ export async function persistRoleDrafts(params: {
       baseRole.name !== role.name ||
       baseRole.description !== role.description ||
       baseRole.hidden !== role.hidden ||
-      baseRole.priority !== role.priority;
+      baseRole.priority !== role.priority ||
+      baseRole.type !== role.type;
     if (!changed) continue;
 
     const { error } = await supabase
@@ -357,6 +361,7 @@ export async function persistRoleDrafts(params: {
         description: role.description,
         hidden: role.hidden,
         priority: role.priority,
+        type: role.type,
       })
       .eq("id", role.id);
 

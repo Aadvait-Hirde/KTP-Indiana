@@ -9,6 +9,7 @@ export const EMPTY_CREATE_FORM = {
   name: "",
   description: "",
   hidden: false,
+  type: "general" as const,
 }
 
 type RoleLike = {
@@ -69,6 +70,7 @@ export function normalizeRole(
     description: string
     hidden: boolean
     priority: number
+    type: string
   }>
 ) {
   return {
@@ -77,6 +79,9 @@ export function normalizeRole(
     description: role.description ?? "",
     hidden: Boolean(role.hidden),
     priority: Number(role.priority ?? 0),
+    type: (role.type === "pledge_class" ? "pledge_class" : "general") as
+      | "general"
+      | "pledge_class",
   }
 }
 

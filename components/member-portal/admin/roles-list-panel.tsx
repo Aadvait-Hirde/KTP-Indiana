@@ -88,6 +88,11 @@ export function RolesListPanel({
                       />
                     ) : null}
                   </span>
+                  {role.type === "pledge_class" ? (
+                    <span className="shrink-0 rounded-full border px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                      Pledge class
+                    </span>
+                  ) : null}
                 </div>
 
                 {dropIndicator?.roleId === role.id &&
