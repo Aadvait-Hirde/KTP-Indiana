@@ -1,65 +1,177 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Card,
-  //   CardContent,
   CardHeader,
   CardTitle,
-  CardDescription,
   CardContent,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-// import { Button } from "@/components/ui/button";
-// import { Navbar } from "@/components/navbar";
-// import { Footer } from "@/components/sections/footer";
-// import { Linkedin, Instagram } from "lucide-react";
-import { supabase } from "@/lib/supabase";
-import type { User } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Linkedin } from "lucide-react";
 import { getSocialUrl } from "@/components/member-portal/admin/users/users-utils";
+import {
+  fetchPublicMembers,
+  getGradeLabel,
+  getPledgeClassRole,
+  type PublicMember,
+} from "@/lib/members";
+
+function getInitials(name: string) {
+  return name.charAt(0) + name.charAt(name.lastIndexOf(" ") + 1);
+}
+
+function MemberCard({ member }: { member: PublicMember }) {
+  const grade = getGradeLabel(member.graduation_year, member.is_alumni);
+  const pledgeClass = getPledgeClassRole(member.roles);
+  const linkedinUrl = getSocialUrl(member, "linkedin");
+
+  const details = [
+    grade,
+    pledgeClass?.name ?? null,
+    member.major ? member.major : null,
+  ].filter((line): line is string => Boolean(line));
+
+  return (
+    <Card className="group hover:shadow-lg hover:scale-105 transition-all duration-300 border hover:border-primary/30 flex flex-col h-full">
+      <CardHeader className="text-center p-3 flex-none">
+        <Avatar className="h-24 w-24 mx-auto mb-3 ring-2 ring-transparent group-hover:ring-primary/30 transition-all duration-300">
+          <AvatarImage src={member.avatar} />
+          <AvatarFallback className="text-xl font-bold bg-linear-to-br from-primary/20 to-primary/10">
+            {getInitials(member.name)}
+          </AvatarFallback>
+        </Avatar>
+        <div className="h-12 flex flex-col justify-center">
+          <CardTitle className="text-md group-hover:text-primary transition-colors leading-normal mb-1">
+            {member.name}
+          </CardTitle>
+        </div>
+        <div className="h-14 flex flex-col items-center justify-start gap-0.5 text-xs leading-tight text-muted-foreground">
+          {details.map((line, index) => (
+            <span
+              key={index}
+              className={index === details.length - 1 ? "line-clamp-2" : "truncate max-w-full"}
+              title={line}
+            >
+              {line}
+            </span>
+          ))}
+        </div>
+      </CardHeader>
+      <CardContent className="text-center pt-0 pb-2 px-3 mt-auto">
+        <div className="flex justify-center items-center space-x-1 h-6">
+          {linkedinUrl ? (
+            <a href={linkedinUrl} target="_blank" rel="noreferrer">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 hover:bg-primary/10 hover:text-primary transition-colors"
+              >
+                <Linkedin className="h-3 w-3" />
+              </Button>
+            </a>
+          ) : null}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function MemberGrid({
+  members,
+  loading,
+  error,
+  emptyTitle,
+  emptyDescription,
+}: {
+  members: PublicMember[];
+  loading: boolean;
+  error: string | null;
+  emptyTitle: string;
+  emptyDescription: string;
+}) {
+  if (loading) {
+    return (
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 pb-16">
+        {Array.from({ length: 12 }).map((_, index) => (
+          <Card key={index} className="flex flex-col h-full">
+            <CardHeader className="text-center p-3 flex-none">
+              <div className="h-24 w-24 mx-auto mb-3 rounded-full bg-muted animate-pulse" />
+              <div className="h-6 bg-muted rounded animate-pulse mb-2" />
+              <div className="h-14 bg-muted rounded animate-pulse" />
+            </CardHeader>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-muted-foreground">Error fetching members: {error}</p>
+      </div>
+    );
+  }
+
+  if (members.length === 0) {
+    return (
+      <div className="text-center py-16">
+        <div className="max-w-md mx-auto">
+          <h3 className="text-xl font-semibold mb-4">{emptyTitle}</h3>
+          <p className="text-muted-foreground">{emptyDescription}</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 pb-16">
+      {members.map((member) => (
+        <MemberCard key={member.id} member={member} />
+      ))}
+    </div>
+  );
+}
 
 export default function CommunityPage() {
-  //   const scrollToSection = (href: string) => {
-  //     const element = document.querySelector(href);
-  //     if (element) {
-  //       element.scrollIntoView({ behavior: "smooth" });
-  //     }
-  //   };
-
-  const [users, setUsers] = useState<User[] | null>(null);
+  const [members, setMembers] = useState<PublicMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
-    const fetchUsers = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .neq("role", "newmember")
-        .neq("role", null);
-      if (!mounted) return;
-      if (error) {
-        setFetchError(error.message);
-        setUsers(null);
-      } else {
-        const sortedUsers = (data as User[] | null)?.sort((a, b) =>
-          a.name.localeCompare(b.name),
+    fetchPublicMembers()
+      .then((data) => {
+        if (!mounted) return;
+        setMembers(data);
+        setFetchError(null);
+      })
+      .catch((error: unknown) => {
+        if (!mounted) return;
+        setFetchError(
+          error instanceof Error ? error.message : "Unknown error",
         );
-        setUsers(sortedUsers as User[] | null);
-      }
-      setLoading(false);
-    };
-
-    fetchUsers();
+        setMembers([]);
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
     return () => {
       mounted = false;
     };
   }, []);
+
+  const activeMembers = useMemo(
+    () => members.filter((member) => !member.is_alumni),
+    [members],
+  );
+  const alumni = useMemo(
+    () => members.filter((member) => member.is_alumni),
+    [members],
+  );
 
   return (
     <div className="min-h-screen min-w-screen bg-background">
@@ -113,100 +225,29 @@ export default function CommunityPage() {
             value="active"
             className="mt-8 animate-in fade-in-50 duration-500"
           >
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 pb-16">
-              {users ? (
-                users.map((user, index) => (
-                  <Card
-                    key={index}
-                    className="group hover:shadow-lg hover:scale-105 transition-all duration-300 border hover:border-primary/30 flex flex-col h-full"
-                  >
-                    <CardHeader className="text-center p-3 flex-none">
-                      <Avatar className="h-24 w-24 mx-auto mb-3 ring-2 ring-transparent group-hover:ring-primary/30 transition-all duration-300">
-                        <AvatarImage src={user.avatar} />
-                        <AvatarFallback className="text-xl font-bold bg-linear-to-br from-primary/20 to-primary/10">
-                          {user.name.charAt(0) +
-                            user.name.charAt(user.name.lastIndexOf(" ") + 1)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="h-12 flex flex-col justify-center">
-                        <CardTitle className="text-md group-hover:text-primary transition-colors leading-normal mb-1">
-                          {user.name}
-                        </CardTitle>
-                      </div>
-                      <div className="h-8 flex items-center justify-center">
-                        <CardDescription className="text-xs leading-tight line-clamp-2 text-center">
-                          {user.class ? user.class : ""} •{" "}
-                          {user.pledgeClass ? user.pledgeClass + " Class" : ""}{" "}
-                          • {user.major ? user.major : ""}
-                        </CardDescription>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="text-center pt-0 pb-2 px-3 mt-auto">
-                      <div className="flex justify-center items-center space-x-1 h-6">
-                        {getSocialUrl(user, "linkedin") ? (
-                          <a
-                            href={getSocialUrl(user, "linkedin")}
-                            target="_blank"
-                          >
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-6 w-6 hover:bg-primary/10 hover:text-primary transition-colors"
-                            >
-                              <Linkedin className="h-3 w-3" />
-                            </Button>
-                          </a>
-                        ) : null}
-
-                        {/* <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 hover:bg-primary/10 hover:text-primary transition-colors"
-                      >
-                        <Instagram className="h-3 w-3" />
-                      </Button> */}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              ) : loading ? (
-                Array.from({ length: 12 }).map((_, index) => (
-                  <Card key={index} className="flex flex-col h-full">
-                    <CardHeader className="text-center p-3 flex-none">
-                      <div className="h-24 w-24 mx-auto mb-3 rounded-full bg-muted animate-pulse" />
-                      <div className="h-6 bg-muted rounded animate-pulse mb-2" />
-                      <div className="h-8 bg-muted rounded animate-pulse" />
-                    </CardHeader>
-                  </Card>
-                ))
-              ) : (
-                <div className="col-span-full text-center py-8">
-                  <p className="text-muted-foreground">
-                    Error fetching users: {fetchError}
-                  </p>
-                </div>
-              )}
-            </div>
+            <MemberGrid
+              members={activeMembers}
+              loading={loading}
+              error={fetchError}
+              emptyTitle="No Active Members"
+              emptyDescription="Check back soon."
+            />
           </TabsContent>
 
           <TabsContent
             value="alumni"
             className="mt-8 animate-in fade-in-50 duration-500"
           >
-            <div className="text-center py-16">
-              <div className="max-w-md mx-auto">
-                <h3 className="text-xl font-semibold mb-4">No Alumni Yet</h3>
-                <p className="text-muted-foreground">
-                  As our first generation of brothers, current members will
-                  become our founding alumni. Check back soon to see where they
-                  land!
-                </p>
-              </div>
-            </div>
+            <MemberGrid
+              members={alumni}
+              loading={loading}
+              error={fetchError}
+              emptyTitle="No Alumni Yet"
+              emptyDescription="As our first generation of brothers, current members will become our founding alumni. Check back soon to see where they land!"
+            />
           </TabsContent>
         </Tabs>
       </div>
-      {/* <Footer scrollToSection={scrollToSection} /> */}
     </div>
   );
 }

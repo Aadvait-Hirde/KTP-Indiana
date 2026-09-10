@@ -60,9 +60,9 @@ function buildNewUserPayload({
     name,
     role: "newmember",
     avatar: "",
-    class: "",
-    pledgeClass: "",
     major: "",
+    graduation_year: null,
+    is_alumni: false,
     title: "",
     socials: [],
   };

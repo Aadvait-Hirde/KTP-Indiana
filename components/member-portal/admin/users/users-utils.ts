@@ -2,7 +2,13 @@ import { supabase, User as SupabaseUser } from "@/lib/supabase";
 
 export type EditableFields = Pick<
   SupabaseUser,
-  "name" | "email" | "major" | "avatar" | "socials"
+  | "name"
+  | "email"
+  | "major"
+  | "avatar"
+  | "socials"
+  | "graduation_year"
+  | "is_alumni"
 >;
 
 export type SocialPlatform = "insta" | "linkedin";
@@ -12,9 +18,14 @@ export type SocialEntry = {
   url: string;
 };
 
-export type EditState = Partial<EditableFields> & {
+export type EditState = Partial<
+  Omit<EditableFields, "graduation_year" | "is_alumni">
+> & {
   linkedinUrl?: string;
   instagramUrl?: string;
+  /** Raw text from the input; parsed to a number (or null) on save. */
+  graduationYear?: string;
+  isAlumni?: boolean;
 };
 
 export type RoleOption = {
@@ -23,7 +34,12 @@ export type RoleOption = {
   priority: number;
 };
 
-export type SortKey = "name" | "email" | "major" | "created_at";
+export type SortKey =
+  | "name"
+  | "email"
+  | "major"
+  | "graduation_year"
+  | "created_at";
 
 type UserRoleJoinRow = {
   user_id: string | null;
@@ -47,6 +63,7 @@ export const userTableColumns: Array<{
   { label: "User", sortKey: "name" },
   { label: "Roles", sortKey: undefined },
   { label: "Major", sortKey: "major" },
+  { label: "Year", sortKey: "graduation_year" },
   { label: "Created", sortKey: "created_at" },
   { label: "", sortKey: undefined },
 ];
@@ -105,16 +122,46 @@ export async function loadUsersData(): Promise<LoadUsersDataResult> {
 export function getEditableValue(
   currentUser: SupabaseUser,
   editState: Record<string, EditState>,
-  field: keyof EditState,
+  field: Exclude<keyof EditState, "isAlumni">,
 ) {
   const override = editState[currentUser.id]?.[field];
   if (typeof override === "string") return override;
+  if (field === "graduationYear") {
+    return typeof currentUser.graduation_year === "number"
+      ? String(currentUser.graduation_year)
+      : "";
+  }
   const value = currentUser[field as keyof SupabaseUser];
   return value ? String(value) : "";
 }
 
-export function getSocialUrl(
+export function getEditableIsAlumni(
   currentUser: SupabaseUser,
+  editState: Record<string, EditState>,
+) {
+  const override = editState[currentUser.id]?.isAlumni;
+  return typeof override === "boolean" ? override : Boolean(currentUser.is_alumni);
+}
+
+/**
+ * Parses the graduation-year input. Returns undefined when untouched, null when
+ * cleared, or the parsed year. Throws on non-numeric or out-of-range input.
+ */
+export function parseGraduationYearInput(
+  value: string | undefined,
+): number | null | undefined {
+  if (value === undefined) return undefined;
+  const trimmed = value.trim();
+  if (trimmed === "") return null;
+  const parsed = Number(trimmed);
+  if (!Number.isInteger(parsed) || parsed < 2000 || parsed > 2100) {
+    throw new Error("Graduation year must be a four-digit year.");
+  }
+  return parsed;
+}
+
+export function getSocialUrl(
+  currentUser: Pick<SupabaseUser, "socials">,
   platform: SocialPlatform,
 ) {
   const socials = currentUser.socials as unknown;
@@ -209,6 +256,12 @@ export function sortUsers(
       const aDate = a.created_at ? new Date(a.created_at).getTime() : 0;
       const bDate = b.created_at ? new Date(b.created_at).getTime() : 0;
       return sortDirection === "asc" ? aDate - bDate : bDate - aDate;
+    }
+
+    if (key === "graduation_year") {
+      const aYear = a.graduation_year ?? Number.POSITIVE_INFINITY;
+      const bYear = b.graduation_year ?? Number.POSITIVE_INFINITY;
+      return sortDirection === "asc" ? aYear - bYear : bYear - aYear;
     }
 
     const aText = String(aValue).toLowerCase();

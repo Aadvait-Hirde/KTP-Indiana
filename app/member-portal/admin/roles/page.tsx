@@ -157,6 +157,7 @@ export default function AdminRolesPage() {
         name: normalizedName,
         description: createForm.description.trim(),
         hidden: createForm.hidden,
+        type: createForm.type,
       });
 
       setBaseRoles((prev) => [...prev, createdRole].sort(compareRoles));

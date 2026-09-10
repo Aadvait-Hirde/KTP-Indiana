@@ -36,11 +36,13 @@ import {
   SortKey,
   buildSocialsUpdate,
   deleteUserRecord,
+  getEditableIsAlumni,
   getEditableValue,
   getRoleDiff,
   getRoleNameMap,
   getSocialUrl,
   loadUsersData,
+  parseGraduationYearInput,
   sortRoles,
   sortUsers,
   syncUserRoles,
@@ -49,6 +51,7 @@ import {
   uploadUserAvatar,
   userTableColumns,
 } from "@/components/member-portal/admin/users/users-utils";
+import { getGradeLabel } from "@/lib/members";
 
 export default function AdminUsersPage() {
   const { user, permissions } = useAuthStore();
@@ -107,7 +110,7 @@ export default function AdminUsersPage() {
   const handleEditChange = (
     userId: string,
     field: keyof EditState,
-    value: string,
+    value: string | boolean,
   ) => {
     setEditState((prev) => ({
       ...prev,
@@ -150,6 +153,9 @@ export default function AdminUsersPage() {
       if (nextState.email !== undefined) updates.email = nextState.email;
       if (nextState.major !== undefined) updates.major = nextState.major;
       if (nextState.avatar !== undefined) updates.avatar = nextState.avatar;
+      const graduationYear = parseGraduationYearInput(nextState.graduationYear);
+      if (graduationYear !== undefined) updates.graduation_year = graduationYear;
+      if (nextState.isAlumni !== undefined) updates.is_alumni = nextState.isAlumni;
       if (forcedUpdates) Object.assign(updates, forcedUpdates);
       const socialsUpdate = buildSocialsUpdate(currentUser, nextState);
       if (socialsUpdate !== undefined) updates.socials = socialsUpdate;
@@ -193,7 +199,10 @@ export default function AdminUsersPage() {
       console.error("Failed to update user:", err);
       setErrors((prev) => ({
         ...prev,
-        [currentUser.id]: "Failed to update user. Please try again.",
+        [currentUser.id]:
+          err instanceof Error && err.message.startsWith("Graduation year")
+            ? err.message
+            : "Failed to update user. Please try again.",
       }));
       return false;
     } finally {
@@ -372,6 +381,23 @@ export default function AdminUsersPage() {
                 </TableCell>
                 <TableCell>{currentUser.major || "—"}</TableCell>
                 <TableCell>
+                  {currentUser.graduation_year ? (
+                    <div>
+                      <div>{currentUser.graduation_year}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {getGradeLabel(
+                          currentUser.graduation_year,
+                          currentUser.is_alumni,
+                        )}
+                      </div>
+                    </div>
+                  ) : currentUser.is_alumni ? (
+                    "Alumni"
+                  ) : (
+                    "—"
+                  )}
+                </TableCell>
+                <TableCell>
                   {currentUser.created_at
                     ? format(new Date(currentUser.created_at), "PPP")
                     : "Unknown"}
@@ -422,6 +448,11 @@ export default function AdminUsersPage() {
                       name: getEditableValue(currentUser, editState, "name"),
                       email: getEditableValue(currentUser, editState, "email"),
                       major: getEditableValue(currentUser, editState, "major"),
+                      graduationYear: getEditableValue(
+                        currentUser,
+                        editState,
+                        "graduationYear",
+                      ),
                       instagramUrl:
                         getEditableValue(
                           currentUser,
@@ -437,6 +468,7 @@ export default function AdminUsersPage() {
                     }}
                     roles={sortedRoles}
                     selectedRoleIds={getEditableRoleIds(currentUser.id)}
+                    isAlumni={getEditableIsAlumni(currentUser, editState)}
                     error={errors[currentUser.id]}
                     isSaving={saveUserId === currentUser.id}
                     isUploadingAvatar={avatarUploadUserId === currentUser.id}
@@ -461,6 +493,9 @@ export default function AdminUsersPage() {
                     onSectionChange={setEditDialogSection}
                     onFieldChange={(field, value) =>
                       handleEditChange(currentUser.id, field, value)
+                    }
+                    onAlumniChange={(checked) =>
+                      handleEditChange(currentUser.id, "isAlumni", checked)
                     }
                     onRoleToggle={(roleId, checked) =>
                       handleRoleToggle(currentUser.id, roleId, checked)

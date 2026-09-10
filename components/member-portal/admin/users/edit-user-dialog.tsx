@@ -26,6 +26,7 @@ type EditUserDialogValues = {
   name: string;
   email: string;
   major: string;
+  graduationYear: string;
   instagramUrl: string;
   linkedinUrl: string;
 };
@@ -37,12 +38,14 @@ type EditUserDialogProps = {
   values: EditUserDialogValues;
   roles: RoleOption[];
   selectedRoleIds: string[];
+  isAlumni: boolean;
   error?: string;
   isSaving: boolean;
   isUploadingAvatar: boolean;
   onOpenChange: (open: boolean) => void;
   onSectionChange: (section: EditDialogSection) => void;
   onFieldChange: (field: keyof EditUserDialogValues, value: string) => void;
+  onAlumniChange: (checked: boolean) => void;
   onRoleToggle: (roleId: string, checked: boolean) => void;
   onAvatarUpload: (file: File) => Promise<void>;
   onAvatarError: (message: string) => void;
@@ -65,12 +68,14 @@ export function EditUserDialog({
   values,
   roles,
   selectedRoleIds,
+  isAlumni,
   error,
   isSaving,
   isUploadingAvatar,
   onOpenChange,
   onSectionChange,
   onFieldChange,
+  onAlumniChange,
   onRoleToggle,
   onAvatarUpload,
   onAvatarError,
@@ -204,6 +209,32 @@ export function EditUserDialog({
                       onFieldChange("major", event.target.value)
                     }
                   />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Graduation Year</p>
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    min={2000}
+                    max={2100}
+                    placeholder="e.g. 2028"
+                    value={values.graduationYear}
+                    onChange={(event) =>
+                      onFieldChange("graduationYear", event.target.value)
+                    }
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Grade (Freshman through Senior) is derived from this year.
+                  </p>
+                </div>
+                <div className="flex items-center justify-between rounded-md border px-3 py-2">
+                  <div>
+                    <p className="text-sm font-medium">Alumni</p>
+                    <p className="text-xs text-muted-foreground">
+                      Lists this member under Alumni on the public members page.
+                    </p>
+                  </div>
+                  <Switch checked={isAlumni} onCheckedChange={onAlumniChange} />
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm font-medium">Instagram URL</p>

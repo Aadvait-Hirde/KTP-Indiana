@@ -13,7 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
-import { PermissionRecord, RoleRecord } from "@/types";
+import { PermissionRecord, RoleRecord, ROLE_TYPE_OPTIONS } from "@/types";
+import { RoleTypeSelect } from "@/components/member-portal/admin/role-type-select";
 
 type RoleDetailsPanelProps = {
   selectedRole: RoleRecord | null;
@@ -92,6 +93,20 @@ export function RoleDetailsPanel({
               }
               placeholder="Explain what this role can do."
             />
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Role Type</label>
+            <RoleTypeSelect
+              value={selectedRole.type}
+              onChange={(type) => onUpdateRole({ type })}
+            />
+            <p className="text-xs text-muted-foreground">
+              {
+                ROLE_TYPE_OPTIONS.find((option) => option.value === selectedRole.type)
+                  ?.description
+              }
+            </p>
           </div>
 
           <div className="flex items-center justify-between rounded-md border px-3 py-2">

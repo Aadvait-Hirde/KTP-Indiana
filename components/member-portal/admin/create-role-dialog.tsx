@@ -13,7 +13,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Kbd } from "@/components/ui/kbd";
 import { Button } from "@/components/ui/button";
-import { CreateRoleFormState } from "@/types";
+import { CreateRoleFormState, ROLE_TYPE_OPTIONS } from "@/types";
+import { RoleTypeSelect } from "@/components/member-portal/admin/role-type-select";
 
 type CreateRoleDialogProps = {
   open: boolean;
@@ -79,6 +80,20 @@ export function CreateRoleDialog({
                 }
                 placeholder="Explain what this role can do."
               />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Role Type</label>
+              <RoleTypeSelect
+                value={form.type}
+                onChange={(type) => onFormChange({ ...form, type })}
+              />
+              <p className="text-xs text-muted-foreground">
+                {
+                  ROLE_TYPE_OPTIONS.find((option) => option.value === form.type)
+                    ?.description
+                }
+              </p>
             </div>
 
             <div className="flex items-center justify-between rounded-md border px-3 py-2">
