@@ -7,6 +7,8 @@ import {
   Check,
   ChevronDown,
   Clock,
+  Link2,
+  Loader2,
   RefreshCw,
   UserCheck,
   UserX,
@@ -352,6 +354,123 @@ function DenyUserDialog({
   );
 }
 
+type BulkLinkStatus = "pending" | "linking" | "linked" | "error";
+
+type BulkLinkDialogProps = {
+  open: boolean;
+  accounts: PendingClerkUser[];
+  statuses: Record<string, BulkLinkStatus>;
+  errors: Record<string, string>;
+  isRunning: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: () => void;
+};
+
+function BulkLinkDialog({
+  open,
+  accounts,
+  statuses,
+  errors,
+  isRunning,
+  onOpenChange,
+  onConfirm,
+}: BulkLinkDialogProps) {
+  const isDone =
+    !isRunning &&
+    accounts.length > 0 &&
+    accounts.every((account) => statuses[account.clerkUserId] === "linked" || statuses[account.clerkUserId] === "error");
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (!isRunning) onOpenChange(next);
+      }}
+    >
+      <DialogContent className="flex max-h-[85vh] flex-col sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Link Matched Accounts</DialogTitle>
+          <DialogDescription>
+            Each account below shares its email with an existing profile that has
+            no sign-in linked. Linking attaches the sign-in and leaves the
+            profile&apos;s name and roles as they are.
+          </DialogDescription>
+        </DialogHeader>
+
+        <ScrollArea className="max-h-80 min-h-0 flex-1 rounded-md border p-2">
+          <ul className="space-y-2">
+            {accounts.map((user) => {
+              const status = statuses[user.clerkUserId] ?? "pending";
+              return (
+                <li
+                  key={user.clerkUserId}
+                  className="flex items-start justify-between gap-3 rounded-md border px-3 py-2"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium">
+                      {getDisplayName(user)}
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      → {user.matchingProfile?.name}
+                    </p>
+                    {status === "error" && errors[user.clerkUserId] ? (
+                      <p className="text-xs text-destructive">
+                        {errors[user.clerkUserId]}
+                      </p>
+                    ) : null}
+                  </div>
+                  <div className="shrink-0 pt-0.5">
+                    {status === "linking" ? (
+                      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                    ) : null}
+                    {status === "linked" ? (
+                      <Check className="h-4 w-4 text-emerald-600" />
+                    ) : null}
+                    {status === "error" ? (
+                      <UserX className="h-4 w-4 text-destructive" />
+                    ) : null}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </ScrollArea>
+
+        <DialogFooter className="gap-2 sm:justify-end">
+          {isDone ? (
+            <Button type="button" size="sm" onClick={() => onOpenChange(false)}>
+              Done
+            </Button>
+          ) : (
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => onOpenChange(false)}
+                disabled={isRunning}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                onClick={onConfirm}
+                disabled={isRunning || accounts.length === 0}
+              >
+                <Link2 className="h-4 w-4" />
+                {isRunning
+                  ? "Linking..."
+                  : `Link ${accounts.length} account${accounts.length === 1 ? "" : "s"}`}
+              </Button>
+            </>
+          )}
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export function PendingUsersPanel({
   canEdit,
   roles,
@@ -368,6 +487,19 @@ export function PendingUsersPanel({
   const [approveTarget, setApproveTarget] = useState<ApproveTarget | null>(null);
   const [denyTarget, setDenyTarget] = useState<PendingClerkUser | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkTargets, setBulkTargets] = useState<PendingClerkUser[]>([]);
+  const [bulkStatuses, setBulkStatuses] = useState<
+    Record<string, BulkLinkStatus>
+  >({});
+  const [bulkErrors, setBulkErrors] = useState<Record<string, string>>({});
+  const [bulkRunning, setBulkRunning] = useState(false);
+
+  const matchedPending = useMemo(
+    () => pending.filter((user) => user.matchingProfile),
+    [pending],
+  );
 
   const onCountChangeRef = useRef(onCountChange);
   useEffect(() => {
@@ -429,6 +561,65 @@ export function PendingUsersPanel({
       toast.error(message);
     } finally {
       setBusyId(null);
+    }
+  };
+
+  const openBulkLink = () => {
+    const targets = matchedPending;
+    const initialStatuses: Record<string, BulkLinkStatus> = {};
+    targets.forEach((user) => {
+      initialStatuses[user.clerkUserId] = "pending";
+    });
+    setBulkTargets(targets);
+    setBulkStatuses(initialStatuses);
+    setBulkErrors({});
+    setBulkOpen(true);
+  };
+
+  const handleBulkLink = async () => {
+    setBulkRunning(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const target of bulkTargets) {
+      setBulkStatuses((current) => ({
+        ...current,
+        [target.clerkUserId]: "linking",
+      }));
+      try {
+        const user = await approvePendingUser(target.clerkUserId, {});
+        successCount += 1;
+        setBulkStatuses((current) => ({
+          ...current,
+          [target.clerkUserId]: "linked",
+        }));
+        removeEverywhere(target.clerkUserId);
+        onApproved?.(user);
+      } catch (error) {
+        failCount += 1;
+        const message =
+          error instanceof Error ? error.message : "Failed to link this account.";
+        setBulkStatuses((current) => ({
+          ...current,
+          [target.clerkUserId]: "error",
+        }));
+        setBulkErrors((current) => ({
+          ...current,
+          [target.clerkUserId]: message,
+        }));
+      }
+    }
+
+    setBulkRunning(false);
+    if (successCount > 0) {
+      toast.success(
+        `Linked ${successCount} account${successCount === 1 ? "" : "s"}.`,
+      );
+    }
+    if (failCount > 0) {
+      toast.error(
+        `${failCount} account${failCount === 1 ? "" : "s"} failed to link.`,
+      );
     }
   };
 
@@ -505,16 +696,30 @@ export function PendingUsersPanel({
             Accounts that signed in but do not have a member profile yet.
           </p>
         </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          aria-label="Refresh pending accounts"
-          disabled={isLoading || isRefreshing}
-          onClick={() => void load("refresh")}
-        >
-          <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
-        </Button>
+        <div className="flex shrink-0 items-center gap-2">
+          {canEdit && matchedPending.length > 0 ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={isLoading || isRefreshing || bulkRunning}
+              onClick={openBulkLink}
+            >
+              <Link2 className="h-4 w-4" />
+              Link matched ({matchedPending.length})
+            </Button>
+          ) : null}
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            aria-label="Refresh pending accounts"
+            disabled={isLoading || isRefreshing}
+            onClick={() => void load("refresh")}
+          >
+            <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -587,7 +792,7 @@ export function PendingUsersPanel({
                       type="button"
                       size="sm"
                       className="flex-1 sm:flex-none"
-                      disabled={isBusy}
+                      disabled={isBusy || bulkRunning}
                       onClick={() => setApproveTarget(user)}
                     >
                       <Check className="h-4 w-4" />
@@ -598,7 +803,7 @@ export function PendingUsersPanel({
                       size="sm"
                       variant="outline"
                       className="flex-1 sm:flex-none"
-                      disabled={isBusy}
+                      disabled={isBusy || bulkRunning}
                       onClick={() => setDenyTarget(user)}
                     >
                       <UserX className="h-4 w-4" />
@@ -704,6 +909,15 @@ export function PendingUsersPanel({
           if (!open && !busyId) setDenyTarget(null);
         }}
         onConfirm={handleDeny}
+      />
+      <BulkLinkDialog
+        open={bulkOpen}
+        accounts={bulkTargets}
+        statuses={bulkStatuses}
+        errors={bulkErrors}
+        isRunning={bulkRunning}
+        onOpenChange={setBulkOpen}
+        onConfirm={() => void handleBulkLink()}
       />
     </div>
   );
