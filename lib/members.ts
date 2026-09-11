@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import type { Role, User } from "@/lib/supabase";
+import { isProfileIncomplete } from "@/lib/profile-completeness";
 
 /**
  * Member classification helpers built on the roles system.
@@ -113,7 +114,8 @@ export async function fetchPublicMembers(): Promise<PublicMember[]> {
       is_alumni: row.is_alumni,
       roles: flattenRoles(row),
     }))
-    .filter((member) => getPledgeClassRole(member.roles) !== null);
+    .filter((member) => getPledgeClassRole(member.roles) !== null)
+    .filter((member) => !isProfileIncomplete(member, member.roles));
 }
 
 export type BoardMember = PublicMember & { position: PublicMemberRole };
