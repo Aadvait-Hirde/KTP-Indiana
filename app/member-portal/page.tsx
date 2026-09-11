@@ -4,10 +4,6 @@ import { useEffect, useState } from "react";
 import { useAuthStore } from "@/lib/auth-store";
 import { AnnouncementsSection } from "@/components/member-portal/announcements";
 import { CalendarWidget } from "@/components/member-portal/calendar-widget";
-import { InternshipsWidget } from "@/components/member-portal/internships-widget";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CreditCard } from "lucide-react";
-import Image from "next/image";
 
 export default function MemberPortalPage() {
   const { user } = useAuthStore();
@@ -28,21 +24,6 @@ export default function MemberPortalPage() {
       setGreeting("Good Evening");
     }
   }, []);
-
-  const getDuesLink = () => {
-    // Different payment links based on effective role
-    if (effectiveRole === "newmember") {
-      return "https://collect.crowded.me/collection/4fac4104-27d2-46ea-8bac-2b22803de573";
-    }
-    return "https://collect.crowded.me/collection/3afb7113-1cab-47d1-894d-117c6ed06ec4";
-  };
-
-  const getDuesImage = () => {
-    if (effectiveRole === "newmember") {
-      return "/portal-images/new-member-dues/new-member-dues.png";
-    }
-    return "/portal-images/active-dues/active-dues.png";
-  };
 
   //   const getDisplayRole = (role: string) => {
   //     switch (role) {
@@ -92,44 +73,6 @@ export default function MemberPortalPage() {
 
           {/* Calendar */}
           <CalendarWidget />
-        </div>
-
-        {/* Main Content Section - Internships and Pay Dues */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 items-start">
-          <InternshipsWidget />
-
-          {/* Pay Dues */}
-          <Card className="h-fit">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <CreditCard className="h-5 w-5" />
-                <span>Pay Dues</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0 m-0">
-              <a
-                href={getDuesLink()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block"
-              >
-                <Image
-                  src={getDuesImage()}
-                  alt={
-                    effectiveRole === "newmember"
-                      ? "New Member Dues"
-                      : "Active Member Dues"
-                  }
-                  width={800}
-                  height={600}
-                  className="w-full h-full object-cover cursor-pointer hover:opacity-80 transition-opacity rounded-b-lg !mb-0 !margin-bottom-0"
-                  style={{ marginBottom: 0 }}
-                  quality={100}
-                  priority
-                />
-              </a>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Additional Sections */}
