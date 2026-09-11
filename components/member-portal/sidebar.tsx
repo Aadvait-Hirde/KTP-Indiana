@@ -17,6 +17,7 @@ import {
   Shield,
   KeyRound,
   Flame,
+  UserRound,
 } from "lucide-react";
 import {
   Sidebar,
@@ -35,12 +36,13 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthStore } from "@/lib/auth-store";
 import Link from "next/link";
-import { canViewFinanceAdmin } from "@/lib/permissions";
+import { canViewAdmin, canViewFinanceAdmin } from "@/lib/permissions";
 
 export function MemberPortalSidebar() {
   //   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -130,9 +132,10 @@ export function MemberPortalSidebar() {
   };
 
   const canViewFinance = canViewFinanceAdmin(permissions);
-  const showAdminGroup = user?.role === "exec" || canViewFinance;
+  const canViewCoreAdmin = canViewAdmin(permissions);
+  const showAdminGroup = canViewCoreAdmin || canViewFinance;
   const adminItems = [
-    ...(user?.role === "exec" ? coreAdminItems : []),
+    ...(canViewCoreAdmin ? coreAdminItems : []),
     ...(canViewFinance ? financeAdminItems : []),
   ];
 
@@ -212,7 +215,7 @@ export function MemberPortalSidebar() {
                     <AvatarFallback className="w-10 h-10 rounded-lg">
                       {user
                         ? user.name.charAt(0) +
-                          user.name.split(" ")[1].charAt(0)
+                          (user.name.split(" ")[1]?.charAt(0) ?? "")
                         : ""}
                     </AvatarFallback>
                   </Avatar>
@@ -235,6 +238,13 @@ export function MemberPortalSidebar() {
                 align="end"
                 className="w-(--radix-dropdown-menu-trigger-width)"
               >
+                <DropdownMenuItem asChild>
+                  <Link href="/member-portal/profile">
+                    <UserRound />
+                    My Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <SignOutButton>
                   <DropdownMenuItem>
                     <span className="font-bold text-red-500">Sign out</span>

@@ -18,6 +18,18 @@ export const ROLE_TYPE_OPTIONS: ReadonlyArray<{
     description:
       "Identifies which pledge class a member joined with. Members holding a pledge-class role appear on the public members page.",
   },
+  {
+    value: "exec",
+    label: "Executive Board",
+    description:
+      "An executive board position. Members holding an exec role appear on the public Executive Board section, titled with the role name.",
+  },
+  {
+    value: "director",
+    label: "Director",
+    description:
+      "A director position leading a committee. Grouped separately from executive board roles.",
+  },
 ];
 
 export type RoleRecord = {

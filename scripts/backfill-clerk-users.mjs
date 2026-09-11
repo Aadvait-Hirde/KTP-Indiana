@@ -7,6 +7,7 @@ import { createClient } from "@supabase/supabase-js";
 
 const args = new Set(process.argv.slice(2));
 const isDryRun = args.has("--dry-run");
+const shouldCreate = args.has("--create");
 const showHelp = args.has("--help") || args.has("-h");
 const pageSize = 100;
 
@@ -46,18 +47,22 @@ loadLocalEnvFile(".env");
 loadLocalEnvFile(".env.local");
 
 function printHelp() {
-  console.log(`Backfill Clerk users into Supabase profiles and link them by Clerk user id
+  console.log(`Link Clerk users to their Supabase profiles by Clerk user id
 
 For every Clerk user this script finds the matching public.users row
-(by clerk_user_id, then by email), sets users.clerk_user_id when it is
-missing, and creates a profile when none exists.
+(by clerk_user_id, then by email) and sets users.clerk_user_id when it is
+missing. Clerk users with no matching profile are reported as "pending":
+they are approved (or denied) by an admin from User Management, so this
+script does not create profiles unless --create is passed.
 
 Usage:
   npm run backfill:clerk-users
   npm run backfill:clerk-users -- --dry-run
+  npm run backfill:clerk-users -- --create
 
 Options:
   --dry-run   Report what would change without writing
+  --create    Also create a profile for Clerk users that have none
   --help      Show this message
 
 Requires CLERK_SECRET_KEY, NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY.
@@ -220,7 +225,7 @@ async function findAppUserByEmail(email) {
   return data ?? null;
 }
 
-// Returns { status: "existing" | "linked" | "created" | "conflict", user }
+// Returns { status: "existing" | "linked" | "created" | "pending" | "conflict", user }
 async function ensureAppUser({ clerkUserId, email, name }) {
   const normalizedEmail = normalizeEmail(email);
 
@@ -261,6 +266,10 @@ async function ensureAppUser({ clerkUserId, email, name }) {
     name: normalizeName(name, normalizedEmail),
   });
 
+  if (!shouldCreate) {
+    return { status: "pending", user: payload };
+  }
+
   if (isDryRun) {
     return { status: "created", user: payload };
   }
@@ -297,6 +306,7 @@ async function main() {
   let created = 0;
   let linked = 0;
   let conflicts = 0;
+  let pending = 0;
   let skippedNoEmail = 0;
 
   console.log(
@@ -340,6 +350,9 @@ async function main() {
       } else if (status === "linked") {
         linked += 1;
         console.log(`${prefix}link ${email} -> ${clerkUserId}`);
+      } else if (status === "pending") {
+        pending += 1;
+        console.log(`pending: ${email} (${clerkUserId}) has no profile; approve it from User Management`);
       } else if (status === "conflict") {
         conflicts += 1;
         console.warn(
@@ -364,6 +377,10 @@ async function main() {
   console.log(`Processed ${processed} Clerk users with email addresses.`);
   console.log(`${isDryRun ? "Would create" : "Created"} ${created} Supabase profile(s).`);
   console.log(`${isDryRun ? "Would link" : "Linked"} ${linked} existing profile(s).`);
+
+  if (pending > 0) {
+    console.log(`${pending} Clerk user(s) have no profile and are waiting for admin approval.`);
+  }
 
   if (conflicts > 0) {
     console.log(`${conflicts} profile(s) were already linked to a different Clerk user.`);

@@ -2,6 +2,7 @@ import { getPermissionId, getPermissionKey } from "@/lib/utils";
 import { supabase as browserSupabase } from "@/lib/supabase";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+export const ADMIN_VIEW = "admin.view";
 export const ADMIN_FINANCE_VIEW = "admin.finance.view";
 export const ADMIN_FINANCE_EDIT = "admin.finance.edit";
 export const ADMIN_USERS_EDIT = "admin.users.edit";
@@ -68,6 +69,11 @@ export function hasAnyPermission(
 
 export function canViewFinanceAdmin(permissions: Iterable<string> | null | undefined) {
   return hasAnyPermission(permissions, [ADMIN_FINANCE_VIEW, ADMIN_FINANCE_EDIT]);
+}
+
+/** Grants access to the core admin pages (Users, Roles and Permissions). */
+export function canViewAdmin(permissions: Iterable<string> | null | undefined) {
+  return hasPermission(permissions, ADMIN_VIEW);
 }
 
 export function canEditUsersAdmin(permissions: Iterable<string> | null | undefined) {

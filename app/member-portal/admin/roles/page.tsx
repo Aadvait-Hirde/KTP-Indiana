@@ -4,6 +4,7 @@ import { DragEvent, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Plus, Shield } from "lucide-react";
 import { useAuthStore } from "@/lib/auth-store";
+import { canViewAdmin } from "@/lib/permissions";
 import { Button } from "@/components/ui/button";
 import {
   Empty,
@@ -50,8 +51,8 @@ import { DeleteRoleDialog } from "@/components/member-portal/admin/delete-role-d
 import { UnsavedChangesBar } from "@/components/member-portal/admin/unsaved-changes-bar";
 
 export default function AdminRolesPage() {
-  const { user } = useAuthStore();
-  const isExec = user?.role === "exec";
+  const { permissions: myPermissions } = useAuthStore();
+  const isExec = canViewAdmin(myPermissions);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);

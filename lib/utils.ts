@@ -63,6 +63,15 @@ export function getPermissionId(row: RolePermissionRowLike) {
   return null
 }
 
+const ROLE_TYPES = ["general", "pledge_class", "exec", "director"] as const
+export type NormalizedRoleType = (typeof ROLE_TYPES)[number]
+
+export function normalizeRoleType(type: unknown): NormalizedRoleType {
+  return (ROLE_TYPES as readonly string[]).includes(type as string)
+    ? (type as NormalizedRoleType)
+    : "general"
+}
+
 export function normalizeRole(
   role: Partial<{
     id: string
@@ -79,9 +88,7 @@ export function normalizeRole(
     description: role.description ?? "",
     hidden: Boolean(role.hidden),
     priority: Number(role.priority ?? 0),
-    type: (role.type === "pledge_class" ? "pledge_class" : "general") as
-      | "general"
-      | "pledge_class",
+    type: normalizeRoleType(role.type),
   }
 }
 

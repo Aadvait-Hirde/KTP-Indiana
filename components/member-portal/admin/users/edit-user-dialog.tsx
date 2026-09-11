@@ -15,9 +15,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Camera, Instagram, Linkedin, Shield, User } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { RoleOption } from "@/components/member-portal/admin/users/users-utils";
 import { AVATAR_ACCEPT, validateAvatarFile } from "@/lib/avatar-upload";
+import { AvatarCropDialog } from "@/components/avatar-crop-dialog";
 
 export type EditDialogSection = "profile" | "roles";
 export type SocialPlatform = "insta" | "linkedin";
@@ -82,11 +83,10 @@ export function EditUserDialog({
   onSave,
 }: EditUserDialogProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null);
   const hasAvatar = Boolean(currentUser.avatar);
 
-  const handleFileSelected = async (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleFileSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     // Reset so selecting the same file again re-triggers onChange.
     event.target.value = "";
@@ -98,7 +98,13 @@ export function EditUserDialog({
       return;
     }
 
-    await onAvatarUpload(file);
+    // Let the admin crop before anything is uploaded.
+    setPendingAvatarFile(file);
+  };
+
+  const handleCropConfirm = async (croppedFile: File) => {
+    await onAvatarUpload(croppedFile);
+    setPendingAvatarFile(null);
   };
 
   return (
@@ -176,7 +182,8 @@ export function EditUserDialog({
                             : "Upload Photo"}
                       </Button>
                       <p className="text-xs text-muted-foreground">
-                        JPEG, PNG, WebP, or GIF up to 4MB. Saved immediately.
+                        JPEG, PNG, WebP, or GIF up to 4MB. You can crop it
+                        before saving.
                       </p>
                     </div>
                     <input
@@ -184,9 +191,18 @@ export function EditUserDialog({
                       type="file"
                       accept={AVATAR_ACCEPT}
                       className="hidden"
-                      onChange={(event) => void handleFileSelected(event)}
+                      onChange={handleFileSelected}
                     />
                   </div>
+                  <AvatarCropDialog
+                    open={pendingAvatarFile !== null}
+                    file={pendingAvatarFile}
+                    isUploading={isUploadingAvatar}
+                    onOpenChange={(nextOpen) => {
+                      if (!nextOpen) setPendingAvatarFile(null);
+                    }}
+                    onConfirm={handleCropConfirm}
+                  />
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm font-medium">Name</p>

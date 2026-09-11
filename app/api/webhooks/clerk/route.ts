@@ -1,14 +1,15 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { verifyWebhook } from "@clerk/nextjs/webhooks";
-import { ensureAppUser, findAppUserByClerkId } from "@/lib/app-user";
+import { resolveAppUser, findAppUserByClerkId } from "@/lib/app-user";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export const dynamic = "force-dynamic";
 
 /**
- * Clerk webhook. Provisions (or links) the public.users profile as soon as a
- * Clerk account is created, so members do not have to sign in to the portal
- * before an admin can see and assign roles to them.
+ * Clerk webhook. Links a new Clerk account to its email-matched public.users
+ * profile as soon as it is created. Accounts with no matching profile are not
+ * provisioned here; they show up under "Pending approval" in User Management
+ * until an admin approves or denies them.
  *
  * Configure in the Clerk dashboard (Webhooks -> Add endpoint) with the URL
  * https://<site>/api/webhooks/clerk and subscribe to user.created, user.updated
@@ -58,13 +59,17 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ ok: true, skipped: "no email" });
         }
 
-        const { created, linked } = await ensureAppUser({
+        const resolved = await resolveAppUser({
           clerkUserId: user.id,
           email,
           name: getName(user),
         });
 
-        return NextResponse.json({ ok: true, created, linked });
+        return NextResponse.json({
+          ok: true,
+          status: resolved.status,
+          linked: resolved.status === "active" && resolved.linked,
+        });
       }
 
       case "user.updated": {
@@ -78,13 +83,18 @@ export async function POST(request: NextRequest) {
 
         const profile = await findAppUserByClerkId(user.id);
         if (!profile) {
-          // Missed or pre-dated the user.created webhook; provision now.
-          const { created, linked } = await ensureAppUser({
+          // Not linked yet (or the email changed to one with a profile); try
+          // the email match again, but never create a profile here.
+          const resolved = await resolveAppUser({
             clerkUserId: user.id,
             email,
             name: getName(user),
           });
-          return NextResponse.json({ ok: true, created, linked });
+          return NextResponse.json({
+            ok: true,
+            status: resolved.status,
+            linked: resolved.status === "active" && resolved.linked,
+          });
         }
 
         const normalizedEmail = email.trim().toLowerCase();

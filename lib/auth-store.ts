@@ -1,27 +1,30 @@
 import { create } from "zustand";
-import { supabase, Announcement } from "./supabase";
+import { supabase, Announcement, type User as SupabaseUser } from "./supabase";
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  created_at: string;
-  avatar?: string;
-}
+type User = SupabaseUser;
+
+/**
+ * Why the signed-in Clerk account is not authorized for the portal.
+ * "pending": no profile yet, waiting on an admin. "denied": an admin declined.
+ * "error": the server could not resolve the account.
+ */
+export type AuthStatus = "pending" | "denied" | "error" | null;
 
 interface AuthState {
   user: User | null;
   isAuthorized: boolean;
   isLoading: boolean;
   authError: string | null;
+  authStatus: AuthStatus;
   permissions: string[];
   announcements: Announcement[];
   isAnnouncementsLoading: boolean;
   setUser: (user: User | null) => void;
   setAuthorized: (authorized: boolean) => void;
   setLoading: (loading: boolean) => void;
-  setAuthError: (error: string | null) => void;
+  setAuthError: (error: string | null, status?: AuthStatus) => void;
+  /** Merge a fresh copy of the signed-in member's profile into the store. */
+  updateUser: (patch: Partial<User>) => void;
   setPermissions: (permissions: string[]) => void;
   setAnnouncements: (announcements: Announcement[]) => void;
   setAnnouncementsLoading: (loading: boolean) => void;
@@ -35,13 +38,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   isAuthorized: false,
   isLoading: true,
   authError: null,
+  authStatus: null,
   permissions: [],
   announcements: [],
   isAnnouncementsLoading: true,
   setUser: (user) => set({ user }),
   setAuthorized: (isAuthorized) => set({ isAuthorized }),
   setLoading: (isLoading) => set({ isLoading }),
-  setAuthError: (authError) => set({ authError }),
+  setAuthError: (authError, authStatus = authError ? "error" : null) =>
+    set({ authError, authStatus }),
+  updateUser: (patch) =>
+    set((state) => ({
+      user: state.user ? { ...state.user, ...patch } : state.user,
+    })),
   setPermissions: (permissions) => set({ permissions }),
   setAnnouncements: (announcements) => set({ announcements }),
   setAnnouncementsLoading: (isAnnouncementsLoading) =>
@@ -52,6 +61,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       isAuthorized: false,
       isLoading: false,
       authError: null,
+      authStatus: null,
       permissions: [],
       announcements: [],
       isAnnouncementsLoading: false,

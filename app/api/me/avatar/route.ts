@@ -1,26 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  assertUsersEditPermission,
-  requireAppAuthContext,
-  RouteAuthError,
-} from "@/lib/server-auth";
+import { requireAppAuthContext, RouteAuthError } from "@/lib/server-auth";
 import { validateAvatarFile } from "@/lib/avatar-upload";
 import { replaceUserAvatar } from "@/lib/avatar-storage";
 
 /**
- * Uploads a new profile picture for any user. Storage has no end-user
- * policies, so this runs with the secret key behind the admin.users.edit
- * permission. Members change their own picture via /api/me/avatar.
+ * Lets the signed-in member replace their own profile picture. Only the
+ * caller's own row is ever touched, so no admin permission is required.
  */
-export async function POST(
-  req: NextRequest,
-  context: { params: Promise<{ userId: string }> },
-) {
+export async function POST(req: NextRequest) {
   try {
     const authContext = await requireAppAuthContext();
-    assertUsersEditPermission(authContext);
-
-    const { userId } = await context.params;
 
     const formData = await req.formData();
     const file = formData.get("file");
@@ -36,15 +25,7 @@ export async function POST(
       return NextResponse.json({ error: validationError }, { status: 400 });
     }
 
-    let user;
-    try {
-      user = await replaceUserAvatar(userId, file);
-    } catch (error) {
-      if (error instanceof Error && error.message === "User not found.") {
-        return NextResponse.json({ error: error.message }, { status: 404 });
-      }
-      throw error;
-    }
+    const user = await replaceUserAvatar(authContext.appUser.id, file);
 
     return NextResponse.json({ user }, { status: 200 });
   } catch (error) {

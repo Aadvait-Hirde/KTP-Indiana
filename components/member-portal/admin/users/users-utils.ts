@@ -1,4 +1,6 @@
-import { supabase, User as SupabaseUser } from "@/lib/supabase";
+import { supabase, RoleType, User as SupabaseUser } from "@/lib/supabase";
+import { getGradeLabel } from "@/lib/members";
+import { isProfileIncomplete } from "@/lib/profile-completeness";
 
 export type EditableFields = Pick<
   SupabaseUser,
@@ -32,6 +34,42 @@ export type RoleOption = {
   id: string;
   name: string;
   priority: number;
+  type: RoleType;
+};
+
+export const GRADE_FILTER_OPTIONS = [
+  "Freshman",
+  "Sophomore",
+  "Junior",
+  "Senior",
+  "Alumni",
+  "No year",
+] as const;
+
+export type GradeFilter = (typeof GRADE_FILTER_OPTIONS)[number];
+
+export type UserFilters = {
+  /** Case-insensitive match against name, email, and major. */
+  search: string;
+  /** Any of these role ids (OR). Empty means no role filter. */
+  roleIds: string[];
+  /** Any of these pledge-class role ids (OR). Empty means no filter. */
+  pledgeClassRoleIds: string[];
+  /** Any of these grade labels (OR). Empty means no filter. */
+  grades: GradeFilter[];
+  incompleteProfile: boolean;
+  notLinked: boolean;
+  noRoles: boolean;
+};
+
+export const EMPTY_USER_FILTERS: UserFilters = {
+  search: "",
+  roleIds: [],
+  pledgeClassRoleIds: [],
+  grades: [],
+  incompleteProfile: false,
+  notLinked: false,
+  noRoles: false,
 };
 
 export type SortKey =
@@ -68,12 +106,18 @@ export const userTableColumns: Array<{
   { label: "", sortKey: undefined },
 ];
 
+const ROLE_TYPES: RoleType[] = ["general", "pledge_class", "exec", "director"];
+
+function isRoleType(value: unknown): value is RoleType {
+  return typeof value === "string" && (ROLE_TYPES as string[]).includes(value);
+}
+
 export async function loadUsersData(): Promise<LoadUsersDataResult> {
   const [usersRes, rolesRes, userRolesRes] = await Promise.all([
     supabase.from("users").select("*").order("name", { ascending: true }),
     supabase
       .from("roles")
-      .select("id, name, priority")
+      .select("id, name, priority, type")
       .order("priority", { ascending: false })
       .order("name", { ascending: true }),
     supabase.from("user_roles").select("user_id, role_id, roles(id, name)"),
@@ -93,6 +137,7 @@ export async function loadUsersData(): Promise<LoadUsersDataResult> {
         id: role.id,
         name: role.name,
         priority: typeof role.priority === "number" ? role.priority : 0,
+        type: isRoleType(role.type) ? role.type : "general",
       },
     ];
   });
@@ -140,7 +185,9 @@ export function getEditableIsAlumni(
   editState: Record<string, EditState>,
 ) {
   const override = editState[currentUser.id]?.isAlumni;
-  return typeof override === "boolean" ? override : Boolean(currentUser.is_alumni);
+  return typeof override === "boolean"
+    ? override
+    : Boolean(currentUser.is_alumni);
 }
 
 /**
@@ -272,6 +319,100 @@ export function sortUsers(
   });
 }
 
+/** Maps a member to one of the grade filter buckets. */
+export function getGradeFilterBucket(
+  user: Pick<SupabaseUser, "graduation_year" | "is_alumni">,
+  now: Date = new Date(),
+): GradeFilter {
+  const label = getGradeLabel(user.graduation_year, user.is_alumni, now);
+  if (label === null) return "No year";
+  if ((GRADE_FILTER_OPTIONS as readonly string[]).includes(label)) {
+    return label as GradeFilter;
+  }
+  // "Class of XXXX" (outside the four undergraduate years) has no bucket of
+  // its own; treat far-future/past years as having a year but no grade.
+  return "No year";
+}
+
+export function getUserRoles(
+  userId: string,
+  userRoleIds: Record<string, string[]>,
+  rolesById: Map<string, RoleOption>,
+): RoleOption[] {
+  return (userRoleIds[userId] ?? []).flatMap((roleId) => {
+    const role = rolesById.get(roleId);
+    return role ? [role] : [];
+  });
+}
+
+export function hasActiveUserFilters(filters: UserFilters) {
+  return (
+    filters.search.trim() !== "" ||
+    filters.roleIds.length > 0 ||
+    filters.pledgeClassRoleIds.length > 0 ||
+    filters.grades.length > 0 ||
+    filters.incompleteProfile ||
+    filters.notLinked ||
+    filters.noRoles
+  );
+}
+
+/**
+ * Pure filter over the loaded member list. All active criteria must match
+ * (AND across criteria); multi-select criteria match any selected value.
+ */
+export function filterUsers(
+  users: SupabaseUser[],
+  userRoleIds: Record<string, string[]>,
+  roles: RoleOption[],
+  filters: UserFilters,
+  now: Date = new Date(),
+): SupabaseUser[] {
+  const rolesById = new Map(roles.map((role) => [role.id, role]));
+  const search = filters.search.trim().toLowerCase();
+  const roleIdSet = new Set(filters.roleIds);
+  const pledgeClassIdSet = new Set(filters.pledgeClassRoleIds);
+  const gradeSet = new Set<GradeFilter>(filters.grades);
+
+  return users.filter((user) => {
+    const ownRoleIds = userRoleIds[user.id] ?? [];
+    const ownRoles = getUserRoles(user.id, userRoleIds, rolesById);
+
+    if (search) {
+      const haystack = [user.name, user.email, user.major]
+        .filter((value): value is string => typeof value === "string")
+        .join(" ")
+        .toLowerCase();
+      if (!haystack.includes(search)) return false;
+    }
+
+    if (roleIdSet.size > 0 && !ownRoleIds.some((id) => roleIdSet.has(id))) {
+      return false;
+    }
+
+    if (
+      pledgeClassIdSet.size > 0 &&
+      !ownRoleIds.some((id) => pledgeClassIdSet.has(id))
+    ) {
+      return false;
+    }
+
+    if (gradeSet.size > 0 && !gradeSet.has(getGradeFilterBucket(user, now))) {
+      return false;
+    }
+
+    if (filters.incompleteProfile && !isProfileIncomplete(user, ownRoles)) {
+      return false;
+    }
+
+    if (filters.notLinked && user.clerk_user_id) return false;
+
+    if (filters.noRoles && ownRoleIds.length > 0) return false;
+
+    return true;
+  });
+}
+
 export function toggleRoleIds(
   currentRoleIds: string[],
   roleId: string,
@@ -377,9 +518,10 @@ export async function uploadUserAvatar(userId: string, file: File) {
     { method: "POST", body: formData },
   );
 
-  const payload = (await response.json().catch(() => null)) as
-    | { user?: SupabaseUser; error?: string }
-    | null;
+  const payload = (await response.json().catch(() => null)) as {
+    user?: SupabaseUser;
+    error?: string;
+  } | null;
 
   if (!response.ok || !payload?.user) {
     throw new Error(payload?.error ?? "Failed to upload profile picture.");

@@ -115,3 +115,53 @@ export async function fetchPublicMembers(): Promise<PublicMember[]> {
     }))
     .filter((member) => getPledgeClassRole(member.roles) !== null);
 }
+
+export type BoardMember = PublicMember & { position: PublicMemberRole };
+
+type BoardMemberRow = UserWithRolesRow & { title: string | null };
+
+/**
+ * Loads every member holding at least one role of the given board type.
+ * `position` is the member's highest-priority role of that type, so someone
+ * holding two exec roles appears once. Sorted by position priority (desc),
+ * then by name. Publicly readable, like fetchPublicMembers.
+ */
+export async function fetchBoardMembers(
+  type: "exec" | "director",
+): Promise<BoardMember[]> {
+  const { data, error } = await supabase
+    .from("users")
+    .select(
+      "id, name, avatar, socials, major, graduation_year, is_alumni, title, user_roles(roles(id, name, type, priority))",
+    )
+    .order("name", { ascending: true });
+
+  if (error) throw error;
+
+  const members: BoardMember[] = [];
+  for (const row of (data ?? []) as unknown as BoardMemberRow[]) {
+    const roles = flattenRoles(row);
+    const position = roles
+      .filter((role) => role.type === type)
+      .sort((a, b) => b.priority - a.priority)[0];
+    if (!position) continue;
+
+    members.push({
+      id: row.id,
+      name: row.name,
+      avatar: row.avatar,
+      socials: row.socials,
+      major: row.major,
+      graduation_year: row.graduation_year,
+      is_alumni: row.is_alumni,
+      roles,
+      position,
+    });
+  }
+
+  return members.sort(
+    (a, b) =>
+      b.position.priority - a.position.priority ||
+      a.name.localeCompare(b.name),
+  );
+}

@@ -1,54 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-// import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-// import { Linkedin, Instagram } from "lucide-react";
-import { supabase } from "@/lib/supabase";
-import type { User } from "@/lib/supabase";
+import { fetchBoardMembers } from "@/lib/members";
+import type { BoardMember } from "@/lib/members";
 
-export function ExecBoardSection() {
-  const [boardMembers, setBoardMembers] = useState<User[] | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+const GRID_CLASS =
+  "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6 justify-items-center";
 
-  useEffect(() => {
-    let mounted = true;
-    const fetchExecMembers = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("role", "exec");
+const getInitials = (name: string) => {
+  return name.charAt(0) + name.charAt(name.lastIndexOf(" ") + 1);
+};
 
-      if (!mounted) return;
-
-      if (error) {
-        setError(error.message);
-        setBoardMembers(null);
-      } else {
-        const sortedMembers = (data as User[] | null)?.sort((a, b) =>
-          a.name.localeCompare(b.name)
-        );
-        setBoardMembers(sortedMembers as User[] | null);
-      }
-      setLoading(false);
-    };
-
-    fetchExecMembers();
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  const getInitials = (name: string) => {
-    return name.charAt(0) + name.charAt(name.lastIndexOf(" ") + 1);
-  };
-
-  const renderCard = (member: User, index: number) => (
-    <Card
-      key={index}
-      className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-2 hover:border-primary/20 w-full"
-    >
+function BoardMemberCard({
+  member,
+  fallbackTitle,
+}: {
+  member: BoardMember;
+  fallbackTitle: string;
+}) {
+  return (
+    <Card className="group hover:shadow-xl hover:scale-105 transition-all duration-300 border-2 hover:border-primary/20 w-full">
       <CardHeader className="text-center pb-2">
         <Avatar className="h-24 w-24 mx-auto mb-3 ring-4 ring-transparent group-hover:ring-primary/20 transition-all duration-300">
           <AvatarImage
@@ -65,27 +36,69 @@ export function ExecBoardSection() {
           {member.name}
         </h3>
         <p className="text-sm font-medium text-muted-foreground">
-          {member.title ? member.title : "Executive Board Member"}
+          {member.position.name || fallbackTitle}
         </p>
-        {/* <div className="flex justify-center space-x-2 pt-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 hover:bg-primary/10 hover:text-primary transition-colors"
-          >
-            <Linkedin className="h-3 w-3" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 hover:bg-primary/10 hover:text-primary transition-colors"
-          >
-            <Instagram className="h-3 w-3" />
-          </Button>
-        </div> */}
       </CardContent>
     </Card>
   );
+}
+
+function SkeletonCards({ count }: { count: number }) {
+  return (
+    <>
+      {Array.from({ length: count }).map((_, index) => (
+        <Card key={index} className="group border-2 w-full">
+          <CardHeader className="text-center pb-2">
+            <div className="h-24 w-24 mx-auto mb-3 rounded-full bg-muted animate-pulse" />
+          </CardHeader>
+          <CardContent className="text-center space-y-2 pb-4">
+            <div className="h-6 bg-muted rounded animate-pulse" />
+            <div className="h-4 bg-muted rounded animate-pulse" />
+            <div className="flex justify-center space-x-2 pt-2">
+              <div className="h-8 w-8 bg-muted rounded animate-pulse" />
+              <div className="h-8 w-8 bg-muted rounded animate-pulse" />
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </>
+  );
+}
+
+export function ExecBoardSection() {
+  const [execMembers, setExecMembers] = useState<BoardMember[] | null>(null);
+  const [directors, setDirectors] = useState<BoardMember[] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      setLoading(true);
+      try {
+        const [exec, dir] = await Promise.all([
+          fetchBoardMembers("exec"),
+          fetchBoardMembers("director"),
+        ]);
+        if (!mounted) return;
+        setExecMembers(exec);
+        setDirectors(dir);
+        setError(null);
+      } catch (err) {
+        if (!mounted) return;
+        setError(err instanceof Error ? err.message : "Unknown error");
+        setExecMembers(null);
+        setDirectors(null);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    load();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
     <section className="py-24 bg-muted/50 relative overflow-hidden">
@@ -114,28 +127,17 @@ export function ExecBoardSection() {
           </p>
         </div>
 
-        {/* First row - 5 cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6 justify-items-center">
-          {boardMembers ? (
-            boardMembers
-              .slice(0, 5)
-              .map((member, index) => renderCard(member, index))
-          ) : loading ? (
-            Array.from({ length: 5 }).map((_, index) => (
-              <Card key={index} className="group border-2 w-full">
-                <CardHeader className="text-center pb-2">
-                  <div className="h-24 w-24 mx-auto mb-3 rounded-full bg-muted animate-pulse" />
-                </CardHeader>
-                <CardContent className="text-center space-y-2 pb-4">
-                  <div className="h-6 bg-muted rounded animate-pulse" />
-                  <div className="h-4 bg-muted rounded animate-pulse" />
-                  <div className="flex justify-center space-x-2 pt-2">
-                    <div className="h-8 w-8 bg-muted rounded animate-pulse" />
-                    <div className="h-8 w-8 bg-muted rounded animate-pulse" />
-                  </div>
-                </CardContent>
-              </Card>
+        <div className={GRID_CLASS}>
+          {execMembers ? (
+            execMembers.map((member) => (
+              <BoardMemberCard
+                key={member.id}
+                member={member}
+                fallbackTitle="Executive Board Member"
+              />
             ))
+          ) : loading ? (
+            <SkeletonCards count={10} />
           ) : (
             <div className="col-span-full text-center py-8">
               <p className="text-muted-foreground">
@@ -145,30 +147,24 @@ export function ExecBoardSection() {
           )}
         </div>
 
-        {/* Second row - remaining cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6 justify-items-center">
-          {boardMembers
-            ? boardMembers
-                .slice(5)
-                .map((member, index) => renderCard(member, index + 5))
-            : loading
-            ? Array.from({ length: 5 }).map((_, index) => (
-                <Card key={index} className="group border-2 w-full">
-                  <CardHeader className="text-center pb-2">
-                    <div className="h-24 w-24 mx-auto mb-3 rounded-full bg-muted animate-pulse" />
-                  </CardHeader>
-                  <CardContent className="text-center space-y-2 pb-4">
-                    <div className="h-6 bg-muted rounded animate-pulse" />
-                    <div className="h-4 bg-muted rounded animate-pulse" />
-                    <div className="flex justify-center space-x-2 pt-2">
-                      <div className="h-8 w-8 bg-muted rounded animate-pulse" />
-                      <div className="h-8 w-8 bg-muted rounded animate-pulse" />
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            : null}
-        </div>
+        {directors && directors.length > 0 && (
+          <>
+            <div className="text-center mt-16 mb-10">
+              <h3 className="text-3xl sm:text-4xl font-bold tracking-tighter">
+                Directors
+              </h3>
+            </div>
+            <div className={GRID_CLASS}>
+              {directors.map((member) => (
+                <BoardMemberCard
+                  key={member.id}
+                  member={member}
+                  fallbackTitle="Director"
+                />
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </section>
   );

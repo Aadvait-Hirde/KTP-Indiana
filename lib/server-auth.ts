@@ -3,9 +3,10 @@ import {
   ADMIN_FINANCE_EDIT,
   ADMIN_FINANCE_VIEW,
   ADMIN_USERS_EDIT,
+  ADMIN_VIEW,
   fetchUserPermissionKeys,
 } from "@/lib/permissions";
-import { ensureAppUser } from "@/lib/app-user";
+import { resolveAppUser } from "@/lib/app-user";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import type { User as SupabaseUser } from "@/lib/supabase";
 
@@ -22,12 +23,29 @@ export type AppAuthContext = {
   permissions: Set<string>;
 };
 
+/** Why a signed-in Clerk account has no portal access. */
+export type AccessStatus = "pending" | "denied";
+
+export const PENDING_APPROVAL_MESSAGE =
+  "Your account is waiting for an administrator to approve it.";
+export const ACCESS_DENIED_MESSAGE =
+  "An administrator has declined portal access for this account.";
+
 export class RouteAuthError extends Error {
   status: number;
+  /** Set when the 403 is an approval-state outcome rather than a permission miss. */
+  accessStatus?: AccessStatus;
 
-  constructor(status: number, message: string) {
+  constructor(status: number, message: string, accessStatus?: AccessStatus) {
     super(message);
     this.status = status;
+    this.accessStatus = accessStatus;
+  }
+
+  toResponseBody() {
+    return this.accessStatus
+      ? { error: this.message, status: this.accessStatus }
+      : { error: this.message };
   }
 }
 
@@ -52,7 +70,7 @@ function parseAppUser(row: unknown): AppUser | null {
   };
 }
 
-async function getSignedInIdentity() {
+export async function getSignedInIdentity() {
   const authState = await auth();
 
   if (!authState.userId) {
@@ -90,9 +108,10 @@ async function getSignedInIdentity() {
 }
 
 /**
- * Verifies the Clerk session, links it to a public.users profile (creating one
- * on first sign-in), and loads the user's permission keys. Runs with the
- * Supabase secret key, so it is the trusted path for provisioning.
+ * Verifies the Clerk session, links it to its public.users profile (an
+ * email-matched profile is linked on first sign-in; nothing is created), and
+ * loads the user's permission keys. Throws a 403 tagged "pending" or "denied"
+ * when the account has not been approved. Runs with the Supabase secret key.
  */
 export async function requireAppAuthContext(): Promise<AppAuthContext> {
   const identity = await getSignedInIdentity();
@@ -102,8 +121,16 @@ export async function requireAppAuthContext(): Promise<AppAuthContext> {
 
   let profile: SupabaseUser;
   try {
-    ({ user: profile } = await ensureAppUser(identity));
+    const resolved = await resolveAppUser(identity);
+    if (resolved.status === "pending") {
+      throw new RouteAuthError(403, PENDING_APPROVAL_MESSAGE, "pending");
+    }
+    if (resolved.status === "denied") {
+      throw new RouteAuthError(403, ACCESS_DENIED_MESSAGE, "denied");
+    }
+    profile = resolved.user;
   } catch (error) {
+    if (error instanceof RouteAuthError) throw error;
     const message =
       error instanceof Error && error.message
         ? error.message
@@ -137,6 +164,12 @@ export function assertFinanceViewPermission(context: AppAuthContext) {
 export function assertFinanceEditPermission(context: AppAuthContext) {
   if (!context.permissions.has(ADMIN_FINANCE_EDIT)) {
     throw new RouteAuthError(403, "Missing finance admin edit permission.");
+  }
+}
+
+export function assertAdminViewPermission(context: AppAuthContext) {
+  if (!context.permissions.has(ADMIN_VIEW)) {
+    throw new RouteAuthError(403, "Missing admin view permission.");
   }
 }
 

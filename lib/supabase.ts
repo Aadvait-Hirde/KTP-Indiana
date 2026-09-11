@@ -43,7 +43,7 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
 
 export type UserRole = "admin" | "exec" | "director" | "member" | "newmember";
 
-export type RoleType = "general" | "pledge_class";
+export type RoleType = "general" | "pledge_class" | "exec" | "director";
 
 export interface Role {
   id: string;

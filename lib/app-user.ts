@@ -2,27 +2,42 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 import type { User as SupabaseUser } from "@/lib/supabase";
 
 /**
- * Server-only. Resolves a verified Clerk identity to a public.users profile,
- * creating the profile or linking a pre-existing (email-matched) profile to
- * the Clerk account on first sign-in. RLS policies resolve the current user
- * through users.clerk_user_id, so every signed-in member must be linked here.
+ * Server-only. Resolves a verified Clerk identity to a public.users profile.
+ *
+ * Sign-in never creates a profile on its own. A Clerk account is linked to a
+ * pre-existing profile that shares its email (the historical "whitelist"
+ * flow); otherwise it is *pending* until an administrator approves it from
+ * User Management, which calls provisionAppUser(). Denials are recorded in
+ * public.user_access_reviews so the member sees a clear "denied" screen.
+ *
+ * RLS policies resolve the current user through users.clerk_user_id, so every
+ * signed-in member with portal access must be linked here.
  */
 
-type EnsureAppUserParams = {
+export type ClerkIdentity = {
   clerkUserId: string;
   email: string;
   name?: string | null;
 };
 
-type EnsureAppUserResult = {
-  user: SupabaseUser;
-  created: boolean;
-  linked: boolean;
+export type AccessReview = {
+  clerk_user_id: string;
+  email: string | null;
+  name: string | null;
+  status: "denied";
+  note: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string;
 };
+
+export type ResolveAppUserResult =
+  | { status: "active"; user: SupabaseUser; linked: boolean }
+  | { status: "pending" }
+  | { status: "denied"; review: AccessReview };
 
 const UNIQUE_VIOLATION = "23505";
 
-function buildFallbackName(email: string) {
+export function buildFallbackName(email: string) {
   const localPart = email.split("@")[0] ?? "Member";
   const tokens = localPart
     .split(/[._-]+/)
@@ -36,11 +51,11 @@ function buildFallbackName(email: string) {
     .join(" ");
 }
 
-function normalizeEmail(email: string) {
+export function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
 }
 
-function normalizeName(name: string | null | undefined, email: string) {
+export function normalizeName(name: string | null | undefined, email: string) {
   const value = name?.trim();
   return value && value.length > 0 ? value : buildFallbackName(email);
 }
@@ -94,7 +109,23 @@ export async function findAppUserByEmail(email: string) {
   return (data as SupabaseUser | null) ?? null;
 }
 
-async function linkAppUserToClerk(userId: string, clerkUserId: string) {
+export async function findAccessReview(clerkUserId: string) {
+  const { data, error } = await supabaseAdmin
+    .from("user_access_reviews")
+    .select("*")
+    .eq("clerk_user_id", clerkUserId)
+    .maybeSingle();
+
+  if (error) throw error;
+
+  return (data as AccessReview | null) ?? null;
+}
+
+/**
+ * Links an unlinked profile to a Clerk account. Returns null when the row was
+ * already linked (lost a race, or linked to someone else).
+ */
+export async function linkAppUserToClerk(userId: string, clerkUserId: string) {
   const { data, error } = await supabaseAdmin
     .from("users")
     .update({ clerk_user_id: clerkUserId })
@@ -108,16 +139,19 @@ async function linkAppUserToClerk(userId: string, clerkUserId: string) {
   return (data as SupabaseUser | null) ?? null;
 }
 
-export async function ensureAppUser({
+/**
+ * Attaches a Clerk identity to its profile when one exists (by Clerk id, then
+ * by email). Never creates a profile.
+ */
+export async function resolveAppUser({
   clerkUserId,
   email,
-  name,
-}: EnsureAppUserParams): Promise<EnsureAppUserResult> {
+}: ClerkIdentity): Promise<ResolveAppUserResult> {
   const normalizedEmail = normalizeEmail(email);
 
   const linkedUser = await findAppUserByClerkId(clerkUserId);
   if (linkedUser) {
-    return { user: linkedUser, created: false, linked: false };
+    return { status: "active", user: linkedUser, linked: false };
   }
 
   const existingByEmail = await findAppUserByEmail(normalizedEmail);
@@ -133,42 +167,138 @@ export async function ensureAppUser({
 
     const linked = await linkAppUserToClerk(existingByEmail.id, clerkUserId);
     if (linked) {
-      return { user: linked, created: false, linked: true };
+      return { status: "active", user: linked, linked: true };
     }
 
     // Lost a race with a concurrent link; re-read the row.
     const raced = await findAppUserByClerkId(clerkUserId);
     if (raced) {
-      return { user: raced, created: false, linked: false };
+      return { status: "active", user: raced, linked: false };
     }
 
     throw new Error(`Failed to link profile for ${normalizedEmail}.`);
   }
 
-  const payload = buildNewUserPayload({
-    clerkUserId,
-    email: normalizedEmail,
-    name: normalizeName(name, normalizedEmail),
-  });
-
-  const { data, error } = await supabaseAdmin
-    .from("users")
-    .insert(payload)
-    .select("*")
-    .single();
-
-  if (!error && data) {
-    return { user: data as SupabaseUser, created: true, linked: true };
+  const review = await findAccessReview(clerkUserId);
+  if (review) {
+    return { status: "denied", review };
   }
 
-  if (error?.code === UNIQUE_VIOLATION) {
-    const raced =
-      (await findAppUserByClerkId(clerkUserId)) ??
-      (await findAppUserByEmail(normalizedEmail));
-    if (raced) {
-      return { user: raced, created: false, linked: false };
+  return { status: "pending" };
+}
+
+export type ProvisionAppUserParams = ClerkIdentity & {
+  /** Role ids to assign on creation (e.g. a pledge class). */
+  roleIds?: string[];
+};
+
+/**
+ * Admin approval path: creates the profile for a Clerk account (or links an
+ * email-matched profile that already exists), assigns any requested roles and
+ * clears a previous denial. Runs with the secret key.
+ */
+export async function provisionAppUser({
+  clerkUserId,
+  email,
+  name,
+  roleIds = [],
+}: ProvisionAppUserParams): Promise<{ user: SupabaseUser; created: boolean }> {
+  const normalizedEmail = normalizeEmail(email);
+  const displayName = normalizeName(name, normalizedEmail);
+
+  let user: SupabaseUser | null = null;
+  let created = false;
+
+  const resolved = await resolveAppUser({ clerkUserId, email: normalizedEmail });
+  if (resolved.status === "active") {
+    user = resolved.user;
+  } else {
+    const payload = buildNewUserPayload({
+      clerkUserId,
+      email: normalizedEmail,
+      name: displayName,
+    });
+
+    const { data, error } = await supabaseAdmin
+      .from("users")
+      .insert(payload)
+      .select("*")
+      .single();
+
+    if (!error && data) {
+      user = data as SupabaseUser;
+      created = true;
+    } else if (error?.code === UNIQUE_VIOLATION) {
+      user =
+        (await findAppUserByClerkId(clerkUserId)) ??
+        (await findAppUserByEmail(normalizedEmail));
+    }
+
+    if (!user) {
+      throw error ?? new Error("Failed to provision app user.");
     }
   }
 
-  throw error ?? new Error("Failed to provision app user.");
+  if (!created && name && name.trim() && user.name !== name.trim()) {
+    const { data, error } = await supabaseAdmin
+      .from("users")
+      .update({ name: name.trim() })
+      .eq("id", user.id)
+      .select("*")
+      .single();
+    if (error) throw error;
+    user = data as SupabaseUser;
+  }
+
+  if (roleIds.length > 0) {
+    const { error } = await supabaseAdmin.from("user_roles").upsert(
+      roleIds.map((roleId) => ({ user_id: user!.id, role_id: roleId })),
+      { onConflict: "user_id,role_id", ignoreDuplicates: true },
+    );
+    if (error) throw error;
+  }
+
+  const { error: reviewError } = await supabaseAdmin
+    .from("user_access_reviews")
+    .delete()
+    .eq("clerk_user_id", clerkUserId);
+  if (reviewError) throw reviewError;
+
+  return { user, created };
+}
+
+export async function denyAppUserAccess({
+  clerkUserId,
+  email,
+  name,
+  note,
+  reviewedBy,
+}: ClerkIdentity & { note?: string | null; reviewedBy: string }) {
+  const { data, error } = await supabaseAdmin
+    .from("user_access_reviews")
+    .upsert(
+      {
+        clerk_user_id: clerkUserId,
+        email: normalizeEmail(email),
+        name: name?.trim() || null,
+        status: "denied",
+        note: note?.trim() || null,
+        reviewed_by: reviewedBy,
+        reviewed_at: new Date().toISOString(),
+      },
+      { onConflict: "clerk_user_id" },
+    )
+    .select("*")
+    .single();
+
+  if (error) throw error;
+  return data as AccessReview;
+}
+
+export async function clearAppUserDenial(clerkUserId: string) {
+  const { error } = await supabaseAdmin
+    .from("user_access_reviews")
+    .delete()
+    .eq("clerk_user_id", clerkUserId);
+  if (error) throw error;
 }

@@ -13,6 +13,8 @@ type MeResponse = {
   user?: SupabaseUser
   permissions?: string[]
   error?: string
+  /** Present on 403 when the account is awaiting approval or was denied. */
+  status?: 'pending' | 'denied'
 }
 
 const SETUP_ERROR_MESSAGE =
@@ -58,9 +60,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const body = (await response.json().catch(() => ({}))) as MeResponse
 
         if (!response.ok || !body.user) {
-          console.error('Failed to resolve app user:', body.error ?? response.status)
+          const accessStatus =
+            response.status === 403 && (body.status === 'pending' || body.status === 'denied')
+              ? body.status
+              : null
+          if (!accessStatus) {
+            console.error('Failed to resolve app user:', body.error ?? response.status)
+          }
           setAuthError(
-            response.status === 403 && body.error ? body.error : SETUP_ERROR_MESSAGE
+            response.status === 403 && body.error ? body.error : SETUP_ERROR_MESSAGE,
+            accessStatus ?? 'error'
           )
           setAuthorized(false)
           setPermissions([])
