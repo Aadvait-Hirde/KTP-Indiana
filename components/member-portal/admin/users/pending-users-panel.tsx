@@ -387,7 +387,7 @@ function BulkLinkDialog({
         if (!isRunning) onOpenChange(next);
       }}
     >
-      <DialogContent className="flex max-h-[85vh] flex-col sm:max-w-lg">
+      <DialogContent className="grid max-h-[85vh] grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Link Matched Accounts</DialogTitle>
           <DialogDescription>
@@ -397,7 +397,7 @@ function BulkLinkDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="max-h-80 min-h-0 flex-1 rounded-md border p-2">
+        <ScrollArea className="h-full min-h-0 rounded-md border p-2">
           <ul className="space-y-2">
             {accounts.map((user) => {
               const status = statuses[user.clerkUserId] ?? "pending";
